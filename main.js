@@ -32,13 +32,18 @@ function playGame() {
 }
 
 function validatePlayerName() {
-    let name = document.getElementById("playerName").value;
-    if (players.hasOwnProperty(name)) {
-        window.alert("exists");
-        document.getElementById("playerExists").innerHTML = "player already exists!";
+    document.getElementById("playerNameLabel").innerHTML = "Add another player:"
+
+    let playerName = document.getElementById("playerName");
+    playerName.removeAttribute("placeholder");
+    let name = playerName.value;
+    if (players[name] != undefined) {
+        let playerExists = document.getElementById("playerExists");
+        playerExists.style.display = "block";
+        playerExists.innerHTML = "player already exists!";
         return false;
     }
-    players.name = name;
+    players[name] = 0;
 
     let entry = document.createElement("li");
     entry.appendChild(document.createTextNode(name));
@@ -46,4 +51,26 @@ function validatePlayerName() {
     let list = document.getElementById("playerList");
     list.appendChild(entry);
     
+    playerName.value = "";
+
+    /* for (let [k, v] of Object.entries(players)) {
+        console.log(`${k}: ${v}`);
+    } */
+
+
 }
+
+document.getElementById("playerName").addEventListener("keydown", function(event){
+    if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("addPlayer").click();
+    } else if (playerExists.style.display != "none") {
+        playerExists.style.display = "none";
+    }
+})
+
+document.getElementById("playerName").addEventListener("click", function(){
+    let playerName = document.getElementById("playerName");
+    playerName.focus();
+    playerName.select();
+})

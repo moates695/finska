@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-AU">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="main.js"></script>
+<script defer src="main.js"></script>
 <head>
     <title>Finska Tracker</title>
 </head>
@@ -22,7 +22,11 @@
         <small id="playerExists" style="display:none;"></small>
     </form> -->
     <!-- <br> -->
-    <label for="playerName">Add a new player:</label><br>
-    <input type="text" id="playerName" placeholder="John Johnson">
-    <button onclick="validatePlayerName()">Add</button>
+    <div id="addPlayers">
+        <label id="playerNameLabel" for="playerName">Add a player:</label><br>
+        <input type="text" id="playerName" placeholder="John Johnson" autocomplete="off">
+        <button id="addPlayer" onclick="validatePlayerName()">Add</button><br>
+        <small id="playerExists" style="color:red;display:none;"></small>
+    </div>
+    
 </body>
