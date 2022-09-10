@@ -1,12 +1,49 @@
-function checkPrevious() {
-    let welcome = document.getElementById("welcome");
+const saved = localStorage.getItem("players");
+let players;
+if (saved !== null) {
+    players = JSON.parse(localStorage.getItem("players"));
+} else {
+    players = {};
+}
+
+
+function checkStorage() {
     if (typeof(Storage) === "undefined") {
-        //welcome.innerHTML = "local storage not supported";
-        alert("local storage not supported");
+        document.getElementById("noLocalStorage").style.display = "block";
         return;
     }
-    let players = localStorage.getItem("players");
-    if (players == null) {
-        welcome.innerHTML = "no previous data";
+    if (saved === null) {
+        document.getElementById("addPlayers").style.display = "block";
+    } else {
+        document.getElementById("gameChoice").style.display = "block";
     }
+}
+
+function newGame() {
+
+}
+
+function continueGame() {
+
+}
+
+function playGame() {
+
+}
+
+function validatePlayerName() {
+    let name = document.getElementById("playerName").value;
+    if (players.hasOwnProperty(name)) {
+        window.alert("exists");
+        document.getElementById("playerExists").innerHTML = "player already exists!";
+        return false;
+    }
+    players.name = name;
+
+    let entry = document.createElement("li");
+    entry.appendChild(document.createTextNode(name));
+    
+    let list = document.getElementById("playerList");
+    list.appendChild(entry);
+    
 }

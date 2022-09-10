@@ -1,9 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
-<meta name="viewport" content="width=device-width, intial-scale=1.0">
+<html lang="en-AU">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="main.js"></script>
 <head>
+    <title>Finska Tracker</title>
 </head>
-<body onload="checkPrevious()">
-    <div id="welcome"></div>
+<body onload="checkStorage()">
+    <div id="noLocalStorage" style="display:none;">
+        <p>Sorry, your browser does not support local storage!</p>
+    </div>
+    <div id="gameChoice" style="display:none;">
+        <button id="newGame">new game</button><br>
+        <button id="continueGame">continue</button>
+    </div>
+    <ul id="playerList">
+    </ul>
+    <!-- <form id="addPlayers" onsubmit="validatePlayerName()">
+        <label for="playerName">Add a new player:</label><br>
+        <input type="text" id="playerName" placeholder="John Johnson">
+        <input type="submit" value="Add"><br>
+        <small id="playerExists" style="display:none;"></small>
+    </form> -->
+    <!-- <br> -->
+    <label for="playerName">Add a new player:</label><br>
+    <input type="text" id="playerName" placeholder="John Johnson">
+    <button onclick="validatePlayerName()">Add</button>
 </body>
