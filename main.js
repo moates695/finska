@@ -14,63 +14,94 @@ function checkStorage() {
     }
     if (saved === null) {
         document.getElementById("addPlayers").style.display = "block";
+        focusElement(document.getElementById("playerName"));
     } else {
         document.getElementById("gameChoice").style.display = "block";
     }
 }
 
-function newGame() {
-
+function focusElement(element) {
+    element.focus();
+    element.select();
 }
 
-function continueGame() {
-
+function initGame() {
+    document.getElementById("gameScreen").style.display = "block";
 }
 
-function playGame() {
+document.getElementById("newGame").addEventListener("click", function(){
+    document.getElementById("gameChoice").style.display = "none"
+    document.getElementById("addPlayers").style.display = "block"
+    initGame();
+})
 
-}
+document.getElementById("continueGame").addEventListener("click", function(){
+    document.getElementById("gameChoice").style.display = "none"
+    initGame();
+})
 
-function validatePlayerName() {
-    document.getElementById("playerNameLabel").innerHTML = "Add another player:"
-
+document.getElementById("addPlayer").addEventListener("click", function(){
     let playerName = document.getElementById("playerName");
-    playerName.removeAttribute("placeholder");
     let name = playerName.value;
+
+    if (name.trim() == "") {
+        focusElement(playerName); 
+        return;
+    }
+    
+    document.getElementById("playerNameLabel").innerHTML = "Add another player:"
+    playerName.removeAttribute("placeholder");
+    
+
     if (players[name] != undefined) {
+        playerName.focus();
+        playerName.select();
+
         let playerExists = document.getElementById("playerExists");
         playerExists.style.display = "block";
         playerExists.innerHTML = "player already exists!";
         return false;
     }
-    players[name] = 0;
 
-    let entry = document.createElement("li");
-    entry.appendChild(document.createTextNode(name));
-    
-    let list = document.getElementById("playerList");
-    list.appendChild(entry);
+    players[name] = {};
+    players[name]["score"] = 0;
+    players[name]["position"] = Object.keys(players).length;
     
     playerName.value = "";
+    focusElement(playerName);
 
-    /* for (let [k, v] of Object.entries(players)) {
-        console.log(`${k}: ${v}`);
-    } */
-
-
-}
+    document.getElementById("doneAddPlayer").disabled = false;
+})
 
 document.getElementById("playerName").addEventListener("keydown", function(event){
     if (event.key === "Enter") {
         event.preventDefault();
         document.getElementById("addPlayer").click();
-    } else if (playerExists.style.display != "none") {
+        return;
+    }
+    let playerExists = document.getElementById("playerExists");
+    if (playerExists.style.display != "none") {
         playerExists.style.display = "none";
     }
 })
 
 document.getElementById("playerName").addEventListener("click", function(){
-    let playerName = document.getElementById("playerName");
-    playerName.focus();
-    playerName.select();
+    focusElement(this);
+})
+
+document.getElementById("doneAddPlayer").addEventListener("click", function(){
+    document.getElementById("addPlayers").style.display = "none";
+    initGame();
+})
+
+document.getElementById("playerScore").addEventListener("keydown", function(event){
+    if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("addScore").click();
+        return;
+    }
+    let scoreInvalid = document.getElementById("scoreInvalid");
+    if (scoreInvalid.style.display != "none") {
+        scoreInvalid.style.display != "block";
+    }
 })

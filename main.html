@@ -6,27 +6,43 @@
     <title>Finska Tracker</title>
 </head>
 <body onload="checkStorage()">
-    <div id="noLocalStorage" style="display:none;">
-        <p>Sorry, your browser does not support local storage!</p>
+    <div id="welcomeScreen">  
+        <div id="noLocalStorage" style="display:none;">
+            <p>Sorry, your browser does not support local storage!</p>
+        </div>
+        <div id="gameChoice" style="display:none;">
+            <button id="newGame">new game</button><br>
+            <button id="continueGame">continue</button>
+        </div>
+        <div id="addPlayers" style="display:none;">
+            <label id="playerNameLabel" for="playerName">Add a player:</label><br>
+            <input type="text" id="playerName" placeholder="John Johnson" autocomplete="off">
+            <button id="addPlayer">Add</button>
+            <button id="doneAddPlayer" disabled>Done</button><br>
+            <small id="playerExists" style="color:red;display:none;"></small>
+        </div>
     </div>
-    <div id="gameChoice" style="display:none;">
-        <button id="newGame">new game</button><br>
-        <button id="continueGame">continue</button>
-    </div>
-    <ul id="playerList">
-    </ul>
-    <!-- <form id="addPlayers" onsubmit="validatePlayerName()">
-        <label for="playerName">Add a new player:</label><br>
-        <input type="text" id="playerName" placeholder="John Johnson">
-        <input type="submit" value="Add"><br>
-        <small id="playerExists" style="display:none;"></small>
-    </form> -->
-    <!-- <br> -->
-    <div id="addPlayers">
-        <label id="playerNameLabel" for="playerName">Add a player:</label><br>
-        <input type="text" id="playerName" placeholder="John Johnson" autocomplete="off">
-        <button id="addPlayer" onclick="validatePlayerName()">Add</button><br>
-        <small id="playerExists" style="color:red;display:none;"></small>
+    
+    <div id="gameScreen">
+        <div id="upNext">
+
+        </div>
+        <div id="leaderboard">
+
+        </div>
+        <div id="scoreInterface">
+            <div id="scoreNumeric">
+                <label id="playerScoreLabel" for="playerScore">Enter player's score:</label><br>
+                <input type="number" id="playerScore" autocomplete="off">
+                <button id="addScore">Enter</button>
+                <small id="scoreInvalid" style="color:red;display:none;">Hey there, valid numbers are 0 ~ 78</small>
+                <br>
+                <button id="miss">Miss!</button>
+            </div>
+            <div id="scoreGraphical">
+
+            </div>
+        </div>
     </div>
     
 </body>
