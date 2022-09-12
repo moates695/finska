@@ -24,36 +24,16 @@ function checkStorage() {
 
 // HELPERS /////////////////////////////////////////////////////////////////////
 
-function focusElement(element) {
+function focusElement(element, clear=false) {
     element.focus();
     element.select();
+    if (clear) {
+        console.log("here222");
+        element.value = "";
+    }
 }
 
 // GAME SETUP //////////////////////////////////////////////////////////////////
-
-function initGame() {
-    document.getElementById("gameScreen").style.display = "block";
-    
-    let scoreboard = document.getElementById("scoreboard");
-    for (let name of Object.keys(players)) {
-        let scoreCard = document.createElement("div");
-        scoreCard.setAttribute("id",`scoreCard:${name}`);
-        scoreCard.setAttribute("class", "scoreCardActive");
-        
-        let nameNode = document.createElement("div");
-        nameNode.setAttribute("name", "name");
-        nameNode.appendChild(document.createTextNode(`${name}`));
-
-        let scoreNode = document.createElement("div");
-        scoreNode.setAttribute("name", "score");
-        scoreNode.appendChild(document.createTextNode(`${players[name]["score"]}`));
-
-        scoreCard.appendChild(nameNode);
-        scoreCard.appendChild(scoreNode);
-
-        scoreboard.appendChild(scoreCard);
-    }
-}
 
 document.getElementById("newGame").addEventListener("click", function(){
     document.getElementById("gameChoice").style.display = "none"
@@ -123,65 +103,31 @@ document.getElementById("doneAddPlayer").addEventListener("click", function(){
     initGame();
 })
 
-
-// PLAY GAME ///////////////////////////////////////////////////////////////////
-
-function updatePlayerScore(score) {
-    for (let name of Object.keys(players)) {
-        if (players[name]["position"] != currPos) continue;
-
-        if (players[name]["score"] + score == 50) {
-            return playerWin(name);
-        } else if (players[name]["score"] + score > 50) {
-            players[name]["score"] = 25;
-        } else {
-            if (score == 0) {
-                players[name]["consecutiveFouls"] += 1;
-                if (players[name]["consecutiveFouls"] == 3) forfeit(name);
-            } else {
-                players[name]["consecutiveFouls"] = 0;
-                players[name]["score"] += score;
-            }
-        }
-
-        cycleGameScreen(name);
-        break;
-    }
-}
-
-function cycleGameScreen(name) {
-    currPos += 1;
-    if (currPos >= Object.keys(players).length) currPos = 0;
-
+function initGame() {
+    document.getElementById("gameScreen").style.display = "block";
+    
     let scoreboard = document.getElementById("scoreboard");
-    let scoreCard;
-    for (let child of scoreboard.children) {
-        if (child.id != `scoreCard:${name}`) continue;
-        scoreCard = child;
-        scoreboard.removeChild(child);
-        break;
-    }
+    for (let name of Object.keys(players)) {
+        let scoreCard = document.createElement("div");
+        scoreCard.setAttribute("id",`scoreCard:${name}`);
+        scoreCard.setAttribute("class", "scoreCardActive");
+        
+        let nameNode = document.createElement("div");
+        nameNode.setAttribute("name", "name");
+        nameNode.appendChild(document.createTextNode(`${name}`));
 
-    let inserted = false;
-    for (let child of scoreboard.children) {
-        if (child.id != /^scoreCard/) continue;
-        if (1) {
+        let scoreNode = document.createElement("div");
+        scoreNode.setAttribute("name", "score");
+        scoreNode.appendChild(document.createTextNode(`${players[name]["score"]}`));
 
-        }
-    }
-    if (!inserted) {
+        scoreCard.appendChild(nameNode);
+        scoreCard.appendChild(scoreNode);
+
         scoreboard.appendChild(scoreCard);
     }
-
 }
 
-function playerWin(name) {
-
-}
-
-function forfeit(name) {
-
-}
+// PLAY GAME ///////////////////////////////////////////////////////////////////
 
 document.getElementById("addScore").addEventListener("click", function(){
     let playerScore = document.getElementById("playerScore");
@@ -191,6 +137,7 @@ document.getElementById("addScore").addEventListener("click", function(){
         return;
     }
     updatePlayerScore(playerScore.value);
+    focusElement(playerScore, true);
 })
 
 document.getElementById("playerScore").addEventListener("keydown", function(event){
@@ -207,4 +154,65 @@ document.getElementById("playerScore").addEventListener("keydown", function(even
 
 document.getElementById("miss").addEventListener("click", function(){
     updatePlayerScore(0);
+    focusElement(document.getElementById("playerScore"), true);
 })
+
+function updatePlayerScore(score) {
+    for (let name of Object.keys(players)) {
+        if (players[name]["position"] != currPos) continue;
+
+        if (players[name]["score"] + score == 50) {
+            return playerWin(name);
+        } else if (players[name]["score"] + score > 50) {
+            players[name]["score"] = 25;
+        } else {
+            if (score == 0) {
+                players[name]["consecutiveFouls"] += 1;
+                if (players[name]["consecutiveFouls"] == 3) forfeit(name);
+            } else {
+                players[name]["consecutiveFouls"] = 0;
+                players[name]["score"] += Number(score);
+            }
+        }
+
+        cycleGameScreen(name);
+        break;
+    }
+}
+
+function cycleGameScreen(name) {
+    currPos += 1;
+    if (currPos >= Object.keys(players).length) currPos = 0;
+
+    let scoreboard = document.getElementById("scoreboard");
+    let scoreCard;
+    for (let child of scoreboard.children) {
+        if (child.id != `scoreCard:${name}`) continue;
+        scoreCard = scoreboard.removeChild(child);
+        break;
+    }
+
+    scoreCard.querySelector("[name='score']").innerHTML = `${players[name]["score"]}`;
+
+    let inserted = false;
+    for (let child of scoreboard.children) {
+        if (child.id.match(/^scoreCard/) == null) continue;
+        if (players[name]["score"] > child.querySelector("[name='score']").innerHTML) {
+            scoreboard.insertBefore(scoreCard, child);
+            inserted = true;
+            break;
+        }
+    }
+    if (!inserted) {
+        scoreboard.appendChild(scoreCard);
+    }
+
+}
+
+function playerWin(name) {
+
+}
+
+function forfeit(name) {
+
+}
