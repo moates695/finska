@@ -271,8 +271,8 @@ function updatePlayerScore(score) {
     for (let name of Object.keys(players)) {
         if (players[name]["position"] != currPos) continue;
         if (players[name]["score"] + score == winScore) {
-            players[name]["score"] = resetScore;
-            return playerWin(name);
+            players[name]["score"] = winScore;
+            playerWin(name);
         } else if (players[name]["score"] + score > winScore) {
             players[name]["score"] = resetScore;
         } else {
@@ -296,8 +296,10 @@ function cyclePosition() {
         // Game ends
         return;
     }
+    let failsafe = currPos;
     while (1) {
         currPos += 1;
+        if (currPos == failsafe) break;
         if (currPos >= Object.keys(players).length) currPos = 0;
         let found = false;
         for (let name of Object.keys(players)) {
@@ -306,9 +308,11 @@ function cyclePosition() {
                 found = true;
                 break;
             }
+            forfeitPlayers[name] -= 1;
+            if (forfeitPlayers[name] == 0) revertForfeit(name);
         }
         if (found) {
-            break;
+            break
         }
     }
 }
@@ -347,6 +351,13 @@ function playerWin(name) {
 
 document.getElementById("playOn").addEventListener("click", function(){
     document.getElementById("winScreen").style.display = "none";
+    for (let name of Object.keys(players)) {
+        if (players[name]["score"] == winScore) {
+            players[name]["score"] = resetScore;
+            cycleGameScreen(name);
+            break;
+        }
+    }
 })
 
 document.getElementById("fin").addEventListener("click", function(){
@@ -355,23 +366,39 @@ document.getElementById("fin").addEventListener("click", function(){
 })
 
 document.getElementById("cancelFin").addEventListener("click", function(){
-    document.getElementById("winScreenPrompt").style.display = "none";
-    document.getElementById("ensureFin").style.display = "block";
+    document.getElementById("ensureFin").style.display = "none";
+    document.getElementById("winScreenPrompt").style.display = "block";
 })
 
 document.getElementById("yesFin").addEventListener("click", function(){
-    document.getElementById("winScreenPrompt").style.display = "none";
+    document.getElementById("winScreen").style.display = "none";
     document.getElementById("gameScreen").style.display = "none";
     purgePlayers();
-    document.getElementById("addPlayers").style.display = "none";
+    document.getElementById("addPlayers").style.display = "block";
 })
 
 function purgePlayers() {
-
+    players = {};
+    forfeitPlayers = {};
+    currPos = 0;
 }
 
 function forfeit(name) {
     if (!allowForfeit) return;
+
+    let scoreboard = document.getElementById("scoreboard");
+    /* for () {
+        
+    } */
+    // do forfeit
+
+    let scoreCard = document.createElement("div");
+    scoreCard.setAttribute("id",`scoreCard:${name}`);
+    scoreCard.setAttribute("class", "scoreCardInactive");
+    
+}
+
+function revertForfeit(name) {
 
 }
 
