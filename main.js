@@ -270,6 +270,7 @@ document.getElementById("miss").addEventListener("click", function(){
 function updatePlayerScore(score) {
     for (let name of Object.keys(players)) {
         if (players[name]["position"] != currPos) continue;
+        if (forfeitPlayers[name] != undefined || forfeitPlayers[name] > 0) continue;
         if (players[name]["score"] + score == winScore) {
             players[name]["score"] = winScore;
             playerWin(name);
@@ -292,15 +293,16 @@ function updatePlayerScore(score) {
 }
 
 function cyclePosition() {
-    if (Object.keys(forfeitPlayers) == Object.keys(players)) {
-        // Game ends
+    if (Object.keys(forfeitPlayers).length == Object.keys(players).length) {
+        loseGame();
         return;
     }
     let failsafe = currPos;
     while (1) {
         currPos += 1;
-        if (currPos == failsafe) break;
         if (currPos >= Object.keys(players).length) currPos = 0;
+        if (currPos == failsafe) break;
+        
         let found = false;
         for (let name of Object.keys(players)) {
             if (players[name]["position"] != currPos) continue;
@@ -349,6 +351,10 @@ function playerWin(name) {
     winScreen.style.display = "block";
 }
 
+function loseGame() {
+    document.getElementById("loseScreen").style.display = "block";
+}
+
 document.getElementById("playOn").addEventListener("click", function(){
     document.getElementById("winScreen").style.display = "none";
     for (let name of Object.keys(players)) {
@@ -383,23 +389,36 @@ function purgePlayers() {
     currPos = 0;
 }
 
+document.getElementById("finLose").addEventListener("click", function(){
+    document.getElementById("loseScreen").style.display = "none"
+    document.getElementById("gameScreen").style.display = "none";
+    purgePlayers();
+    document.getElementById("addPlayers").style.display = "block";
+})
+
 function forfeit(name) {
     if (!allowForfeit) return;
 
-    let scoreboard = document.getElementById("scoreboard");
-    /* for () {
-        
-    } */
-    // do forfeit
+    for (let scoreCard of document.getElementById("scoreboard").children) {
+        if (scoreCard.id != `scoreCard:${name}`) continue;
+        scoreCard.setAttribute("class", "scoreCardInactive");
+        forfeitPlayers[name] = forfeitDuration;
 
-    let scoreCard = document.createElement("div");
-    scoreCard.setAttribute("id",`scoreCard:${name}`);
-    scoreCard.setAttribute("class", "scoreCardInactive");
+        let unForfeit = document.createElement("button");
+        unForfeit.innerHTML = "rejoin";
+        scoreCard.appendChild(unForfeit);
+        break;
+    }
     
 }
 
 function revertForfeit(name) {
-
+    for (let scoreCard of document.getElementById("scoreboard").children) {
+        if (scoreCard.id != `scoreCard:${name}`) continue;
+        scoreCard.setAttribute("class", "scoreCardActive");
+        delete forfeitPlayers[name];
+        break;
+    }
 }
 
 document.getElementById("addPlayerMidgame").addEventListener("click", function() {
@@ -408,3 +427,11 @@ document.getElementById("addPlayerMidgame").addEventListener("click", function()
     addPlayer.querySelector("[id='startScore']").style.display = "block";
 
 })
+
+// randomize player start order (btn)
+
+// add game rules edit option; autofill with current values/options
+
+// sitout player midGame
+
+// remove player midGame
