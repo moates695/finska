@@ -104,6 +104,13 @@ function focusElement(element, clear=false) {
     }
 }
 
+function hide(name) {
+    let element = document.getElementById(name);
+    if (element.style.display != "none") {
+        element.style.display = "none";
+    }
+}
+
 // GAME SETUP //////////////////////////////////////////////////////////////////
 
 document.getElementById("newGame").addEventListener("click", function(){
@@ -158,10 +165,7 @@ document.getElementById("playerName").addEventListener("keydown", function(event
         document.getElementById("addPlayer").click();
         return;
     }
-    let playerExists = document.getElementById("playerExists");
-    if (playerExists.style.display != "none") {
-        playerExists.style.display = "none";
-    }
+    hide("playerExists");
 })
 
 document.getElementById("playerName").addEventListener("click", function(){
@@ -246,6 +250,7 @@ document.getElementById("addScore").addEventListener("click", function(){
         document.getElementById("scoreInvalid").style.display = "block";
         return;
     }
+    hide("scoreInvalid");
     updatePlayerScore(Number(playerScore.value));
     focusElement(playerScore, true);
 })
@@ -256,14 +261,16 @@ document.getElementById("playerScore").addEventListener("keydown", function(even
         document.getElementById("addScore").click();
         return;
     }
-    let scoreInvalid = document.getElementById("scoreInvalid");
-    if (scoreInvalid.style.display != "none") {
-        scoreInvalid.style.display = "none";
-    }
+    hide("scoreInvalid");
 })
 
 document.getElementById("miss").addEventListener("click", function(){
     updatePlayerScore(0);
+    focusElement(document.getElementById("playerScore"), true);
+})
+
+document.getElementById("skip").addEventListener("click", function(){
+    cyclePosition();
     focusElement(document.getElementById("playerScore"), true);
 })
 
@@ -292,11 +299,15 @@ function updatePlayerScore(score) {
     }
 }
 
-function cyclePosition() {
+function checkPlayOn() {
     if (Object.keys(forfeitPlayers).length == Object.keys(players).length) {
         loseGame();
-        return;
+        return false;
     }
+    return true;
+}
+
+function cyclePosition() {
     let failsafe = currPos;
     while (1) {
         currPos += 1;
@@ -396,7 +407,12 @@ document.getElementById("finLose").addEventListener("click", function(){
     document.getElementById("addPlayers").style.display = "block";
 })
 
+document.getElementById("playOnLose").addEventListener("click", function(){
+    document.getElementById("loseScreen").style.display = "none"
+})
+
 function forfeit(name) {
+    if (!checkPlayOn()) return;
     if (!allowForfeit) return;
 
     for (let scoreCard of document.getElementById("scoreboard").children) {
@@ -405,6 +421,8 @@ function forfeit(name) {
         forfeitPlayers[name] = forfeitDuration;
 
         let unForfeit = document.createElement("button");
+        unForfeit.setAttribute("id", `rejoin:${name}`);
+        unForfeit.setAttribute("class", "rejoin");
         unForfeit.innerHTML = "rejoin";
         scoreCard.appendChild(unForfeit);
         break;
@@ -425,13 +443,22 @@ document.getElementById("addPlayerMidgame").addEventListener("click", function()
     let addPlayer = document.getElementById("addPlayers");
     addPlayer.style.display = "block";
     addPlayer.querySelector("[id='startScore']").style.display = "block";
-
 })
 
-// randomize player start order (btn)
+document.getElementById("randOrder").addEventListener("click", function(){
+    
+})
 
 // add game rules edit option; autofill with current values/options
 
 // sitout player midGame
 
 // remove player midGame
+
+document.getElementById("sitoutPlayer").addEventListener("click", function(){
+    
+})
+
+document.getElementById("removePlayer").addEventListener("click", function(){
+    
+})
