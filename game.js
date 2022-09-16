@@ -1,28 +1,25 @@
-var Game = /** @class */ (function () {
-    // duration ??
-    function Game(players, gameRule) {
+import { Player } from "./player.js";
+import { RuleSet } from "./ruleSet.js";
+
+export class Game {
+    constructor(players={}, ruleSet=new RuleSet()) {
         this.players = players;
-        this.gameRule = gameRule;
+        if (players === {}) {
+            this.players["active"] = [];
+            this.players["elim"] = [];
+            this.players["sitout"] = [];
+        }
+        this.players = players;
+        this.ruleSet = ruleSet; 
     }
-    // Getters && setters
-    Game.prototype.getPlayers = function () {
-        return this.players;
-    };
-    Game.prototype.setPlayers = function (players) {
-        this.players = players;
-    };
-    Game.prototype.getGameRule = function () {
-        return this.gameRule;
-    };
-    Game.prototype.setGameRule = function (gameRule) {
-        this.gameRule = gameRule;
-    };
-    // Additional methods
-    Game.prototype.addPlayer = function (player) {
-        this.players.push(player);
-    };
-    Game.prototype.removePlayer = function (player) {
-    };
-    return Game;
-}());
-export { Game };
+
+    addPlayer(name) {
+        for (let array in players) {
+            for (let player in array) {
+                if (player.name === name) return false;
+            }
+        }
+        this.players["active"].push(new Player(name));
+        return true;
+    }
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finska Tracker</title>
+    <script defer type="module" src="app.js"></script>
+    <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+    <div id="welcomeOptions">
+        <button id="contine">continue</button>
+        <button id="newGame">new game</button>
+    </div>
+    <br>
+    <div id="addPlayers">
+        <ul id="addedPlayers"></ul>
+        <label id="playerNameLabel" for="playerName">Add a player:</label>
+        <br>
+        <input type="text" id="playerName" placeholder="John Johnson" autocomplete="off">
+        <button id="addPlayer">add</button>
+        <br>
+        <label id="startScoreLabel" for="startScore">Choose their start score:</label>
+        <br>
+        <button id="addPlayer">0</button>
+        <button id="addPlayer">25</button>
+        <input type="number" id="startScore" autocomplete="off">
+    </div>
+    <br>
+    <div id="gameScreen">
+        <div id="upcoming">
+            <p>Up next:</p>
+            <p>followed by:</p>
+        </div>
+        <div id="scoreboard">
+            <table id="scoreboardTable" style="border: l;">
+                <thead>
+                    <th>#</th>
+                    <th>Player</th>
+                    <th>Score</th>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div id="inputPanel">
+            <div id="inputPins">
+
+            </div>
+            <div id="inputTotal">
+
+            </div>
+        </div>
+    </div>
+    <br>
+    <div id="changeRulesScreen">
+
+    </div>
+    <br>
+    <div id="winScreen">
+        <p>We have a winner!</p>
+        <button id="winContinue">continue</button>
+        <button id="winFinish">finish</button>
+        <div id="exitConfirm">
+            <p>Sure you want to finish up?</p>
+            <button id="finishYeah">yeah</button>
+            <button id="finishNah">nah</button>
+        </div>
+    </div>
+    <br>
+    <div id="loseScreen">
+        <p>Tough day at the office?</p>
+        <button id="loseContinue">continue</button>
+        <button id="loseFinish">finish</button>
+</div>
+</body>
+</html>
