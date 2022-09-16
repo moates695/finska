@@ -1,6 +1,8 @@
+import { v4 as uuidv4 } from 'uuid';
 var Player = /** @class */ (function () {
     function Player(name, score, misses, status, wins) {
         if (wins === void 0) { wins = 0; }
+        this.id = uuidv4();
         this.name = name;
         this.score = score;
         this.misses = misses;
@@ -8,6 +10,9 @@ var Player = /** @class */ (function () {
         this.wins = wins;
     }
     // Getters && setters
+    Player.prototype.getId = function () {
+        return this.id;
+    };
     Player.prototype.getName = function () {
         return this.name;
     };
@@ -47,6 +52,9 @@ var Player = /** @class */ (function () {
     };
     Player.prototype.incrementMisses = function () {
         this.misses += 1;
+    };
+    Player.prototype.isPlayer = function (player) {
+        return player.getId() == this.id ? true : false;
     };
     Player.prototype.toJSON = function () {
         var json = {};

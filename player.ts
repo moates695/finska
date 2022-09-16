@@ -1,6 +1,9 @@
+import { v4 as uuidv4 } from 'uuid';
+
 type status = "active" | "eliminated" | "sitout";
 
 export class Player {
+    private id: string;
     private name: string;
     private score: number;
     private misses: number;
@@ -8,6 +11,7 @@ export class Player {
     private wins: number;
 
     constructor(name: string, score: number, misses: number, status: status, wins: number=0) {
+        this.id = uuidv4();
         this.name = name;
         this.score = score;
         this.misses = misses;
@@ -16,6 +20,10 @@ export class Player {
     }
 
     // Getters && setters
+
+    public getId(): string {
+        return this.id;
+    }
 
     public getName(): string {
         return this.name;
@@ -69,6 +77,10 @@ export class Player {
 
     public incrementMisses(): void {
         this.misses += 1;
+    }
+
+    public isPlayer(player: Player): boolean {
+        return player.getId() == this.id ? true : false;
     }
 
     private toJSON() {

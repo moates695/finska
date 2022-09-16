@@ -31,4 +31,12 @@ export class Game {
 
     // Additional methods
 
+    public addPlayer(player: Player): void {
+        this.players.push(player);
+    }
+
+    public removePlayer(player: Player): void {
+        
+    }
+
 }
