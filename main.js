@@ -1,7 +1,7 @@
 var players = [];
 var gameRule;
-function loadSaved() {
+export function loadSaved() {
+    return;
 }
 function saveData() {
 }
-export {};
