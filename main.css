@@ -8,3 +8,36 @@ td, th {
     padding: 8px;
 }
 
+.grid-container-numpad {
+    display: grid;
+    gap: 10px 10px;
+    grid-template-columns: auto auto auto;
+    /* grid-template-rows: auto auto auto; */
+    max-width: 300px;
+}
+
+.grid-container-numpad > button {
+    text-align: center;
+}
+
+.grid-container-pins {
+    display: grid;
+    gap: 10px 10px;
+    grid-template-columns: auto auto auto;
+    max-width: 300px;
+}
+
+.grid-container-pins > button {
+    text-align: centre;
+}
+
+.button-depressed {
+    background-color: aqua;
+}
+
+.input-number {
+    width: 40px;
+}
+
+
+
