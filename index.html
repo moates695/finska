@@ -10,6 +10,7 @@
 </head>
 <body>
     <div id="welcomeOptions">
+        <p>Welcome back!</p>
         <button id="continueGame">continue</button>
         <button id="newGame">new game</button>
     </div>
@@ -19,15 +20,18 @@
         <label id="playerNameLabel" for="playerName">Add a player:</label>
         <br>
         <input type="text" id="playerName" placeholder="John Johnson" autocomplete="off">
-        <br>
         <small id="dupePlayer"></small>
         <button id="addPlayer">add</button>
+        <button id="doneAddPlayer">done</button>
+        <br>
+        <button id="editAddPlayer">edit</button>
         <br>
         <label id="startScoreLabel" for="startScore">Choose their start score:</label>
         <br>
         <button id="addPlayer">0</button>
         <button id="addPlayer">25</button>
         <input type="number" id="startScore" autocomplete="off" class="input-number">
+        <button id="enterStartScore">enter</button>
     </div>
     <br>
     <div id="gameScreen">
@@ -45,10 +49,13 @@
                 <tbody>
                 </tbody>
             </table>
+            <button id="editGame">edit</button>
+            <button id="addPlayerDuring">add</button>
+            <button id="removePlayerDuring">remove</button>
         </div>
-
-        
+        <br>
         <div id="inputPanel">
+            <button id="swapInput">Swap to pins</button>
             <div id="inputPins">
                 <p>Select pins:</p>
                 <div id="inputPinsGrid" class="grid-container-numpad">
@@ -65,7 +72,8 @@
                     <button class="grid-item">11</button>
                     <button class="grid-item">12</button>
                 </div>
-                <button id="">enter</button>
+                <button id="missPins">miss!</button>
+                <button id="enterPins">enter</button>
             </div>
             <div id="inputTotal">
                 <p>Enter total score:</p>
@@ -80,8 +88,11 @@
                     <button class="grid-item">8</button>
                     <button class="grid-item">9</button>
                 </div>
-                <button id="">enter</button>
+                <button id="missTotal">miss!</button>
+                <button id="enterTotal">enter</button>
             </div>
+            <button id="skip">skip</button>
+            <button id="sitout">sitout</button>
         </div>
     </div>
     <br>
@@ -104,6 +115,33 @@
         <p>Tough day at the office?</p>
         <button id="loseContinue">continue</button>
         <button id="loseFinish">finish</button>
-</div>
+    </div>
+    <br>
+    <div id="editGameRules">
+        <button id="alterGameRules">alter</button>
+        <div id="editGameRulesOptions">
+            <button id="classic">classic</button>
+            <button id="fast">fast</button>
+            <button id="custom">custom</button>
+        </div>
+        <div id="editGameRulesScreen">
+            <label id="missLimitLabel" for="missLimit">Miss limit:</label>
+            <input type="number" id="missLimit" autocomplete="off" class="input-number">
+            <br>
+            <label id="elimDurationLabel" for="elimDuration">Elimination duration:</label>
+            <input type="number" id="elimDuration" autocomplete="off" class="input-number">
+            <button id="elimDurationInf">forever!</button>
+            <br>
+            <label id="winScoreLabel" for="winScore">Win score:</label>
+            <input type="number" id="winScore" autocomplete="off" class="input-number">
+            <br>
+            <label id="resetScoreLabel" for="resetScore">Overshoot score:</label>
+            <input type="number" id="resetScore" autocomplete="off" class="input-number">
+            <br>
+            <button id="confirmRules">confirm</button>
+            <button id="cancelRules">cancel</button>
+        </div>
+        <small id="chosenRules"></small>
+    </div>
 </body>
 </html>
