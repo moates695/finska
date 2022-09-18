@@ -7,5 +7,8 @@ export class RuleSet {
         this.resetScore = resetScore;
     }
 
-    
+    changeRuleSet(ruleSet) {
+        this.ruleSet = ruleSet;
+    }
+
 }

@@ -6,12 +6,18 @@ export class Player {
         this.wins = wins;
     }
 
-    resetScore(resetScore) {
-        this.score = resetScore;
+    resetScore(ruleSet) {
+        this.score = ruleSet.resetScore;
+    }
+
+    addScore(score) {
+        this.score += score;
+        return this.score;
     }
 
     addMiss() {
         this.misses += 1;
+        return this.misses;
     }
 
     resetMisses() {

@@ -2,10 +2,11 @@ import { Player } from "./player.js";
 import { RuleSet } from "./ruleSet.js";
 
 export class Game {
-    constructor(active=[], elim=[], sitout=[], ruleSet=new RuleSet()) {
-        this.active = active;
+    constructor(players={}/* active=[], elim=[], sitout=[] */, ruleSet=new RuleSet()) {
+        /* this.active = active;
         this.elim = elim;
-        this.sitout = sitout;
+        this.sitout = sitout; */
+        this.players = players;
         this.ruleSet = ruleSet; 
     }
 
@@ -20,22 +21,14 @@ export class Game {
     }
 
     removePlayer(name) {
-        for (let array in [this.active, this.elim, this.sitout]) {
-            let found = false;
+        for (let array in this.players) {
             for (let i = 0; i < array.length; i++) {
                 if (array[i].name === name) {
                     array.splice(i, 1);
-                    found = true;
-                    break;
+                    return true;
                 }
-            }
-            if (found) break; 
+            } 
         }
-        /* for (let i = 0; i < this.active.length; i++) {
-            if (this.active[i].name === name) {
-                array.splice(i, 1);
-                break;
-            }
-        } */
+        return false;
     }
 }
