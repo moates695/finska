@@ -9,32 +9,39 @@
     <link rel="stylesheet" href="./main.css">
 </head>
 <body>
-    <div id="welcomeOptions">
+    <div id="welcomeOptions" style="display:none;">
         <p>Welcome back!</p>
         <button id="continueGame">continue</button>
         <button id="newGame">new game</button>
+        <br>
     </div>
-    <br>
-    <div id="addPlayers">
-        <ul id="addedPlayers"></ul>
+    <div id="addPlayers" style="display:none;">
+        <div id="addedPlayersDiv" style="display:none;">
+            Added players:
+            <ul id="addedPlayers"></ul>
+        </div>
         <label id="playerNameLabel" for="playerName">Add a player:</label>
         <br>
         <input type="text" id="playerName" placeholder="John Johnson" autocomplete="off">
-        <small id="dupePlayer"></small>
         <button id="addPlayer">add</button>
-        <button id="doneAddPlayer">done</button>
+        <button id="doneAddPlayer" disabled="disabled">done</button>
         <br>
-        <button id="editAddPlayer">edit</button>
+        <small id="errorAddPlayer" style="color: red; display:none;"></small>
+        <button id="editAddPlayer" disabled="disabled">edit</button>
+        <button id="cancelEditAddPlayer" style="display:none;">cancel</button>
+        <button id="applyEditAddPlayer" style="display:none;">apply</button>
         <br>
-        <label id="startScoreLabel" for="startScore">Choose their start score:</label>
+        <div id="startScoreDiv" style="display:none;">
+            <label id="startScoreLabel" for="startScore">Choose their start score:</label>
+            <br>
+            <button id="addPlayer">0</button>
+            <button id="addPlayer">25</button>
+            <input type="number" id="startScore" autocomplete="off" class="input-number">
+            <button id="enterStartScore">enter</button>
+        </div>
         <br>
-        <button id="addPlayer">0</button>
-        <button id="addPlayer">25</button>
-        <input type="number" id="startScore" autocomplete="off" class="input-number">
-        <button id="enterStartScore">enter</button>
     </div>
-    <br>
-    <div id="gameScreen">
+    <div id="gameScreen" style="display:none;">
         <div id="upcoming">
             <p>Up next:</p>
             <p>followed by:</p>
@@ -94,13 +101,13 @@
             <button id="skip">skip</button>
             <button id="sitout">sitout</button>
         </div>
+        <br>
     </div>
-    <br>
-    <div id="changeRulesScreen">
-
+    <div id="changeRulesScreen" style="display:none;">
+        <br>
     </div>
-    <br>
-    <div id="winScreen">
+    
+    <div id="winScreen" style="display:none;">
         <p>We have a winner!</p>
         <button id="winContinue">continue</button>
         <button id="winFinish">finish</button>
@@ -109,15 +116,15 @@
             <button id="finishYeah">yeah</button>
             <button id="finishNah">nah</button>
         </div>
+        <br>
     </div>
-    <br>
-    <div id="loseScreen">
+    <div id="loseScreen" style="display:none;">
         <p>Tough day at the office?</p>
         <button id="loseContinue">continue</button>
         <button id="loseFinish">finish</button>
+        <br>
     </div>
-    <br>
-    <div id="editGameRules">
+    <div id="editGameRules" style="display:none;">
         <button id="alterGameRules">alter</button>
         <div id="editGameRulesOptions">
             <button id="classic">classic</button>
