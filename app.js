@@ -1,7 +1,7 @@
 import { Game } from "./game.js";
 
 let game = new Game();
-let errorTimeout = 3;
+let messageTimeout = 3;
 
 function load() {
     initScreen(false);
@@ -82,12 +82,30 @@ document.getElementById("addPlayer").addEventListener("click", function() {
     rename.appendChild(document.createTextNode("rename"));
     rename.setAttribute("style", "display: none");
     rename.setAttribute("class", "rename");
+    rename.addEventListener("click", function() {renamePlayer(name)});
+    listItem.appendChild(rename);
+
+    // replace each name with a nameInput box with their name prefilled in
+    // no rename buttons
+
+    let nameInput = document.createElement("input");
+    nameInput.setAttribute("style", "display: none");
+    nameInput.setAttribute("class", "rename");
+
+    listItem.appendChild(nameInput);
+
+    let cancel = document.createElement("button");
+    cancel.appendChild(document.createTextNode("rename"));
+    cancel.setAttribute("style", "display: none");
+    cancel.setAttribute("class", "cancel");
+    rename.addEventListener("click", function() {renamePlayer(name)});
     listItem.appendChild(rename);
 
     let remove = document.createElement("button");
     remove.appendChild(document.createTextNode("remove"));
     remove.setAttribute("style", "display: none");
     remove.setAttribute("class", "remove");
+    remove.addEventListener("click", function() {removePlayer(name)});
     listItem.appendChild(remove);
 
     document.getElementById("addedPlayers").appendChild(listItem);
@@ -144,6 +162,13 @@ function hideEditEscape() {
     document.getElementById("applyEditAddPlayer").style.display = "none";
 }
 
+function revertEditMode() {
+    hideEditEscape();
+    enableInput();
+    listBtn("none");
+    focusInput(playerName, true);
+}
+
 document.getElementById("editAddPlayer").addEventListener("click", function() {
     showEditEscape();
     disableInput();
@@ -151,15 +176,20 @@ document.getElementById("editAddPlayer").addEventListener("click", function() {
 })
 
 document.getElementById("cancelEditAddPlayer").addEventListener("click", function() {
-    hideEditEscape();
-    enableInput();
-    listBtn("none");
-    focusInput(playerName, true);
+    revertEditMode();
 })
 
 document.getElementById("applyEditAddPlayer").addEventListener("click", function() {
-    hideEditEscape();
-    enableInput();
-    listBtn("none");
-    focusInput(playerName, true);
+    revertEditMode();
 })
+
+let toRename = {};
+let toRemove = {};
+
+function renamePlayer(name) {
+
+}
+
+function removePlayer(name) {
+
+}

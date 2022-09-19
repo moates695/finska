@@ -7,9 +7,15 @@ export class Game {
         this.ruleSet = ruleSet; 
     }
 
+    hasPlayer(name) {
+        for (let player of this.players) {
+            if (player.getName() == name) return true;
+        }
+        return false;
+    }
+
     addPlayer(name) {
         for (let player of this.players) {
-            if (!(player instanceof Player)) continue;
             if (player.getName() == name) return false;
         }
         this.players.push(new Player(name));
@@ -17,15 +23,23 @@ export class Game {
     }
 
     removePlayer(name) {
-        for (let array in this.players) {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i].name === name) {
-                    array.splice(i, 1);
-                    return true;
-                }
-            } 
+        for (let i = 0; i < this.players.length; i++) {
+            if (this.players[i].getName() == name) {
+                this.players.splice(i, 1);
+                break;
+            }
         }
-        return false;
+        for (let player of this.players) {
+            console.log(player.getName());
+        }
+    }
+
+    renamePlayer(oldName, newName) {
+        if (this.hasPlayer(oldName)) return false;
+        for (let player of this.players) {
+            if (player.getName() != oldName) continue;
+            player.setName(newName);
+        }
     }
 
     skipTurn() {
@@ -33,5 +47,6 @@ export class Game {
     }
 
     sitoutPlayer() {
+
     }
 }
