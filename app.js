@@ -133,6 +133,7 @@ document.getElementById("playerName").addEventListener("keydown", function(event
 document.getElementById("doneAddPlayer").addEventListener("click", function() {
     if (addPlayerFunc(true)) {
         document.getElementById("addPlayers").style.display = "none";
+        updateGameScreen();
         document.getElementById("gameScreen").style.display = "block";
     }
 })
@@ -300,6 +301,27 @@ function removePlayerBtn(btn, name) {
 }
 
 // Game Screen /////////////////////////////////////////////////////////////////
+
+function updateGameScreen() {
+    updateUpcoming();
+    updateScoreboard();
+}
+
+function updateUpcoming() {
+    let upcoming = game.getUpcoming();
+    document.getElementById("upNow").innerHTML = upcoming[0];
+    document.getElementById("upNext").innerHTML = upcoming[1] != undefined ? upcoming[1] : upcoming[0];
+}
+
+function updateScoreboard() {
+    let scoreboard = document.getElementById("scoreboardTable");
+    let order = game.inScoreOrder();
+    for (let i = 0; i < order.length; i++) {
+        let tr = document.createElement("tr");
+        // add td for each data point
+        // might have to select the tbody instead of just the whole element
+    }
+}
 
 document.getElementById("swapInput").addEventListener("click", function() {
     if (this.getAttribute("name") == "total") {

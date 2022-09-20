@@ -62,8 +62,11 @@ export class Player {
 
     // Additional methods
 
-    addScore(score) {
+    addScore(score, resetScore) {
         this.#score += score;
+        if (this.#score > resetScore) {
+            this.#score = resetScore;
+        }
         return this.#score;
     }
 
@@ -83,6 +86,13 @@ export class Player {
     addWin() {
         this.#wins += 1;
         return this.#wins;
+    }
+
+    isActive() {
+        if (this.#status == "active") {
+            return true;
+        } 
+        return false;
     }
 
 }

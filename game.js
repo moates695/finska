@@ -53,4 +53,31 @@ export class Game {
     sitoutPlayer() {
 
     }
+
+    getUpcoming() {
+        let upcoming = [];
+        let last = false;
+        for (let player of this.players) {
+            if (!player.isActive()) continue;
+            upcoming.push(player.getName());
+            if (last) break;
+            last = true;
+        }
+        return upcoming;
+    }
+
+    inScoreOrder() {
+        let order = [];
+        for (let player of this.players) {
+            let inserted = false;
+            for (let i = 0; i < order.length; i++) {
+                if (order[i] > player.getScore()) continue;
+                order.splice(i, 0, player);
+            }
+            if (!inserted) {
+                order.push(player);
+            }
+        }
+        return order;
+    }
 }

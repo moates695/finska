@@ -43,8 +43,12 @@
     </div>
     <div id="gameScreen" style="display:none;">
         <div id="upcoming">
-            <p>Up next:</p>
-            <p>followed by:</p>
+            <p style="display: inline;">Up now:</p>
+            <div id="upNow" style="display: inline;"></div>
+            <br>
+            <p style="display: inline;">followed by:</p>
+            <div id="upNext" style="display: inline;"></div>
+            <br>
         </div>
         <div id="scoreboard">
             <table id="scoreboardTable" style="border: l;">
@@ -62,7 +66,7 @@
         </div>
         <br>
         <div id="inputPanel">
-            <button id="swapInput" name="total">Swap to pins</button>
+            <button id="swapInput" name="total">swap to pins</button>
             <div id="inputPins" style="display:none;">
                 <p>Select pins:</p>
                 <div id="inputPinsGrid" class="grid-container-numpad">
