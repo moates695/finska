@@ -80,26 +80,31 @@ document.getElementById("addPlayer").addEventListener("click", function() {
 
     let rename = document.createElement("input");
     rename.setAttribute("style", "display: none");
+    rename.setAttribute("id", `rename~${name}`);
     rename.setAttribute("class", "rename");
     rename.setAttribute("type", "text");
     rename.setAttribute("placeholder", name);
     rename.setAttribute("autocomplete", "off");
+    rename.setAttribute("spellcheck", "false");
     rename.setAttribute("name", name);
-    listItem.appendChild(rename);
-
-    let cancel = document.createElement("button");
-    cancel.appendChild(document.createTextNode("rename"));
-    cancel.setAttribute("style", "display: none");
-    cancel.setAttribute("class", "cancel");
-    rename.addEventListener("click", function() {renamePlayer(name)});
+    rename.addEventListener("keydown", function(event) {enterRename(event, listItem)});
     listItem.appendChild(rename);
 
     let remove = document.createElement("button");
     remove.appendChild(document.createTextNode("remove"));
     remove.setAttribute("style", "display: none");
-    remove.setAttribute("class", "remove");
-    remove.addEventListener("click", function() {removePlayer(name)});
+    remove.setAttribute("id", `remove~${name}`);
+    remove.setAttribute("class", "remove button-depressed");
+    remove.classList.toggle("button-depressed")
+    remove.setAttribute("name", "unselected");
+    remove.addEventListener("click", function() {removePlayerBtn(this)});
     listItem.appendChild(remove);
+
+    listItem.appendChild(document.createElement("br"));
+
+    let small = document.createElement("small");
+    small.setAttribute("style", "color: red; display: none");
+    listItem.appendChild(small);
 
     document.getElementById("addedPlayers").appendChild(listItem);
     document.getElementById("addedPlayersDiv").style.display = "block";
@@ -128,7 +133,11 @@ function listBtn(visibility) {
     let items = document.querySelectorAll("#addedPlayers [name='addedPlayer']");
     for (let i = 0; i < items.length; i++) {
         for (let elem of items[i].childNodes) {
-            if (["rename", "remove"].includes(elem.className)) {
+            let elemId = elem.id;
+            if (elemId !== undefined) {
+                elemId = elemId.split("~")[0];
+            }
+            if (["rename", "remove"].includes(elemId)) {
                 elem.style.display = visibility;
                 continue;
             }
@@ -183,21 +192,73 @@ document.getElementById("editAddPlayer").addEventListener("click", function() {
     listBtn("inline");
 })
 
+function unselectRemoveBtns() {
+    let items = document.querySelectorAll("#addedPlayers [name='addedPlayer']");
+    for (let i = 0; i < items.length; i++) {
+        items[i].lastChild.style.display = "none";
+        for (let elem of items[i].childNodes) {
+            let elemId = elem.id;
+            if (elemId !== undefined) {
+                elemId = elemId.split("~")[0];
+            }
+            if (elemId == "rename") {
+                elem.value = "";
+            }
+            if (elemId == "remove" && elem.getAttribute("name") == "selected") {
+                elem.classList.toggle("button-depressed");
+                elem.setAttribute("name", "unselected");
+            }   
+        }
+    }
+}
+
 document.getElementById("cancelEditAddPlayer").addEventListener("click", function() {
     revertEditMode();
+    unselectRemoveBtns();
 })
 
 document.getElementById("applyEditAddPlayer").addEventListener("click", function() {
-    revertEditMode();
+    let items = document.querySelectorAll("#addedPlayers [name='addedPlayer']");
+    let invalid = false;
+    for (let i = 0; i < items.length; i++) {
+        if (names[i] == undefined) continue;
+        for (let elem of items[i].childNodes) {
+            if (elem.id == undefined || elem.id.split("~")[0] != "rename") continue;
+            if (elem.value == "") continue;
+            if (game.hasPlayer(elem.value)) {
+                invalid = true;
+                let small = items[i].lastChild;
+                small.innerHTML = `${elem.value} is already taken!`
+                small.style.display = "inline";
+                continue;
+            } 
+            
+            let player = game.getPlayer(names[i]);
+            game.renamePlayer(player.getName(), elem.value);
+            names[i] = elem.value;
+        }
+    }
+    if (!invalid) {
+        revertEditMode();
+        unselectRemoveBtns();
+    }
 })
 
-let toRename = {};
-let toRemove = {};
-
-function renamePlayer(name) {
-
+function enterRename(event, listItem) {
+    if (event.key == "Enter") {
+        document.getElementById("applyEditAddPlayer").click();
+    } else {
+        listItem.lastChild.style.display = "none";
+    }
 }
 
-function removePlayer(name) {
-
+function removePlayerBtn(btn, name) {
+    if (btn.getAttribute("name") == "unselected") {
+        btn.classList.toggle("button-depressed");
+        btn.setAttribute("name", "selected");
+    } else {
+        btn.classList.toggle("button-depressed");
+        btn.setAttribute("name", "unselected");
+    }
+    // reset input attatched to name
 }

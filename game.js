@@ -7,6 +7,13 @@ export class Game {
         this.ruleSet = ruleSet; 
     }
 
+    getPlayer(name) {
+        for (let player of this.players) {
+            if (player.getName() == name) return player;
+        }
+        return;
+    }
+
     hasPlayer(name) {
         for (let player of this.players) {
             if (player.getName() == name) return true;
@@ -35,7 +42,7 @@ export class Game {
     }
 
     renamePlayer(oldName, newName) {
-        if (this.hasPlayer(oldName)) return false;
+        if (!this.hasPlayer(oldName)) return false;
         for (let player of this.players) {
             if (player.getName() != oldName) continue;
             player.setName(newName);
