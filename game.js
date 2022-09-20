@@ -36,9 +36,6 @@ export class Game {
                 break;
             }
         }
-        for (let player of this.players) {
-            console.log(player.getName());
-        }
     }
 
     renamePlayer(oldName, newName) {

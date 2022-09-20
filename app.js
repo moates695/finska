@@ -238,6 +238,34 @@ document.getElementById("applyEditAddPlayer").addEventListener("click", function
             names[i] = elem.value;
         }
     }
+
+    let toRemove = [];
+    for (let i = 0; i < items.length; i++) {
+        for (let elem of items[i].childNodes) {
+            if (elem.id == undefined || elem.id.split("~")[0] != "remove") continue;
+            if (elem.getAttribute("name") == "selected") {
+                game.removePlayer(names[i]);
+                toRemove.push(i);
+                continue;
+            }
+        }
+    }
+    let originalLength = items.length;
+    let offset = 0;
+    let addedPlayers = document.getElementById("addedPlayers");
+    for (let i of toRemove) {
+        let pos = i - offset;
+        addedPlayers.removeChild(addedPlayers.children[pos]);
+        offset += 1;
+        delete names[pos];
+        for (let x = pos + 1; x < originalLength; x++) {
+            if (names[x] == undefined) continue;
+            names[x - 1] = names[x];
+            delete names[x];
+        }
+        console.log(names);
+    }
+    
     if (!invalid) {
         revertEditMode();
         unselectRemoveBtns();
