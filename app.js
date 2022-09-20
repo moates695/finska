@@ -51,12 +51,13 @@ function hideId(id) {
     document.getElementById(id).style.display = "none";
 }
 
-function addPlayerFunc() {
+function addPlayerFunc(ignore=false) {
     let playerName = document.getElementById("playerName");
     let name = playerName.value.trim();
-    let errorAdd = document.getElementById("errorAddPlayer");
+    let errorAdd = document.getElementById("errorAddPlayer"); 
 
     if (name == "") {
+        if (ignore) return true;
         focusInput(playerName);
         errorAdd.innerHTML = "you can't add nobody!";
         errorAdd.style.display = "block";
@@ -72,7 +73,7 @@ function addPlayerFunc() {
         errorAdd.innerHTML = `${name} already added!`;
         errorAdd.style.display = "block";
         return false;
-    }
+    } 
 
     let listItem = document.createElement("li");
     listItem.appendChild(document.createTextNode(name));
@@ -130,8 +131,9 @@ document.getElementById("playerName").addEventListener("keydown", function(event
 })
 
 document.getElementById("doneAddPlayer").addEventListener("click", function() {
-    if (addPlayerFunc()) {
+    if (addPlayerFunc(true)) {
         document.getElementById("addPlayers").style.display = "none";
+        document.getElementById("gameScreen").style.display = "block";
     }
 })
 
@@ -296,3 +298,19 @@ function removePlayerBtn(btn, name) {
         btn.setAttribute("name", "unselected");
     }
 }
+
+// Game Screen /////////////////////////////////////////////////////////////////
+
+document.getElementById("swapInput").addEventListener("click", function() {
+    if (this.getAttribute("name") == "total") {
+        this.innerHTML = "swap to total";
+        document.getElementById("inputTotal").style.display = "none";
+        document.getElementById("inputPins").style.display = "block";
+        this.setAttribute("name", "pins");
+    } else {
+        this.innerHTML = "swap to pins";
+        document.getElementById("inputTotal").style.display = "block";
+        document.getElementById("inputPins").style.display = "none";
+        this.setAttribute("name", "total");
+    }
+})
