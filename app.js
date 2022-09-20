@@ -75,24 +75,17 @@ document.getElementById("addPlayer").addEventListener("click", function() {
     }
 
     let listItem = document.createElement("li");
-    listItem.appendChild(document.createTextNode(`${name}`));
+    listItem.appendChild(document.createTextNode(name));
     listItem.setAttribute("name", "addedPlayer");
 
-    let rename = document.createElement("button");
-    rename.appendChild(document.createTextNode("rename"));
+    let rename = document.createElement("input");
     rename.setAttribute("style", "display: none");
     rename.setAttribute("class", "rename");
-    rename.addEventListener("click", function() {renamePlayer(name)});
+    rename.setAttribute("type", "text");
+    rename.setAttribute("placeholder", name);
+    rename.setAttribute("autocomplete", "off");
+    rename.setAttribute("name", name);
     listItem.appendChild(rename);
-
-    // replace each name with a nameInput box with their name prefilled in
-    // no rename buttons
-
-    let nameInput = document.createElement("input");
-    nameInput.setAttribute("style", "display: none");
-    nameInput.setAttribute("class", "rename");
-
-    listItem.appendChild(nameInput);
 
     let cancel = document.createElement("button");
     cancel.appendChild(document.createTextNode("rename"));
@@ -129,12 +122,27 @@ document.getElementById("doneAddPlayer").addEventListener("click", function() {
 
 })
 
+let names = {};
+
 function listBtn(visibility) {
     let items = document.querySelectorAll("#addedPlayers [name='addedPlayer']");
-    for (let item of items) {
-        for (let elem of item.children) {
-            if (["rename", "remove"].includes(elem.className)) elem.style.display = visibility; 
+    for (let i = 0; i < items.length; i++) {
+        for (let elem of items[i].childNodes) {
+            if (["rename", "remove"].includes(elem.className)) {
+                elem.style.display = visibility;
+                continue;
+            }
+            if (elem.nodeType != Node.TEXT_NODE) continue;
+            if (visibility != "none") {
+                names[i] = elem.nodeValue;
+                elem.nodeValue = "";
+            } else {
+                elem.nodeValue = names[i];
+            }     
         }
+    }
+    if (visibility == "none") {
+        names = {};
     }
 }
 
