@@ -51,7 +51,7 @@ function hideId(id) {
     document.getElementById(id).style.display = "none";
 }
 
-document.getElementById("addPlayer").addEventListener("click", function() {
+function addPlayerFunc() {
     let playerName = document.getElementById("playerName");
     let name = playerName.value.trim();
     let errorAdd = document.getElementById("errorAddPlayer");
@@ -60,18 +60,18 @@ document.getElementById("addPlayer").addEventListener("click", function() {
         focusInput(playerName);
         errorAdd.innerHTML = "you can't add nobody!";
         errorAdd.style.display = "block";
-        return;
+        return false;
     } else if (name.includes("~")) {
         errorAdd.innerHTML = "name cannot have characters '~' ";
         errorAdd.style.display = "block";
-        return;
+        return false;
     }
 
     if (!game.addPlayer(name)) {
         focusInput(playerName, true);
         errorAdd.innerHTML = `${name} already added!`;
         errorAdd.style.display = "block";
-        return;
+        return false;
     }
 
     let listItem = document.createElement("li");
@@ -112,6 +112,12 @@ document.getElementById("addPlayer").addEventListener("click", function() {
     focusInput(playerName, true);
     document.getElementById("doneAddPlayer").removeAttribute("disabled");
     document.getElementById("editAddPlayer").removeAttribute("disabled");
+
+    return true;
+}
+
+document.getElementById("addPlayer").addEventListener("click", function() {
+    addPlayerFunc();
 })
 
 document.getElementById("playerName").addEventListener("keydown", function(event){
@@ -124,7 +130,9 @@ document.getElementById("playerName").addEventListener("keydown", function(event
 })
 
 document.getElementById("doneAddPlayer").addEventListener("click", function() {
-
+    if (addPlayerFunc()) {
+        document.getElementById("addPlayers").style.display = "none";
+    }
 })
 
 let names = {};
@@ -263,7 +271,6 @@ document.getElementById("applyEditAddPlayer").addEventListener("click", function
             names[x - 1] = names[x];
             delete names[x];
         }
-        console.log(names);
     }
     
     if (!invalid) {
@@ -288,5 +295,4 @@ function removePlayerBtn(btn, name) {
         btn.classList.toggle("button-depressed");
         btn.setAttribute("name", "unselected");
     }
-    // reset input attatched to name
 }
