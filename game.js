@@ -71,13 +71,32 @@ export class Game {
         for (let player of this.players) {
             let inserted = false;
             for (let i = 0; i < order.length; i++) {
-                if (order[i] > player.getScore()) continue;
+                if (order[i].getScore() >= player.getScore()) continue;
+                inserted = true;
                 order.splice(i, 0, player);
+                break;
             }
             if (!inserted) {
                 order.push(player);
             }
         }
         return order;
+    }
+
+    newOrder(order) {
+        let temp = [...this.players];
+        this.players = [];
+        for (let i = 0; i < temp.length; i++) {
+            for (let key in order) {
+                if (order[key] != i) continue;
+                for (let player of temp) {
+                    if (player.getName() != key) continue;
+                    this.players.push(player);
+                    break;
+                }
+                break;
+            }
+        }
+        console.log(this.players);
     }
 }

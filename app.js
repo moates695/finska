@@ -180,12 +180,14 @@ function enableInput() {
 
 function showEditEscape() {
     document.getElementById("editAddPlayer").style.display = "none";
+    document.getElementById("randomOrder").style.display = "none";
     document.getElementById("cancelEditAddPlayer").style.display = "inline";
     document.getElementById("applyEditAddPlayer").style.display = "inline";
 }
 
 function hideEditEscape() {
     document.getElementById("editAddPlayer").style.display = "inline";
+    document.getElementById("randomOrder").style.display = "inline";
     document.getElementById("cancelEditAddPlayer").style.display = "none";
     document.getElementById("applyEditAddPlayer").style.display = "none";
 }
@@ -198,6 +200,7 @@ function revertEditMode() {
 }
 
 document.getElementById("editAddPlayer").addEventListener("click", function() {
+    document.getElementById("errorAddPlayer").style.display = "none";
     showEditEscape();
     disableInput();
     listBtn("inline");
@@ -290,7 +293,7 @@ function enterRename(event, listItem) {
     }
 }
 
-function removePlayerBtn(btn, name) {
+function removePlayerBtn(btn) {
     if (btn.getAttribute("name") == "unselected") {
         btn.classList.toggle("button-depressed");
         btn.setAttribute("name", "selected");
@@ -299,6 +302,35 @@ function removePlayerBtn(btn, name) {
         btn.setAttribute("name", "unselected");
     }
 }
+
+document.getElementById("randomOrder").addEventListener("click", function() {
+    let elems = [];
+    let length = document.querySelectorAll("#addedPlayers [name='addedPlayer']").length;
+    for (let elem of document.querySelectorAll("#addedPlayers [name='addedPlayer']")) {
+        elems.push(elem);
+    }
+
+    // Fischer-Yates shuffle
+    for (let i = length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        let elem = elems[i];
+        elems[i] = elems[j];
+        elems[j] = elem;
+    }
+
+    let addedPlayers = document.getElementById("addedPlayers");
+    while (addedPlayers.firstChild) {
+        addedPlayers.removeChild(addedPlayers.lastChild);
+    }
+    for (let elem of elems) {
+        addedPlayers.appendChild(elem);
+    }
+    let order = {};
+    for (let i = 0; i < length; i++) {
+        order[elems[i].firstChild.nodeValue] = i;
+    }
+    game.newOrder(order);
+})
 
 // Game Screen /////////////////////////////////////////////////////////////////
 
@@ -316,11 +348,12 @@ function updateUpcoming() {
 function updateScoreboard() {
     let scoreboard = document.getElementById("scoreboardTable");
     let order = game.inScoreOrder();
-    for (let i = 0; i < order.length; i++) {
+    console.log(order);
+    /* for (let i = 0; i < order.length; i++) {
         let tr = document.createElement("tr");
         // add td for each data point
         // might have to select the tbody instead of just the whole element
-    }
+    } */
 }
 
 document.getElementById("swapInput").addEventListener("click", function() {
