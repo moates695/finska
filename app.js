@@ -420,3 +420,43 @@ document.getElementById("sitout").addEventListener("click", function() {
     game.sitoutPlayer();
     updateGameScreen();
 })
+
+document.querySelectorAll("#inputPinsGrid .grid-item").forEach(elem => {
+    elem.addEventListener("click", function() {pinInputBtn(elem)});
+})
+
+function pinInputBtn(elem) {
+    if (elem.getAttribute("name") == "pin") {
+        elem.classList.toggle("button-depressed");
+        let num = 0;
+        document.querySelectorAll("#inputPinsGrid .grid-item").forEach(elem => {
+            if (elem.getAttribute("name") == "pin" && elem.classList.contains("button-depressed")) {
+                num++;
+            }
+        })
+        if (num > 0) {
+            document.getElementById("pinEnter").removeAttribute("disabled");
+        } else {
+            document.getElementById("pinEnter").setAttribute("disabled", "disabled");
+        }
+        return;
+    } 
+    
+    if (elem.getAttribute("name") == "miss") {
+        game.addScore(0);
+    } else {
+        let total = 0;
+        document.querySelectorAll("#inputPinsGrid .grid-item").forEach(elem => {
+            if (elem.getAttribute("name") == "pin" && elem.classList.contains("button-depressed")) {
+                total += Number(elem.innerHTML);
+            }
+        })
+        game.addScore(total);
+    }
+
+    document.querySelectorAll("#inputPinsGrid .grid-item").forEach(elem => {
+        if (elem.getAttribute("name") == "pin" && elem.classList.contains("button-depressed")) {
+            elem.classList.remove("button-depressed");
+        }
+    })
+}
