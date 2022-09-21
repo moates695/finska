@@ -47,11 +47,12 @@ export class Game {
     }
 
     skipTurn() {
-
+        this.#nextPlayer();
     }
 
     sitoutPlayer() {
-
+        this.player[0].setStatus("sitout");
+        this.#nextPlayer();
     }
 
     getUpcoming() {
@@ -120,6 +121,14 @@ export class Game {
             document.getElementById("winScreen").style.display = "block";
         }
         this.#nextPlayer();
+    }
+
+    numActive() {
+        let num = 0;
+        for (let player of this.players) {
+            if (player.isActive()) num++;
+        }
+        return num;
     }
 
 

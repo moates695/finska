@@ -30,6 +30,10 @@ td, th {
     text-align: centre;
 }
 
+.enter {
+    grid-column: 2 / 4;
+}
+
 .button-depressed {
     background-color: aqua;
 }

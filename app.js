@@ -337,6 +337,7 @@ document.getElementById("randomOrder").addEventListener("click", function() {
 function updateGameScreen() {
     updateUpcoming();
     updateScoreboard();
+    updateSkipSitout();
 }
 
 function updateUpcoming() {
@@ -359,6 +360,16 @@ function updateScoreboard() {
         row.insertCell(0).innerHTML = i + 1;
         row.insertCell(1).innerHTML = order[i].getName();
         row.insertCell(2).innerHTML = order[i].getScore();
+    }
+}
+
+function updateSkipSitout() {
+    if (game.numActive() > 1) {
+        document.getElementById("skip").removeAttribute("disabled");
+        document.getElementById("sitout").removeAttribute("disabled");
+    } else {
+        document.getElementById("skip").setAttribute("disabled", "disabled");
+        document.getElementById("sitout").setAttribute("disabled", "disabled");
     }
 }
 
@@ -385,7 +396,7 @@ function numInputBtn(elem) {
     let scoreTotal = document.getElementById("scoreTotal");
     if (elem.getAttribute("name") == "del" && scoreTotal.innerHTML.length > 0) {
         scoreTotal.innerHTML = scoreTotal.innerHTML.substring(0, scoreTotal.innerHTML.length - 1);
-    } else if (elem.getAttribute("name") == "ent") {
+    } else if (elem.getAttribute("name") == "ent" && scoreTotal.innerHTML != "") {
         game.addScore(Number(scoreTotal.innerHTML));
         scoreTotal.innerHTML = "";
         updateGameScreen();
@@ -399,3 +410,13 @@ function numInputBtn(elem) {
         }
     }
 }
+
+document.getElementById("skip").addEventListener("click", function() {
+    game.skipTurn();
+    updateGameScreen();
+})
+
+document.getElementById("sitout").addEventListener("click", function() {
+    game.sitoutPlayer();
+    updateGameScreen();
+})
