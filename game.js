@@ -97,6 +97,30 @@ export class Game {
                 break;
             }
         }
-        console.log(this.players);
     }
+
+    #nextPlayer() {
+        for (let _ of this.players) {
+            this.players.push(this.players.shift());
+            if (this.players[0].isActive()) return true;
+        }
+        return false;
+    }
+
+    addScore(score) {
+        if (score == 0) {
+            this.players[0].addMiss(this.ruleSet.getMissLimit());
+            if (!this.#nextPlayer()) {
+                document.getElementById("loseScreen").style.display = "block";
+            }
+            return;
+        }
+        this.players[0].resetMisses();
+        if (this.players[0].addScore(score, this.ruleSet.getWinScore(), this.ruleSet.getResetScore())) {
+            document.getElementById("winScreen").style.display = "block";
+        }
+        this.#nextPlayer();
+    }
+
+
 }

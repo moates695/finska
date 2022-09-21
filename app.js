@@ -341,6 +341,7 @@ function updateGameScreen() {
 
 function updateUpcoming() {
     let upcoming = game.getUpcoming();
+    if (upcoming[0] == undefined) return;
     document.getElementById("upNow").innerHTML = upcoming[0];
     document.getElementById("upNext").innerHTML = upcoming[1] != undefined ? upcoming[1] : upcoming[0];
 }
@@ -348,12 +349,17 @@ function updateUpcoming() {
 function updateScoreboard() {
     let scoreboard = document.getElementById("scoreboardTable");
     let order = game.inScoreOrder();
-    console.log(order);
-    /* for (let i = 0; i < order.length; i++) {
-        let tr = document.createElement("tr");
-        // add td for each data point
-        // might have to select the tbody instead of just the whole element
-    } */
+
+    while (scoreboard.rows.length > 1) {
+        scoreboard.deleteRow(1);
+    }
+
+    for (let i = 0; i < order.length; i++) {
+        let row = scoreboard.insertRow(i + 1);
+        row.insertCell(0).innerHTML = i + 1;
+        row.insertCell(1).innerHTML = order[i].getName();
+        row.insertCell(2).innerHTML = order[i].getScore();
+    }
 }
 
 document.getElementById("swapInput").addEventListener("click", function() {
@@ -369,3 +375,27 @@ document.getElementById("swapInput").addEventListener("click", function() {
         this.setAttribute("name", "total");
     }
 })
+
+document.querySelectorAll("#inputTotalGrid .grid-item").forEach(elem => {
+    elem.addEventListener("click", function() {numInputBtn(elem)});
+})
+
+function numInputBtn(elem) {
+    document.getElementById("scoreTotalErr").style.display = "none";
+    let scoreTotal = document.getElementById("scoreTotal");
+    if (elem.getAttribute("name") == "del" && scoreTotal.innerHTML.length > 0) {
+        scoreTotal.innerHTML = scoreTotal.innerHTML.substring(0, scoreTotal.innerHTML.length - 1);
+    } else if (elem.getAttribute("name") == "ent") {
+        game.addScore(Number(scoreTotal.innerHTML));
+        scoreTotal.innerHTML = "";
+        updateGameScreen();
+    } else if (elem.getAttribute("name") == "num") {
+        scoreTotal.innerHTML += elem.innerHTML;
+        if (scoreTotal.innerHTML > 12) {
+            document.getElementById("scoreTotalErr").innerHTML = `max score is 12, you entered ${scoreTotal.innerHTML}`;
+            document.getElementById("scoreTotalErr").style.display = "block";
+            scoreTotal.innerHTML = "";
+            return;
+        }
+    }
+}

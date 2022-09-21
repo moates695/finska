@@ -8,4 +8,16 @@ export class RuleSet {
         this.winScore = winScore;
         this.resetScore = resetScore;
     }
+
+    getMissLimit() {
+        return this.missLimit;
+    }
+
+    getWinScore() {
+        return this.winScore;
+    }
+
+    getResetScore() {
+        return this.resetScore;
+    }
 }

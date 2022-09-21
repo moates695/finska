@@ -62,20 +62,23 @@ export class Player {
 
     // Additional methods
 
-    addScore(score, resetScore) {
+    addScore(score, winScore, resetScore) {
         this.#score += score;
-        if (this.#score > resetScore) {
+        if (this.#score > winScore) {
             this.#score = resetScore;
         }
-        return this.#score;
+        return this.#score == winScore;
     }
 
     resetScore(ruleSet) {
         this.#score = ruleSet.resetScore;
     }
 
-    addMiss() {
+    addMiss(missLimit) {
         this.#misses += 1;
+        if (this.#misses >= missLimit) {
+            this.#status = "elim";
+        }
         return this.#misses;
     }
 

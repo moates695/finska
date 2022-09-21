@@ -28,7 +28,7 @@
         <br>
         <small id="errorAddPlayer" style="color: red; display:none;"></small>
         <button id="editAddPlayer" disabled="disabled">edit</button>
-        <button id="randomOrder" name="unselected">random order</button>
+        <button id="randomOrder" name="unselected">shuffle</button>
         <button id="cancelEditAddPlayer" style="display:none;">discard</button>
         <button id="applyEditAddPlayer" style="display:none;">apply</button>
         <br>
@@ -69,7 +69,8 @@
         <div id="inputPanel">
             <button id="swapInput" name="total">swap to pins</button>
             <div id="inputPins" style="display:none;">
-                <p>Select pins:</p>
+                <p style="display: inline;">Select pins: </p>
+                <div id="scorePins" style="display: inline;"></div>
                 <div id="inputPinsGrid" class="grid-container-numpad">
                     <button class="grid-item">1</button>
                     <button class="grid-item">2</button>
@@ -88,17 +89,22 @@
                 <button id="enterPins">enter</button>
             </div>
             <div id="inputTotal">
-                <p>Enter total score:</p>
+                <p style="display: inline;">Enter total score: </p>
+                <div id="scoreTotal" style="display: inline;"></div>
+                <small id="scoreTotalErr" style="color: red; display:none;"></small>
                 <div id="inputTotalGrid" class="grid-container-numpad">
-                    <button class="grid-item">1</button>
-                    <button class="grid-item">2</button>
-                    <button class="grid-item">3</button>
-                    <button class="grid-item">4</button>
-                    <button class="grid-item">5</button>
-                    <button class="grid-item">6</button>
-                    <button class="grid-item">7</button>
-                    <button class="grid-item">8</button>
-                    <button class="grid-item">9</button>
+                    <button class="grid-item" name="num">1</button>
+                    <button class="grid-item" name="num">2</button>
+                    <button class="grid-item" name="num">3</button>
+                    <button class="grid-item" name="num">4</button>
+                    <button class="grid-item" name="num">5</button>
+                    <button class="grid-item" name="num">6</button>
+                    <button class="grid-item" name="num">7</button>
+                    <button class="grid-item" name="num">8</button>
+                    <button class="grid-item" name="num">9</button>
+                    <button class="grid-item" name="del">delete</button>
+                    <button class="grid-item" name="num">0</button>
+                    <button class="grid-item" name="ent">enter</button>
                 </div>
                 <button id="missTotal">miss!</button>
                 <button id="enterTotal">enter</button>
