@@ -53,13 +53,9 @@
         </div>
         <div id="scoreboard">
             <table id="scoreboardTable" style="border: l;">
-                <thead>
-                    <th>Rank</th>
-                    <th>Player</th>
+                    <th>Closest</th>
+                    <th>Name</th>
                     <th>Score</th>
-                </thead>
-                <tbody>
-                </tbody>
             </table>
             <button id="editGame">edit</button>
             <button id="addPlayerDuring">add</button>
@@ -116,23 +112,22 @@
     <div id="changeRulesScreen" style="display:none;">
         <br>
     </div>
-    
-    <div id="winScreen" style="display:none;">
-        <p>We have a winner!</p>
-        <button id="winContinue">continue</button>
-        <button id="winFinish">finish</button>
-        <div id="exitConfirm">
+    <div id="finishScreen">
+        <div id="winScreen" style="display:none;">
+            <p>We have a winner!</p>
+            <button id="winContinue">continue</button>
+            <button id="winFinish">finish</button>
+        </div>
+        <div id="loseScreen" style="display:none;">
+            <p>Tough day at the office?</p>
+            <button id="loseContinue">continue</button>
+            <button id="loseFinish">finish</button>
+        </div>
+        <div id="exitConfirm" style="display:none;">
             <p>Sure you want to finish up?</p>
             <button id="finishYeah">yeah</button>
             <button id="finishNah">nah</button>
         </div>
-        <br>
-    </div>
-    <div id="loseScreen" style="display:none;">
-        <p>Tough day at the office?</p>
-        <button id="loseContinue">continue</button>
-        <button id="loseFinish">finish</button>
-        <br>
     </div>
     <div id="editGameRules" style="display:none;">
         <button id="alterGameRules">alter</button>

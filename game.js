@@ -112,13 +112,21 @@ export class Game {
         if (score == 0) {
             this.players[0].addMiss(this.ruleSet.getMissLimit());
             if (!this.#nextPlayer()) {
+                document.getElementById("gameScreen").style.display = "none";
                 document.getElementById("loseScreen").style.display = "block";
             }
             return;
         }
         this.players[0].resetMisses();
         if (this.players[0].addScore(score, this.ruleSet.getWinScore(), this.ruleSet.getResetScore())) {
+            document.getElementById("gameScreen").style.display = "none";
             document.getElementById("winScreen").style.display = "block";
+            let headers = document.querySelectorAll("#scoreboardTable th");
+            if (headers.length < 4) {
+                let header = document.createElement("th");
+                header.appendChild(document.createTextNode("Wins"));
+                headers[headers.length - 1].after(header);
+            } 
         }
         this.#nextPlayer();
     }
@@ -131,5 +139,11 @@ export class Game {
         return num;
     }
 
+    anyWins() {
+        for (let player of this.players) {
+            if (player.getWins() != 0) return true;
+        }
+        return false;
+    }
 
 }

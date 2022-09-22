@@ -355,11 +355,16 @@ function updateScoreboard() {
         scoreboard.deleteRow(1);
     }
 
+    let winCol = game.anyWins();
+
     for (let i = 0; i < order.length; i++) {
         let row = scoreboard.insertRow(i + 1);
         row.insertCell(0).innerHTML = i + 1;
         row.insertCell(1).innerHTML = order[i].getName();
         row.insertCell(2).innerHTML = order[i].getScore();
+        if (winCol) {
+            row.insertCell(3).innerHTML = order[i].getWins();
+        }
     }
 }
 
@@ -460,3 +465,37 @@ function pinInputBtn(elem) {
         }
     })
 }
+
+document.getElementById("winContinue").addEventListener("click", function() {
+    document.getElementById("winScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+})
+
+document.getElementById("winFinish").addEventListener("click", function() {
+    document.getElementById("winScreen").style.display = "none";
+    document.getElementById("exitConfirm").style.display = "block";
+})
+
+document.getElementById("loseContinue").addEventListener("click", function() {
+    document.getElementById("loseScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+})
+
+document.getElementById("loseFinish").addEventListener("click", function() {
+    document.getElementById("loseScreen").style.display = "none";
+    document.getElementById("exitConfirm").style.display = "block";
+})
+
+document.getElementById("finishYeah").addEventListener("click", function() {
+    document.getElementById("exitConfirm").style.display = "none";
+    document.getElementById("welcomeOptions").style.display = "block";
+})
+
+document.getElementById("finishNah").addEventListener("click", function() {
+    document.getElementById("exitConfirm").style.display = "none";
+    if (game.numActive() != 0) {
+        document.getElementById("winScreen").style.display = "block";
+    } else {
+        document.getElementById("loseScreen").style.display = "block";
+    }
+})

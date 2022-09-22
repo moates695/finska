@@ -64,10 +64,12 @@ export class Player {
 
     addScore(score, winScore, resetScore) {
         this.#score += score;
-        if (this.#score > winScore) {
+        if (this.#score >= winScore) {
             this.#score = resetScore;
+            this.#wins += 1;
+            return true;
         }
-        return this.#score == winScore;
+        return false;
     }
 
     resetScore(ruleSet) {
