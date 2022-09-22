@@ -146,4 +146,21 @@ export class Game {
         return false;
     }
 
+    getPinValue() {
+        return this.ruleSet.getPinValue();
+    }
+
+    getWinScore() {
+
+    }
+
+    canWin(curr) {
+        let winScore = this.ruleSet.getWinScore();
+        if ((this.ruleSet.getPinValue() == "variable" && winScore - curr <= 12) ||
+            (this.ruleSet.getPinValue() == "pin" && winScore - curr <= 78)) {
+            return winScore - curr;
+        }
+        return null;
+    }
+
 }

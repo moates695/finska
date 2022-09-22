@@ -361,7 +361,15 @@ function updateScoreboard() {
         let row = scoreboard.insertRow(i + 1);
         row.insertCell(0).innerHTML = i + 1;
         row.insertCell(1).innerHTML = order[i].getName();
-        row.insertCell(2).innerHTML = order[i].getScore();
+        let currScore = order[i].getScore().toString();
+        /* if ((game.getPinValue() == "pins" &&  )|| (game.getPinValue() == "variable" && currScore >= game.get)) {
+            currScore += 
+        } */
+        let winThrow = game.canWin(currScore);
+        if (winThrow != null) {
+            currScore += winThrow.toString().sub();
+        }
+        row.insertCell(2).innerHTML = currScore;
         if (winCol) {
             row.insertCell(3).innerHTML = order[i].getWins();
         }

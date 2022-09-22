@@ -9,6 +9,10 @@ export class RuleSet {
         this.resetScore = resetScore;
     }
 
+    getPinValue() {
+        return this.pinValue;
+    }
+
     getMissLimit() {
         return this.missLimit;
     }
