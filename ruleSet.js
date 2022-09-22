@@ -8,4 +8,20 @@ export class RuleSet {
         this.winScore = winScore;
         this.resetScore = resetScore;
     }
+
+    getPinValue() {
+        return this.pinValue;
+    }
+
+    getMissLimit() {
+        return this.missLimit;
+    }
+
+    getWinScore() {
+        return this.winScore;
+    }
+
+    getResetScore() {
+        return this.resetScore;
+    }
 }

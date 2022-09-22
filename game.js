@@ -47,10 +47,120 @@ export class Game {
     }
 
     skipTurn() {
-
+        this.#nextPlayer();
     }
 
     sitoutPlayer() {
+        this.player[0].setStatus("sitout");
+        this.#nextPlayer();
+    }
+
+    getUpcoming() {
+        let upcoming = [];
+        let last = false;
+        for (let player of this.players) {
+            if (!player.isActive()) continue;
+            upcoming.push(player.getName());
+            if (last) break;
+            last = true;
+        }
+        return upcoming;
+    }
+
+    inScoreOrder() {
+        let order = [];
+        for (let player of this.players) {
+            let inserted = false;
+            for (let i = 0; i < order.length; i++) {
+                if (order[i].getScore() >= player.getScore()) continue;
+                inserted = true;
+                order.splice(i, 0, player);
+                break;
+            }
+            if (!inserted) {
+                order.push(player);
+            }
+        }
+        return order;
+    }
+
+    newOrder(order) {
+        let temp = [...this.players];
+        this.players = [];
+        for (let i = 0; i < temp.length; i++) {
+            for (let key in order) {
+                if (order[key] != i) continue;
+                for (let player of temp) {
+                    if (player.getName() != key) continue;
+                    this.players.push(player);
+                    break;
+                }
+                break;
+            }
+        }
+    }
+
+    #nextPlayer() {
+        for (let _ of this.players) {
+            this.players.push(this.players.shift());
+            if (this.players[0].isActive()) return true;
+        }
+        return false;
+    }
+
+    addScore(score) {
+        if (score == 0) {
+            this.players[0].addMiss(this.ruleSet.getMissLimit());
+            if (!this.#nextPlayer()) {
+                document.getElementById("gameScreen").style.display = "none";
+                document.getElementById("loseScreen").style.display = "block";
+            }
+            return;
+        }
+        this.players[0].resetMisses();
+        if (this.players[0].addScore(score, this.ruleSet.getWinScore(), this.ruleSet.getResetScore())) {
+            document.getElementById("gameScreen").style.display = "none";
+            document.getElementById("winScreen").style.display = "block";
+            let headers = document.querySelectorAll("#scoreboardTable th");
+            if (headers.length < 4) {
+                let header = document.createElement("th");
+                header.appendChild(document.createTextNode("Wins"));
+                headers[headers.length - 1].after(header);
+            } 
+        }
+        this.#nextPlayer();
+    }
+
+    numActive() {
+        let num = 0;
+        for (let player of this.players) {
+            if (player.isActive()) num++;
+        }
+        return num;
+    }
+
+    anyWins() {
+        for (let player of this.players) {
+            if (player.getWins() != 0) return true;
+        }
+        return false;
+    }
+
+    getPinValue() {
+        return this.ruleSet.getPinValue();
+    }
+
+    getWinScore() {
 
     }
+
+    canWin(curr) {
+        let winScore = this.ruleSet.getWinScore();
+        if ((this.ruleSet.getPinValue() == "variable" && winScore - curr <= 12) ||
+            (this.ruleSet.getPinValue() == "pin" && winScore - curr <= 78)) {
+            return winScore - curr;
+        }
+        return null;
+    }
+
 }

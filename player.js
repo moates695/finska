@@ -62,17 +62,27 @@ export class Player {
 
     // Additional methods
 
-    addScore(score) {
+    addScore(score, winScore, resetScore) {
         this.#score += score;
-        return this.#score;
+        if (this.#score == winScore) {
+            this.#score = resetScore;
+            this.#wins += 1;
+            return true;
+        } else if (this.#score > winScore) {
+            this.#score = resetScore; 
+        }
+        return false;
     }
 
     resetScore(ruleSet) {
         this.#score = ruleSet.resetScore;
     }
 
-    addMiss() {
+    addMiss(missLimit) {
         this.#misses += 1;
+        if (this.#misses >= missLimit) {
+            this.#status = "elim";
+        }
         return this.#misses;
     }
 
@@ -83,6 +93,13 @@ export class Player {
     addWin() {
         this.#wins += 1;
         return this.#wins;
+    }
+
+    isActive() {
+        if (this.#status == "active") {
+            return true;
+        } 
+        return false;
     }
 
 }
