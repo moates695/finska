@@ -363,9 +363,6 @@ function updateScoreboard() {
         row.insertCell(0).innerHTML = i + 1;
         row.insertCell(1).innerHTML = order[i].getName();
         let currScore = order[i].getScore().toString();
-        /* if ((game.getPinValue() == "pins" &&  )|| (game.getPinValue() == "variable" && currScore >= game.get)) {
-            currScore += 
-        } */
         let winThrow = game.canWin(currScore);
         if (winThrow != null) {
             currScore += winThrow.toString().sub();
@@ -511,18 +508,44 @@ document.getElementById("finishNah").addEventListener("click", function() {
 })
 
 document.getElementById("editGame").addEventListener("click", function() {
+    document.getElementById("gameScreen").style.display = "none";
+    let players = game.inScoreOrder();
+    let list = document.getElementById("lastThrows");
+    
+    // remove existing li
 
+    for (let player of players) {
+        let listItem = document.createElement("li");
+        listItem.appendChild(document.createTextNode(player.getName));
+        
+        let input = document.createElement("input");
+        input.setAttribute("type", "number");
+        input.setAttribute("autocomplete", "off");
+        input.setAttribute("placeholder", player.getScore());
+        listItem.appendChild(input);
+
+        list.appendChild(listItem);
+    }
+    document.getElementById("editLastThrow").style.display = "block";
+})
+
+document.getElementById("discardThrowChange").addEventListener("click", function() {
+    document.getElementById("editLastThrow").style.display = "none";
+    document.getElementById("gameScreen").style.display = "block";
+})
+
+document.getElementById("applyThrowChange").addEventListener("click", function() {
+    document.getElementById("editLastThrow").style.display = "none";
+    // apply changes here
+    document.getElementById("gameScreen").style.display = "block";
 })
 
 document.getElementById("addPlayerDuring").addEventListener("click", function() {
     document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("randomOrder").style.display = "none";
     document.getElementById("addPlayers").style.display = "block";
 })
 
-document.getElementById("removePlayerDuring").addEventListener("click", function() {
-    
-})
-
 document.getElementById("editRules").addEventListener("click", function() {
-    
+
 })
