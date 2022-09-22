@@ -133,6 +133,7 @@ document.getElementById("playerName").addEventListener("keydown", function(event
 document.getElementById("doneAddPlayer").addEventListener("click", function() {
     if (addPlayerFunc(true)) {
         document.getElementById("addPlayers").style.display = "none";
+        document.getElementById("errorAddPlayer").style.display = "none";
         updateGameScreen();
         document.getElementById("gameScreen").style.display = "block";
     }
@@ -472,6 +473,7 @@ function pinInputBtn(elem) {
             elem.classList.remove("button-depressed");
         }
     })
+    updateGameScreen();
 }
 
 document.getElementById("winContinue").addEventListener("click", function() {
@@ -506,4 +508,21 @@ document.getElementById("finishNah").addEventListener("click", function() {
     } else {
         document.getElementById("loseScreen").style.display = "block";
     }
+})
+
+document.getElementById("editGame").addEventListener("click", function() {
+
+})
+
+document.getElementById("addPlayerDuring").addEventListener("click", function() {
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("addPlayers").style.display = "block";
+})
+
+document.getElementById("removePlayerDuring").addEventListener("click", function() {
+    
+})
+
+document.getElementById("editRules").addEventListener("click", function() {
+    
 })
