@@ -519,8 +519,12 @@ document.getElementById("editGame").addEventListener("click", function() {
         
         let input = document.createElement("input");
         input.setAttribute("type", "number");
+        input.setAttribute("class", "input-number");
         input.setAttribute("autocomplete", "off");
         input.setAttribute("placeholder", player.getScore());
+        input.addEventListener("input", () => {
+            document.getElementById("lastThrowErr").style.display = "none";
+        });
         listItem.appendChild(input);
 
         list.appendChild(listItem);
@@ -530,12 +534,31 @@ document.getElementById("editGame").addEventListener("click", function() {
 
 document.getElementById("discardThrowChange").addEventListener("click", function() {
     document.getElementById("editLastThrow").style.display = "none";
+    document.getElementById("lastThrowErr").style.display = "none";
     document.getElementById("gameScreen").style.display = "block";
 })
 
 document.getElementById("applyThrowChange").addEventListener("click", function() {
+    document.getElementById("lastThrowErr").style.display = "none";
+
+    let list = document.getElementById("lastThrows");
+    for (let elem of list.children) {
+        if (elem.children[0].value < 0) {
+            document.getElementById("lastThrowErr").style.display = "block";
+            return;
+        }
+    }
     document.getElementById("editLastThrow").style.display = "none";
-    // apply changes here
+
+    let names = {};
+    for (let elem of list.children) {
+        if (elem.children[0].value.length > 0) {
+            names[elem.textContent.slice(0, elem.textContent.length - 3)] = Number(elem.children[0].value);
+        }
+    }
+    game.changeLastThrow(names);
+
+    updateScoreboard();
     document.getElementById("gameScreen").style.display = "block";
 })
 

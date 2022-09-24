@@ -111,7 +111,8 @@ export class Game {
         return false;
     }
 
-    addScore(score) {
+    addScore(score, name=null) {
+        //this.players[0].setlastScore(score);
         if (score == 0) {
             this.players[0].addMiss(this.ruleSet.getMissLimit());
             if (!this.#nextPlayer()) {
@@ -170,6 +171,17 @@ export class Game {
             return winScore - curr;
         }
         return null;
+    }
+
+    changeLastThrow(names) {
+        for (let player of this.players) {
+            if (!Object.keys(names).includes(player.getName())) continue;
+            player.changeLastThrow(names[player.getName()], this.ruleSet.getWinScore(),
+                                   this.ruleSet.getResetScore(), this.ruleSet.getMissLimit());
+            break;
+        }
+
+        // determine winner, or all losers
     }
 
 }
