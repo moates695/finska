@@ -154,9 +154,10 @@ export class Player {
 
         this.#score = this.#lastScore + score;
         if (this.#score == winScore) {
-
-        } else if (this.#score) {
-
+            this.#score = resetScore;
+            this.#wins += 1;
+        } else if (this.#score > winScore) {
+            this.#score = resetScore;
         }
 
     }

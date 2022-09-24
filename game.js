@@ -181,7 +181,15 @@ export class Game {
             break;
         }
 
-        // determine winner, or all losers
+        let allElim = true;
+        for (let player of this.players) {
+            if (player.getStatus() == "active") allElim = false;
+        }
+
+        if (allElim) {
+            document.getElementById("editLastThrow").style.display = "block";
+            document.getElementById("loseScreen").style.display = "block";
+        }
     }
 
 }
