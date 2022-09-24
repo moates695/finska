@@ -22,10 +22,13 @@ export class Game {
     }
 
     addPlayer(name) {
+        let allBeyond = this.players.length == 0 ? false : true;
         for (let player of this.players) {
+            if (player.getScore() < this.ruleSet.getResetScore()) allBeyond = false;
             if (player.getName() == name) return false;
         }
-        this.players.push(new Player(name));
+        let score = allBeyond ? this.ruleSet.getResetScore() : 0;
+        this.players.push(new Player(name, score));
         return true;
     }
 
@@ -114,6 +117,12 @@ export class Game {
             if (!this.#nextPlayer()) {
                 document.getElementById("gameScreen").style.display = "none";
                 document.getElementById("loseScreen").style.display = "block";
+                for (let player of this.players) {
+                    player.resetMisses();
+                    if (player.getStatus() != "sitout") {
+                        player.setStatus("active");
+                    }
+                }
             }
             return;
         }

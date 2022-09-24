@@ -511,12 +511,11 @@ document.getElementById("editGame").addEventListener("click", function() {
     document.getElementById("gameScreen").style.display = "none";
     let players = game.inScoreOrder();
     let list = document.getElementById("lastThrows");
-    
-    // remove existing li
+    list.innerHTML = "";
 
     for (let player of players) {
         let listItem = document.createElement("li");
-        listItem.appendChild(document.createTextNode(player.getName));
+        listItem.appendChild(document.createTextNode(`${player.getName()} = `));
         
         let input = document.createElement("input");
         input.setAttribute("type", "number");
@@ -544,6 +543,7 @@ document.getElementById("addPlayerDuring").addEventListener("click", function() 
     document.getElementById("gameScreen").style.display = "none";
     document.getElementById("randomOrder").style.display = "none";
     document.getElementById("addPlayers").style.display = "block";
+    focusInput(document.getElementById("playerName"), true);
 })
 
 document.getElementById("editRules").addEventListener("click", function() {
