@@ -675,10 +675,6 @@ document.getElementById("elimDuration").addEventListener("input", function () {
 })
 
 document.getElementById("elimDurationInf").addEventListener("click", function() {
-    /* this.classList.add("button-depressed");
-    document.getElementById("elimDuration").value = "";
-    document.getElementById("elimDuration").removeAttribute("placeholder") */;
-
     this.classList.toggle("button-depressed");
     let elimDuration = document.getElementById("elimDuration");
     elimDuration.value = "";
