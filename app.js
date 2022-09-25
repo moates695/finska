@@ -384,7 +384,7 @@ function updateSkipSitout() {
     }
 }
 
-document.getElementById("swapInput").addEventListener("click", function() {
+/* document.getElementById("swapInput").addEventListener("click", function() {
     if (this.getAttribute("name") == "total") {
         this.innerHTML = "swap to total";
         document.getElementById("inputTotal").style.display = "none";
@@ -396,7 +396,7 @@ document.getElementById("swapInput").addEventListener("click", function() {
         document.getElementById("inputPins").style.display = "none";
         this.setAttribute("name", "total");
     }
-})
+}) */
 
 document.querySelectorAll("#inputTotalGrid .grid-item").forEach(elem => {
     elem.addEventListener("click", function() {numInputBtn(elem)});
@@ -594,11 +594,13 @@ function fillOut(ruleSet) {
             document.getElementById("missLimit").setAttribute("placeholder", rules["missLimit"]);
         } else {
             document.getElementById("missLimitNone").classList.add("button-depressed");
+            document.getElementById("missLimitNone").setAttribute("name", "selected");
         }
         if (rules["elimDuration"] < Infinity) {
             document.getElementById("elimDuration").setAttribute("placeholder", rules["elimDuration"]);
         } else {
             document.getElementById("elimDurationInf").classList.toggle("button-depressed");
+            document.getElementById("elimDurationInf").setAttribute("name", "selected");
         }
         document.getElementById("winScore").setAttribute("placeholder", rules["winScore"]);
         document.getElementById("resetScore").setAttribute("placeholder", rules["resetScore"]);
@@ -643,23 +645,55 @@ document.getElementById("custom").addEventListener("click", function() {
 })
 
 document.getElementById("missLimit").addEventListener("input", function () {
-    document.getElementById("missLimitNone").classList.remove("button-depressed");
+    let missLimitNone = document.getElementById("missLimitNone");
+    missLimitNone.classList.remove("button-depressed");
+    missLimitNone.setAttribute("name", "unselected");
 })
 
 document.getElementById("missLimitNone").addEventListener("click", function() {
-    this.classList.add("button-depressed");
-    document.getElementById("missLimit").value = "";
-    document.getElementById("missLimit").removeAttribute("placeholder");
+    this.classList.toggle("button-depressed");
+    let missLimit = document.getElementById("missLimit");
+    missLimit.value = "";
+    if (this.getAttribute("name") == "selected") {
+        this.setAttribute("name", "unselected");
+        let rules = game.getCurrentRules();
+        if (rules["missLimit"] < Infinity) {
+            missLimit.setAttribute("placeholder", rules["missLimit"]);
+        } else {
+            missLimit.setAttribute("placeholder", "Inf");
+        }
+    } else {
+        this.setAttribute("name", "selected");
+        missLimit.removeAttribute("placeholder");
+    }
 })
 
 document.getElementById("elimDuration").addEventListener("input", function () {
-    document.getElementById("elimDurationInf").classList.remove("button-depressed");
+    let elimDurationInf = document.getElementById("elimDurationInf");
+    elimDurationInf.classList.remove("button-depressed");
+    elimDurationInf.setAttribute("name", "unselected");
 })
 
 document.getElementById("elimDurationInf").addEventListener("click", function() {
-    this.classList.add("button-depressed");
+    /* this.classList.add("button-depressed");
     document.getElementById("elimDuration").value = "";
-    document.getElementById("elimDuration").removeAttribute("placeholder");
+    document.getElementById("elimDuration").removeAttribute("placeholder") */;
+
+    this.classList.toggle("button-depressed");
+    let elimDuration = document.getElementById("elimDuration");
+    elimDuration.value = "";
+    if (this.getAttribute("name") == "selected") {
+        this.setAttribute("name", "unselected");
+        let rules = game.getCurrentRules();
+        if (rules["elimDuration"] < Infinity) {
+            elimDuration.setAttribute("placeholder", rules["elimDuration"]);
+        } else {
+            elimDuration.setAttribute("placeholder", "Inf");
+        }
+    } else {
+        this.setAttribute("name", "selected");
+        elimDuration.removeAttribute("placeholder");
+    }
 })
 
 document.getElementById("pinValueVariable").addEventListener("click", function() {
@@ -677,9 +711,11 @@ function clearButtonsRuleEdit() {
     document.getElementById("fast").classList.remove("button-depressed");
     document.getElementById("custom").classList.remove("button-depressed");
     document.getElementById("elimDurationInf").classList.remove("button-depressed");
+    document.getElementById("elimDurationInf").setAttribute("name", "unselected");
     document.getElementById("pinValueVariable").classList.remove("button-depressed");
     document.getElementById("pinValueNumber").classList.remove("button-depressed");
     document.getElementById("missLimitNone").classList.remove("button-depressed");
+    document.getElementById("missLimitNone").setAttribute("name", "unselected");
 }
 
 document.getElementById("alterGameRulesNo").addEventListener("click", function() {
@@ -690,7 +726,7 @@ document.getElementById("alterGameRulesNo").addEventListener("click", function()
 
 document.getElementById("alterGameRulesYes").addEventListener("click", function() {
     let err = false;
-    if (document.getElementById("alterGameRulesYes")) {
+    if (document.getElementById("missLimit").value.length == 0 ) {
 
     }
     if (err) return;

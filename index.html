@@ -62,7 +62,8 @@
         </div>
         <br>
         <div id="inputPanel">
-            <button id="swapInput" name="total">swap to pins</button>
+            <!-- chnage on rule update!!! -->
+            <!-- <button id="swapInput" name="total">swap to pins</button> -->
             <div id="inputPins" style="display:none;">
                 <p style="display: inline;">Select pins: </p>
                 <div id="scorePins" style="display: inline;"></div>
@@ -149,12 +150,12 @@
         <br>
         <label id="missLimitLabel" for="missLimit">Miss limit:</label>
         <input type="number" id="missLimit" autocomplete="off" class="input-number">
-        <button id="missLimitNone">none</button>
+        <button id="missLimitNone" name="unselected">none</button>
         <small id="missLimitErr" style="display: none; color: red"></small>
         <br>
         <label id="elimDurationLabel" for="elimDuration">Elimination duration:</label>
         <input type="number" id="elimDuration" autocomplete="off" class="input-number">
-        <button id="elimDurationInf">forever</button>
+        <button id="elimDurationInf" name="unselected">forever</button>
         <small id="elimDurationErr" style="display: none; color: red"></small>
         <br>
         <label id="winScoreLabel" for="winScore">Win score:</label>
