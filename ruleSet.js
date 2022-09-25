@@ -24,4 +24,25 @@ export class RuleSet {
     getResetScore() {
         return this.resetScore;
     }
+
+    getCurrentRules() {
+        let rules = {};
+        rules["ruleSet"] = this.ruleSet;
+        rules["pinValue"] = this.pinValue;
+        rules["missLimit"] = this.missLimit;
+        rules["elimDuration"] = this.elimDuration;
+        rules["winScore"] = this.winScore;
+        rules["resetScore"] = this.resetScore;
+        return rules;
+    }
+
+    setRuleSet(ruleSet, rules={}) {
+        if (ruleSet == "classic") {
+            
+        } else if (ruleSet == "fast") {
+
+        } else {
+
+        }
+    }
 }

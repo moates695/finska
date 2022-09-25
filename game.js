@@ -192,4 +192,8 @@ export class Game {
         }
     }
 
+    getCurrentRules() {
+        return this.ruleSet.getCurrentRules();
+    }
+
 }

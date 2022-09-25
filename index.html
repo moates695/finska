@@ -135,31 +135,39 @@
             <button id="finishNah">nah</button>
         </div>
     </div>
-    <div id="editGameRules" style="display:none;">
-        <button id="alterGameRules">alter</button>
-        <div id="editGameRulesOptions">
-            <button id="classic">classic</button>
-            <button id="fast">fast</button>
-            <button id="custom">custom</button>
-        </div>
-        <div id="editGameRulesScreen">
-            <label id="missLimitLabel" for="missLimit">Miss limit:</label>
-            <input type="number" id="missLimit" autocomplete="off" class="input-number">
-            <br>
-            <label id="elimDurationLabel" for="elimDuration">Elimination duration:</label>
-            <input type="number" id="elimDuration" autocomplete="off" class="input-number">
-            <button id="elimDurationInf">forever!</button>
-            <br>
-            <label id="winScoreLabel" for="winScore">Win score:</label>
-            <input type="number" id="winScore" autocomplete="off" class="input-number">
-            <br>
-            <label id="resetScoreLabel" for="resetScore">Overshoot score:</label>
-            <input type="number" id="resetScore" autocomplete="off" class="input-number">
-            <br>
-            <button id="confirmRules">confirm</button>
-            <button id="cancelRules">cancel</button>
-        </div>
-        <small id="chosenRules"></small>
+    <div id="editGameRules" style="display: none;">
+        <!-- <div id="currentRules"></div>
+        <br> -->
+        <button id="classic">classic</button>
+        <button id="fast">fast</button>
+        <button id="custom">custom</button>
+        <br>
+        <br>
+        <label id="pinValueLabel" for="pinValue">Pin value:</label>
+        <button id="pinValueVariable">variable</button>
+        <button id="pinValueNumber">number</button>
+        <br>
+        <label id="missLimitLabel" for="missLimit">Miss limit:</label>
+        <input type="number" id="missLimit" autocomplete="off" class="input-number">
+        <button id="missLimitNone">none</button>
+        <small id="missLimitErr" style="display: none; color: red"></small>
+        <br>
+        <label id="elimDurationLabel" for="elimDuration">Elimination duration:</label>
+        <input type="number" id="elimDuration" autocomplete="off" class="input-number">
+        <button id="elimDurationInf">forever</button>
+        <small id="elimDurationErr" style="display: none; color: red"></small>
+        <br>
+        <label id="winScoreLabel" for="winScore">Win score:</label>
+        <input type="number" id="winScore" autocomplete="off" class="input-number">
+        <small id="winScoreErr" style="display: none; color: red"></small>
+        <br>
+        <label id="resetScoreLabel" for="resetScore">Reset score:</label>
+        <input type="number" id="resetScore" autocomplete="off" class="input-number">
+        <small id="resetScoreErr" style="display: none; color: red"></small>
+        <br>
+        <br>
+        <button id="alterGameRulesNo">back</button>
+        <button id="alterGameRulesYes">alter</button>
     </div>
 </body>
 </html>

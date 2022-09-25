@@ -569,6 +569,134 @@ document.getElementById("addPlayerDuring").addEventListener("click", function() 
     focusInput(document.getElementById("playerName"), true);
 })
 
-document.getElementById("editRules").addEventListener("click", function() {
+function fillOut(ruleSet) {
+    if (["classic", "fast"].includes(ruleSet)) {
+        if (ruleSet == "classic") {
+            document.getElementById("pinValueVariable").classList.toggle("button-depressed");
+            document.getElementById("classic").classList.toggle("button-depressed");
+        } else {
+            document.getElementById("pinValueNumber").classList.toggle("button-depressed");
+            document.getElementById("fast").classList.toggle("button-depressed");
+        }
+        document.getElementById("missLimit").setAttribute("placeholder", 3);
+        document.getElementById("elimDurationInf").classList.toggle("button-depressed");
+        document.getElementById("winScore").setAttribute("placeholder", );
+        document.getElementById("resetScore").setAttribute("placeholder", );
+    } else if (ruleSet == "current") {
+        let rules = game.getCurrentRules();
+        document.getElementById(rules["ruleSet"]).classList.toggle("button-depressed");
+        if (rules["pinValue"] == "variable") {
+            document.getElementById("pinValueVariable").classList.toggle("button-depressed");
+        } else {
+            document.getElementById("pinValueNumber").classList.toggle("button-depressed");
+        }        
+        if (rules["missLimit"] < Infinity) {
+            document.getElementById("missLimit").setAttribute("placeholder", rules["missLimit"]);
+        } else {
+            document.getElementById("missLimitNone").classList.add("button-depressed");
+        }
+        if (rules["elimDuration"] < Infinity) {
+            document.getElementById("elimDuration").setAttribute("placeholder", rules["elimDuration"]);
+        } else {
+            document.getElementById("elimDurationInf").classList.toggle("button-depressed");
+        }
+        document.getElementById("winScore").setAttribute("placeholder", rules["winScore"]);
+        document.getElementById("resetScore").setAttribute("placeholder", rules["resetScore"]);
+    } else {
+        let rules = game.getCurrentRules();
+        document.getElementById("custom").classList.toggle("button-depressed");
+        if (rules["pinValue"] == "variable") {
+            document.getElementById("pinValueVariable").classList.toggle("button-depressed");
+        } else {
+            document.getElementById("pinValueNumber").classList.toggle("button-depressed");
+        }
+        document.getElementById("pinValueNumber").classList.toggle("button-depressed");
+        document.getElementById("missLimit").setAttribute("placeholder", rules["missLimit"]);
+        document.getElementById("elimDuration").setAttribute("placeholder", rules["elimDuration"]);
+        document.getElementById("winScore").setAttribute("placeholder", rules["winScore"]);
+        document.getElementById("resetScore").setAttribute("placeholder", rules["resetScore"]);
+    }
+}
 
+document.getElementById("editRules").addEventListener("click", function() {
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("editGameRules").style.display = "block";
+    fillOut("current");
+})
+
+document.getElementById("classic").addEventListener("click", function() {
+    this.classList.add("button-depressed");
+    document.getElementById("fast").classList.remove("button-depressed");
+    document.getElementById("custom").classList.remove("button-depressed");
+})
+
+document.getElementById("fast").addEventListener("click", function() {
+    this.classList.add("button-depressed");
+    document.getElementById("classic").classList.remove("button-depressed");
+    document.getElementById("custom").classList.remove("button-depressed");
+})
+
+document.getElementById("custom").addEventListener("click", function() {
+    this.classList.add("button-depressed");
+    document.getElementById("classic").classList.remove("button-depressed");
+    document.getElementById("fast").classList.remove("button-depressed");
+})
+
+document.getElementById("missLimit").addEventListener("input", function () {
+    document.getElementById("missLimitNone").classList.remove("button-depressed");
+})
+
+document.getElementById("missLimitNone").addEventListener("click", function() {
+    this.classList.add("button-depressed");
+    document.getElementById("missLimit").value = "";
+    document.getElementById("missLimit").removeAttribute("placeholder");
+})
+
+document.getElementById("elimDuration").addEventListener("input", function () {
+    document.getElementById("elimDurationInf").classList.remove("button-depressed");
+})
+
+document.getElementById("elimDurationInf").addEventListener("click", function() {
+    this.classList.add("button-depressed");
+    document.getElementById("elimDuration").value = "";
+    document.getElementById("elimDuration").removeAttribute("placeholder");
+})
+
+document.getElementById("pinValueVariable").addEventListener("click", function() {
+    this.classList.add("button-depressed");
+    document.getElementById("pinValueNumber").classList.remove("button-depressed");
+})
+
+document.getElementById("pinValueNumber").addEventListener("click", function() {
+    this.classList.add("button-depressed");
+    document.getElementById("pinValueVariable").classList.remove("button-depressed");
+})
+
+function clearButtonsRuleEdit() {
+    document.getElementById("classic").classList.remove("button-depressed");
+    document.getElementById("fast").classList.remove("button-depressed");
+    document.getElementById("custom").classList.remove("button-depressed");
+    document.getElementById("elimDurationInf").classList.remove("button-depressed");
+    document.getElementById("pinValueVariable").classList.remove("button-depressed");
+    document.getElementById("pinValueNumber").classList.remove("button-depressed");
+    document.getElementById("missLimitNone").classList.remove("button-depressed");
+}
+
+document.getElementById("alterGameRulesNo").addEventListener("click", function() {
+    document.getElementById("editGameRules").style.display = "none";
+    clearButtonsRuleEdit();
+    document.getElementById("gameScreen").style.display = "block";
+})
+
+document.getElementById("alterGameRulesYes").addEventListener("click", function() {
+    let err = false;
+    if (document.getElementById("alterGameRulesYes")) {
+
+    }
+    if (err) return;
+
+    document.getElementById("editGameRules").style.display = "none";
+    clearButtonsRuleEdit();
+    //apply changes
+    document.getElementById("gameScreen").style.display = "block";
 })
