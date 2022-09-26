@@ -137,8 +137,6 @@
         </div>
     </div>
     <div id="editGameRules" style="display: none;">
-        <!-- <div id="currentRules"></div>
-        <br> -->
         <button id="classic">classic</button>
         <button id="fast">fast</button>
         <button id="custom">custom</button>
@@ -151,20 +149,20 @@
         <label id="missLimitLabel" for="missLimit">Miss limit:</label>
         <input type="number" id="missLimit" autocomplete="off" class="input-number">
         <button id="missLimitNone" name="unselected">none</button>
-        <small id="missLimitErr" style="display: none; color: red"></small>
+        <small id="missLimitErr" style="display: none; color: red">miss limit must be positive</small>
         <br>
         <label id="elimDurationLabel" for="elimDuration">Elimination duration:</label>
         <input type="number" id="elimDuration" autocomplete="off" class="input-number">
         <button id="elimDurationInf" name="unselected">forever</button>
-        <small id="elimDurationErr" style="display: none; color: red"></small>
+        <small id="elimDurationErr" style="display: none; color: red">elim duration must be positive</small>
         <br>
         <label id="winScoreLabel" for="winScore">Win score:</label>
         <input type="number" id="winScore" autocomplete="off" class="input-number">
-        <small id="winScoreErr" style="display: none; color: red"></small>
+        <small id="winScoreErr" style="display: none; color: red">win score must be greater than zero</small>
         <br>
         <label id="resetScoreLabel" for="resetScore">Reset score:</label>
         <input type="number" id="resetScore" autocomplete="off" class="input-number">
-        <small id="resetScoreErr" style="display: none; color: red"></small>
+        <small id="resetScoreErr" style="display: none; color: red">reset score must be positive</small>
         <br>
         <br>
         <button id="alterGameRulesNo">back</button>

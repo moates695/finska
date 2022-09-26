@@ -651,6 +651,7 @@ document.getElementById("missLimit").addEventListener("input", function () {
 })
 
 document.getElementById("missLimitNone").addEventListener("click", function() {
+    document.getElementById("missLimitErr").style.display = "none";
     this.classList.toggle("button-depressed");
     let missLimit = document.getElementById("missLimit");
     missLimit.value = "";
@@ -675,6 +676,7 @@ document.getElementById("elimDuration").addEventListener("input", function () {
 })
 
 document.getElementById("elimDurationInf").addEventListener("click", function() {
+    document.getElementById("elimDurationErr").style.display = "none";
     this.classList.toggle("button-depressed");
     let elimDuration = document.getElementById("elimDuration");
     elimDuration.value = "";
@@ -716,14 +718,47 @@ function clearButtonsRuleEdit() {
 
 document.getElementById("alterGameRulesNo").addEventListener("click", function() {
     document.getElementById("editGameRules").style.display = "none";
+    document.getElementById("missLimitErr").style.display = "none";
+    document.getElementById("elimDurationErr").style.display = "none";
+    document.getElementById("winScoreErr").style.display = "none";
+    document.getElementById("resetScoreErr").style.display = "none";
     clearButtonsRuleEdit();
     document.getElementById("gameScreen").style.display = "block";
 })
 
+document.getElementById("missLimit").addEventListener("input", function () {
+    document.getElementById("missLimitErr").style.display = "none";
+})
+
+document.getElementById("elimDuration").addEventListener("input", function () {
+    document.getElementById("elimDurationErr").style.display = "none";
+})
+
+document.getElementById("winScore").addEventListener("input", function () {
+    document.getElementById("winScoreErr").style.display = "none";
+})
+
+document.getElementById("resetScore").addEventListener("input", function () {
+    document.getElementById("resetScoreErr").style.display = "none";
+})
+
 document.getElementById("alterGameRulesYes").addEventListener("click", function() {
     let err = false;
-    if (document.getElementById("missLimit").value.length == 0 ) {
-
+    if (document.getElementById("missLimit").value < 0) {
+        err = true;
+        document.getElementById("missLimitErr").style.display = "block";
+    }
+    if (document.getElementById("elimDuration").value < 0) {
+        err = true;
+        document.getElementById("elimDurationErr").style.display = "block";
+    }
+    if (document.getElementById("winScore").value <= 0) {
+        err = true;
+        document.getElementById("winScoreErr").style.display = "block";
+    }
+    if (document.getElementById("resetScore").value < 0) {
+        err = true;
+        document.getElementById("resetScoreErr").style.display = "block";
     }
     if (err) return;
 
@@ -732,3 +767,5 @@ document.getElementById("alterGameRulesYes").addEventListener("click", function(
     //apply changes
     document.getElementById("gameScreen").style.display = "block";
 })
+
+// clear inputs on back and alter, apply changes next. Then onto saving the game and loading it
