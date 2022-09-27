@@ -112,7 +112,6 @@ export class Game {
     }
 
     addScore(score, name=null) {
-        //this.players[0].setlastScore(score);
         if (score == 0) {
             this.players[0].addMiss(this.ruleSet.getMissLimit());
             if (!this.#nextPlayer()) {
@@ -194,6 +193,10 @@ export class Game {
 
     getCurrentRules() {
         return this.ruleSet.getCurrentRules();
+    }
+
+    setRuleSet(ruleSet, rules={}) {
+        this.ruleSet.setRuleSet(ruleSet, rules);
     }
 
 }

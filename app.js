@@ -384,20 +384,6 @@ function updateSkipSitout() {
     }
 }
 
-/* document.getElementById("swapInput").addEventListener("click", function() {
-    if (this.getAttribute("name") == "total") {
-        this.innerHTML = "swap to total";
-        document.getElementById("inputTotal").style.display = "none";
-        document.getElementById("inputPins").style.display = "block";
-        this.setAttribute("name", "pins");
-    } else {
-        this.innerHTML = "swap to pins";
-        document.getElementById("inputTotal").style.display = "block";
-        document.getElementById("inputPins").style.display = "none";
-        this.setAttribute("name", "total");
-    }
-}) */
-
 document.querySelectorAll("#inputTotalGrid .grid-item").forEach(elem => {
     elem.addEventListener("click", function() {numInputBtn(elem)});
 })
@@ -572,49 +558,48 @@ document.getElementById("addPlayerDuring").addEventListener("click", function() 
 function fillOut(ruleSet) {
     if (["classic", "fast"].includes(ruleSet)) {
         if (ruleSet == "classic") {
-            document.getElementById("pinValueVariable").classList.toggle("button-depressed");
-            document.getElementById("classic").classList.toggle("button-depressed");
+            document.getElementById("pinValueVariable").classList.add("button-depressed");
+            document.getElementById("pinValueNumber").classList.remove("button-depressed");
         } else {
-            document.getElementById("pinValueNumber").classList.toggle("button-depressed");
-            document.getElementById("fast").classList.toggle("button-depressed");
+            document.getElementById("pinValueVariable").classList.remove("button-depressed");
+            document.getElementById("pinValueNumber").classList.add("button-depressed");
         }
         document.getElementById("missLimit").setAttribute("placeholder", 3);
-        document.getElementById("elimDurationInf").classList.toggle("button-depressed");
-        document.getElementById("winScore").setAttribute("placeholder", );
-        document.getElementById("resetScore").setAttribute("placeholder", );
-    } else if (ruleSet == "current") {
+        document.getElementById("elimDurationInf").classList.add("button-depressed");
+        document.getElementById("winScore").setAttribute("placeholder", 50);
+        document.getElementById("resetScore").setAttribute("placeholder", 25);
+    } else {
         let rules = game.getCurrentRules();
-        document.getElementById(rules["ruleSet"]).classList.toggle("button-depressed");
+        if (ruleSet == "current") {
+            if (rules["ruleSet"] == "classic") {
+                document.getElementById("classic").classList.add("button-depressed");
+            } else if (rules["ruleSet"] == "fast") {
+                document.getElementById("fast").classList.add("button-depressed");
+            } else {
+                document.getElementById("custom").classList.add("button-depressed");
+            }
+        }
         if (rules["pinValue"] == "variable") {
-            document.getElementById("pinValueVariable").classList.toggle("button-depressed");
+            document.getElementById("pinValueVariable").classList.add("button-depressed");
+            document.getElementById("pinValueNumber").classList.remove("button-depressed");
         } else {
-            document.getElementById("pinValueNumber").classList.toggle("button-depressed");
+            document.getElementById("pinValueVariable").classList.remove("button-depressed");
+            document.getElementById("pinValueNumber").classList.add("button-depressed");
         }        
         if (rules["missLimit"] < Infinity) {
             document.getElementById("missLimit").setAttribute("placeholder", rules["missLimit"]);
+            document.getElementById("missLimitNone").classList.remove("button-depressed");
         } else {
             document.getElementById("missLimitNone").classList.add("button-depressed");
             document.getElementById("missLimitNone").setAttribute("name", "selected");
         }
         if (rules["elimDuration"] < Infinity) {
             document.getElementById("elimDuration").setAttribute("placeholder", rules["elimDuration"]);
+            document.getElementById("elimDurationInf").classList.remove("button-depressed");
         } else {
-            document.getElementById("elimDurationInf").classList.toggle("button-depressed");
+            document.getElementById("elimDurationInf").classList.add("button-depressed");
             document.getElementById("elimDurationInf").setAttribute("name", "selected");
         }
-        document.getElementById("winScore").setAttribute("placeholder", rules["winScore"]);
-        document.getElementById("resetScore").setAttribute("placeholder", rules["resetScore"]);
-    } else {
-        let rules = game.getCurrentRules();
-        document.getElementById("custom").classList.toggle("button-depressed");
-        if (rules["pinValue"] == "variable") {
-            document.getElementById("pinValueVariable").classList.toggle("button-depressed");
-        } else {
-            document.getElementById("pinValueNumber").classList.toggle("button-depressed");
-        }
-        document.getElementById("pinValueNumber").classList.toggle("button-depressed");
-        document.getElementById("missLimit").setAttribute("placeholder", rules["missLimit"]);
-        document.getElementById("elimDuration").setAttribute("placeholder", rules["elimDuration"]);
         document.getElementById("winScore").setAttribute("placeholder", rules["winScore"]);
         document.getElementById("resetScore").setAttribute("placeholder", rules["resetScore"]);
     }
@@ -630,24 +615,30 @@ document.getElementById("classic").addEventListener("click", function() {
     this.classList.add("button-depressed");
     document.getElementById("fast").classList.remove("button-depressed");
     document.getElementById("custom").classList.remove("button-depressed");
+    optionsClear();
+    fillOut("classic");
 })
 
 document.getElementById("fast").addEventListener("click", function() {
     this.classList.add("button-depressed");
     document.getElementById("classic").classList.remove("button-depressed");
     document.getElementById("custom").classList.remove("button-depressed");
+    optionsClear();
+    fillOut("fast");
 })
 
 document.getElementById("custom").addEventListener("click", function() {
     this.classList.add("button-depressed");
     document.getElementById("classic").classList.remove("button-depressed");
     document.getElementById("fast").classList.remove("button-depressed");
+    fillOut("custom");
 })
 
 document.getElementById("missLimit").addEventListener("input", function () {
     let missLimitNone = document.getElementById("missLimitNone");
     missLimitNone.classList.remove("button-depressed");
     missLimitNone.setAttribute("name", "unselected");
+    makeCustom();
 })
 
 document.getElementById("missLimitNone").addEventListener("click", function() {
@@ -667,12 +658,14 @@ document.getElementById("missLimitNone").addEventListener("click", function() {
         this.setAttribute("name", "selected");
         missLimit.removeAttribute("placeholder");
     }
+    makeCustom();
 })
 
 document.getElementById("elimDuration").addEventListener("input", function () {
     let elimDurationInf = document.getElementById("elimDurationInf");
     elimDurationInf.classList.remove("button-depressed");
     elimDurationInf.setAttribute("name", "unselected");
+    makeCustom();
 })
 
 document.getElementById("elimDurationInf").addEventListener("click", function() {
@@ -692,6 +685,7 @@ document.getElementById("elimDurationInf").addEventListener("click", function() 
         this.setAttribute("name", "selected");
         elimDuration.removeAttribute("placeholder");
     }
+    makeCustom();
 })
 
 document.getElementById("pinValueVariable").addEventListener("click", function() {
@@ -716,30 +710,49 @@ function clearButtonsRuleEdit() {
     document.getElementById("missLimitNone").setAttribute("name", "unselected");
 }
 
-document.getElementById("alterGameRulesNo").addEventListener("click", function() {
-    document.getElementById("editGameRules").style.display = "none";
+function optionsClear() {
     document.getElementById("missLimitErr").style.display = "none";
     document.getElementById("elimDurationErr").style.display = "none";
     document.getElementById("winScoreErr").style.display = "none";
     document.getElementById("resetScoreErr").style.display = "none";
+
+    document.getElementById("missLimit").value = "";
+    document.getElementById("elimDuration").value = "";
+    document.getElementById("winScore").value = "";
+    document.getElementById("resetScore").value = "";
+}
+
+function makeCustom() {
+    document.getElementById("classic").classList.remove("button-depressed");
+    document.getElementById("fast").classList.remove("button-depressed");
+    document.getElementById("custom").classList.add("button-depressed");
+}
+
+document.getElementById("alterGameRulesNo").addEventListener("click", function() {
+    document.getElementById("editGameRules").style.display = "none";
+    optionsClear();
     clearButtonsRuleEdit();
     document.getElementById("gameScreen").style.display = "block";
 })
 
 document.getElementById("missLimit").addEventListener("input", function () {
     document.getElementById("missLimitErr").style.display = "none";
+    makeCustom();
 })
 
 document.getElementById("elimDuration").addEventListener("input", function () {
     document.getElementById("elimDurationErr").style.display = "none";
+    makeCustom();
 })
 
 document.getElementById("winScore").addEventListener("input", function () {
     document.getElementById("winScoreErr").style.display = "none";
+    makeCustom();
 })
 
 document.getElementById("resetScore").addEventListener("input", function () {
     document.getElementById("resetScoreErr").style.display = "none";
+    makeCustom();
 })
 
 document.getElementById("alterGameRulesYes").addEventListener("click", function() {
@@ -752,7 +765,7 @@ document.getElementById("alterGameRulesYes").addEventListener("click", function(
         err = true;
         document.getElementById("elimDurationErr").style.display = "block";
     }
-    if (document.getElementById("winScore").value <= 0) {
+    if (document.getElementById("winScore").value <= 0 && document.getElementById("winScore").value.length > 0) {
         err = true;
         document.getElementById("winScoreErr").style.display = "block";
     }
@@ -763,9 +776,9 @@ document.getElementById("alterGameRulesYes").addEventListener("click", function(
     if (err) return;
 
     document.getElementById("editGameRules").style.display = "none";
+    optionsClear();
     clearButtonsRuleEdit();
-    //apply changes
-    document.getElementById("gameScreen").style.display = "block";
-})
 
-// clear inputs on back and alter, apply changes next. Then onto saving the game and loading it
+    document.getElementById("gameScreen").style.display = "block";
+
+})
