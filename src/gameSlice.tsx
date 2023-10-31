@@ -12,12 +12,18 @@ const initialState: GameState = {
   status: true,
 }
 
-export const counterSlice = createSlice({
+export const gameSlice = createSlice({
   name: 'game',
   initialState,
   reducers: {
-    addPlayer: (state, action: PayloadAction<PlayerState>) => {
-        state.players.push(action.payload);
+    addPlayer: (state, action: PayloadAction<String>) => {
+        const player: PlayerState = {
+            name: action.payload,
+            score: 0,
+            strikes: 0,
+            status: 'active',
+        }
+        state.players.push(player);
     },
     enterTurn: (state, action: PayloadAction<number>) => {
         if (action.payload > 0) {
@@ -39,6 +45,6 @@ export const counterSlice = createSlice({
   },
 })
 
-export const { enterTurn, skipTurn } = counterSlice.actions
+export const { addPlayer, enterTurn, skipTurn } = gameSlice.actions
 
-export default counterSlice.reducer
+export default gameSlice.reducer

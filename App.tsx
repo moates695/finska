@@ -1,10 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { Image } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
 
 import Home from './src/Home';
 import Game from './src/Game';
@@ -19,7 +16,6 @@ import add from './assets/add.png';
 import settings from './assets/settings.png';
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (

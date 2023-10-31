@@ -4,20 +4,20 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 export type PlayerStatus = 'active' | 'inactive' | 'eliminated';
 
 export interface PlayerState {
-  names: string,
+  name: String,
   score: number,
   strikes: number,
   status: PlayerStatus,
 }
 
 const initialState: PlayerState = {
-  names: '',
+  name: '',
   score: 0,
   strikes: 0,
   status: 'active',
 }
 
-export const counterSlice = createSlice({
+export const playerSlice = createSlice({
   name: 'player',
   initialState,
   reducers: {
@@ -36,6 +36,6 @@ export const counterSlice = createSlice({
   },
 })
 
-export const { incrementByAmount, setActive, setInactive, setEliminated } = counterSlice.actions
+export const { incrementByAmount, setActive, setInactive, setEliminated } = playerSlice.actions
 
-export default counterSlice.reducer
+export default playerSlice.reducer
