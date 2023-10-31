@@ -14,14 +14,11 @@ export function PlayerListGroup() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-       {list.slice(1).map((player) => {
+       {list.slice(0).map((player) => {
           return (
-            <PlayerListCard name={player.name}/>
+            <PlayerListCard key={`playerList.${player.name}`} name={player.name}/>
           );
         })}
-      <View style={styles.box}>
-        <Text>Component 2</Text>
-      </View>
     </ScrollView>
   )
 }
