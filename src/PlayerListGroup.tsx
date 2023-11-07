@@ -6,17 +6,12 @@ import PlayerListCard from './PlayerListCard';
 
 export function PlayerListGroup() {
   const players = useSelector((state: RootState) => state.game.players)
-  const [list, setList] = useState(players);
-
-  useEffect(() => {
-      setList(players);
-  }, [players]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-       {list.slice(0).map((player) => {
+       {players.slice(0).map((player) => {
           return (
-            <PlayerListCard key={`playerList.${player.name}`} name={player.name}/>
+            <PlayerListCard key={`playerList.${player.name}`} original={player.name}/>
           );
         })}
     </ScrollView>
