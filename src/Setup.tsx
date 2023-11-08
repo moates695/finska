@@ -1,36 +1,58 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux'
-import { addPlayer } from './gameSlice'
+import { addPlayer, setGameStatus } from './gameSlice'
 import PlayerListGroup from './PlayerListGroup';
 import { RootState } from './store';
 
 export default function Setup({ navigation }) {
-  const players = useSelector((state: RootState) => state.game.players)
-  
-  const [name, setName] = useState('');
-  const [collision, setCollision] = useState(false);
-  const dispatch = useDispatch()
+  const players = useSelector((state: RootState) => state.game.players);
+  const dispatch = useDispatch();
 
-  function handleInputChange(text: string) {
-    setName(text);
+  const [name, setName] = useState('');
+  const [invalidName, setInvalidName] = useState(true);
+  const [validStart, setValidStart] = useState(false);
+
+  function checkInvalidName(name: string) {
     let found = false;
     players.forEach((player) => {
-      if (player.name === text) {
+      if (player.name === name) {
         found = true;
-        setCollision(true);
       }
     });
-    if (!found) {
-      setCollision(false);
+    if (found || name === '') {
+      return true;
+    } else {
+      return false;
     }
   }
 
-  function handleSubmit() {
-    if (collision) return;
-    dispatch(addPlayer(name));
-    setName('');
+  function handleInputChange(text: string) {
+    const name = text.trimStart();
+    setName(name);
+    setInvalidName(checkInvalidName(name));
   }
+
+  function handleAdd() {
+    const trimmed = name.trim();
+    if (checkInvalidName(trimmed)) {
+      setName(trimmed);
+      setInvalidName(true);
+      return;
+    }
+    dispatch(addPlayer(trimmed));
+    setName('');
+    setInvalidName(true);
+  }
+
+  function handleDone() {
+    dispatch(setGameStatus(true));
+    navigation.navigate('Game');
+  }
+
+  useEffect(() => {
+    setValidStart(players.length > 1);
+  }, [players]);
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -43,13 +65,12 @@ export default function Setup({ navigation }) {
           style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 8, width: 150 }}
           placeholder="Type something..."
           onChangeText={handleInputChange}
-          onSubmitEditing={handleSubmit}
+          onSubmitEditing={handleAdd}
           value={name}
           clearButtonMode="while-editing"
         />
-        {collision ? <Text style={{color: 'red'}}>players cannot have the same name!</Text> : <></>}
-        <Button title="add" onPress={handleSubmit} disabled={collision}/>
-        <Button title="done" onPress={() => navigation.navigate('Game')} />
+        <Button title="add" onPress={handleAdd} disabled={invalidName}/>
+        <Button title="done" onPress={handleDone} disabled={!validStart} />
         <Button title="back" onPress={() => navigation.navigate('Home')} />
       </View>
     </View>

@@ -17,7 +17,7 @@ export interface PlayerState {
 
 const initialState: GameState = {
   players: [],
-  status: true,
+  status: false,
 }
 
 interface EditNamePayload {
@@ -73,7 +73,7 @@ export const gameSlice = createSlice({
     incrementByAmount: (state, action: PayloadAction<number>) => {
       state.players[action.payload].score += action.payload
     },
-    setStatus: (state, action: PayloadAction<SetStatusPayload>) => {
+    setPlayerStatus: (state, action: PayloadAction<SetStatusPayload>) => {
       const {name, status} = action.payload;
       state.players.map(player => {
         if (player.name === name) {
@@ -89,6 +89,9 @@ export const gameSlice = createSlice({
         }
       });
     },
+    setGameStatus: (state, action: PayloadAction<boolean>) => {
+      state.status = action.payload;
+    }
   },
 })
 
@@ -98,7 +101,8 @@ export const {
   skipTurn, 
   deletePlayer, 
   incrementByAmount,
-  editName 
+  editName, 
+  setGameStatus,
 } = gameSlice.actions
 
 export default gameSlice.reducer
