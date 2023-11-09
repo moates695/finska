@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     paddingTop: 10,
+    backgroundColor: 'blue',
   },
   box: {
     width: 200,

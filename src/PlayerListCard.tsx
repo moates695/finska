@@ -14,10 +14,10 @@ export default function PlayerListCard({ original }: PlayerListCardProps) {
   const players = useSelector((state: RootState) => state.game.players)
   const dispatch = useDispatch();
 
-  const [name, setName] = useState(original);
-  const [editing, setEditing] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [invalidNewName, setInvalidNewName] = useState(true);
+  const [name, setName] = useState<string>(original);
+  const [editing, setEditing] = useState<boolean>(false);
+  const [newName, setNewName] = useState<string>('');
+  const [invalidNewName, setInvalidNewName] = useState<boolean>(true);
 
   function handleDelete() {
     if (editing) {

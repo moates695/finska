@@ -7,7 +7,7 @@ import { newGame } from './gameSlice';
 export default function Home({ navigation }) {
   const dispatch = useDispatch();
   const status = useSelector((state: RootState) => state.game.status);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   function handleNewGame() {
     if (!status) {

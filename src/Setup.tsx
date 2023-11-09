@@ -10,11 +10,15 @@ export default function Setup({ navigation }) {
   const players = useSelector((state: RootState) => state.game.players);
   const dispatch = useDispatch();
 
-  const [name, setName] = useState('');
-  const [invalidName, setInvalidName] = useState(true);
-  const [validStart, setValidStart] = useState(false);
+  const [validStart, setValidStart] = useState<boolean>(false);
+  const [name, setName] = useState<string>('');
+  const [invalidName, setInvalidName] = useState<boolean>(true);
+  const [tempPlayers, setTempPlayers] = useState<string[]>([]);
 
- 
+  function handleDone() {
+    dispatch(setGameStatus(true));
+    navigation.navigate('Game');
+  }
 
   function handleInputChange(text: string) {
     const name = text.trimStart();
@@ -34,17 +38,12 @@ export default function Setup({ navigation }) {
     setInvalidName(true);
   }
 
-  function handleDone() {
-    dispatch(setGameStatus(true));
-    navigation.navigate('Game');
-  }
-
   useEffect(() => {
     setValidStart(players.length > 1);
   }, [players]);
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={styles.container}>
       <View style={styles.box}>
         <PlayerListGroup />
       </View>
@@ -52,7 +51,7 @@ export default function Setup({ navigation }) {
         <Text>Setup Screen</Text>
         <TextInput
           style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 8, width: 150 }}
-          placeholder="Type something..."
+          placeholder="new player"
           onChangeText={handleInputChange}
           onSubmitEditing={handleAdd}
           value={name}
@@ -69,8 +68,10 @@ export default function Setup({ navigation }) {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: 'space-between',
       alignItems: 'center',
+      padding: 20,
+      backgroundColor: 'gray',
     },
     nameContainer: {
       marginVertical: 10,
@@ -78,5 +79,6 @@ const styles = StyleSheet.create({
     box: {
       flex: 1,
       marginVertical: 10,
+      backgroundColor: 'red',
     },
   });
