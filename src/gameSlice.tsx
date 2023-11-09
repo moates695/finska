@@ -91,6 +91,10 @@ export const gameSlice = createSlice({
     },
     setGameStatus: (state, action: PayloadAction<boolean>) => {
       state.status = action.payload;
+    },
+    newGame: (state) => {
+      state.players = [];
+      state.status = false;
     }
   },
 })
@@ -103,6 +107,7 @@ export const {
   incrementByAmount,
   editName, 
   setGameStatus,
+  newGame,
 } = gameSlice.actions
 
 export default gameSlice.reducer

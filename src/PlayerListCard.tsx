@@ -4,11 +4,13 @@ import { RootState } from './store';
 import { deletePlayer, editName } from './gameSlice';
 import { useState } from 'react';
 
+import { checkInvalidName } from './helper';
+
 interface PlayerListCardProps {
   original: string,
 }
 
-export function PlayerListCard({ original }: PlayerListCardProps) {
+export default function PlayerListCard({ original }: PlayerListCardProps) {
   const players = useSelector((state: RootState) => state.game.players)
   const dispatch = useDispatch();
 
@@ -33,36 +35,24 @@ export function PlayerListCard({ original }: PlayerListCardProps) {
   }
 
   function handleDone() {
-    if (invalidNewName) {
-      setEditing(false);
-      setNewName('');
-      return;
-    };
-    dispatch(editName({ name: name, newName: newName }));
-    setName(newName);
+    setInvalidNewName(checkInvalidName(name.trim(), players));
     setEditing(false);
     setNewName('');
+    if (invalidNewName) return;
+    dispatch(editName({ name: name, newName: newName }));
+    setName(newName);
+    
     setInvalidNewName(true);
   }
 
   function handleEditChange(text: string) {
     setNewName(text);
-    let found = false;
-    players.forEach((player) => {
-      if (player.name === newName) {
-        found = true;
-      }
-    });
-    if (found || text === '') {
-      setInvalidNewName(true);
-    } else {
-      setInvalidNewName(false);
-    }
+    setInvalidNewName(checkInvalidName(text, players));
   }
-  
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={() => handleDelete}>
+      <TouchableOpacity style={styles.button} onPress={() => handleDelete()}>
         <Text style={styles.buttonText}>del</Text>
       </TouchableOpacity>
       {editing ? (
@@ -71,7 +61,7 @@ export function PlayerListCard({ original }: PlayerListCardProps) {
             style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 8, width: 150 }}
             placeholder={name}
             onChangeText={handleEditChange}
-            onSubmitEditing={handleDone} // TODO stop duplicate names (reset to old name instead or block submit)
+            onSubmitEditing={handleDone}
             value={newName}
             clearButtonMode="while-editing"
           />
@@ -118,5 +108,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-export default PlayerListCard;

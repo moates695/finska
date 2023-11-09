@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import PlayerListCard from './PlayerListCard';
 
-export function PlayerListGroup() {
+export default function PlayerListGroup() {
   const players = useSelector((state: RootState) => state.game.players)
 
   return (
@@ -32,5 +31,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-export default PlayerListGroup;

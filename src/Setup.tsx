@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addPlayer, setGameStatus } from './gameSlice'
 import PlayerListGroup from './PlayerListGroup';
 import { RootState } from './store';
+import { checkInvalidName } from './helper';
 
 export default function Setup({ navigation }) {
   const players = useSelector((state: RootState) => state.game.players);
@@ -13,29 +14,17 @@ export default function Setup({ navigation }) {
   const [invalidName, setInvalidName] = useState(true);
   const [validStart, setValidStart] = useState(false);
 
-  function checkInvalidName(name: string) {
-    let found = false;
-    players.forEach((player) => {
-      if (player.name === name) {
-        found = true;
-      }
-    });
-    if (found || name === '') {
-      return true;
-    } else {
-      return false;
-    }
-  }
+ 
 
   function handleInputChange(text: string) {
     const name = text.trimStart();
     setName(name);
-    setInvalidName(checkInvalidName(name));
+    setInvalidName(checkInvalidName(name, players));
   }
 
   function handleAdd() {
     const trimmed = name.trim();
-    if (checkInvalidName(trimmed)) {
+    if (checkInvalidName(trimmed, players)) {
       setName(trimmed);
       setInvalidName(true);
       return;

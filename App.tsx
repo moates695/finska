@@ -11,9 +11,9 @@ import Setup from './src/Setup';
 
 import { store } from './src/store';
 
-import home from './assets/home.png';
-import add from './assets/add.png';
-import settings from './assets/settings.png';
+// import home from './assets/home.png';
+// import add from './assets/add.png';
+// import settings from './assets/settings.png';
 
 const Stack = createNativeStackNavigator();
 
