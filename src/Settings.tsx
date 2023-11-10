@@ -2,7 +2,7 @@ import { View, Text, Button, TextInput, Keyboard, StyleSheet, TouchableOpacity }
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store';
 import { useState, useEffect } from 'react';
-import { updateReset, updateTarget, SitoutType, sitouts, allDefaults, SettingsState, updateAll, Sitout } from './settingsSlice';
+import { SitoutType, sitouts, SettingsState, updateAll, Sitout } from './settingsSlice';
 import NumericInput from './NumericInput';
 
 export default function Settings({ navigation }: any) {
@@ -12,7 +12,7 @@ export default function Settings({ navigation }: any) {
   const [newSettings, setNewSettings] = useState<SettingsState>(settings);
   const [selectedOption, setSelectedOption] = useState<SitoutType>('none');
   const [targetProps, setTargetProps] = useState({
-    name: 'target',
+    setting: 'target',
     originalValue: settings.target,
     updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})},
   });
@@ -32,7 +32,6 @@ export default function Settings({ navigation }: any) {
   }
 
   function handleDefaults() {
-    //dispatch(allDefaults());
     setNewSettings(settings);
   }
 
@@ -42,20 +41,20 @@ export default function Settings({ navigation }: any) {
   
   useEffect(() => {
     setTargetProps({
-      name: 'target',
+      setting: 'target',
       originalValue: newSettings.target,
       updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})}
     })
   }, [newSettings.target])
 
   const resetProps = {
-    name: 'reset',
+    setting: 'reset',
     originalValue: settings.reset,
     updateFunction: (newReset: number) => { setNewSettings({...newSettings, reset: newReset})},
   }
 
   const sitoutProps = {
-    name: 'sitout',
+    setting: 'sitout',
     originalValue: settings.sitout.value,
     updateFunction: (newValue: Sitout) => { setNewSettings({...newSettings, sitout: newValue})},
   }
