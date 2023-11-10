@@ -1,8 +1,8 @@
-import { View, Text, Button, TextInput, Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store';
 import { useState, useEffect } from 'react';
-import { SitoutType, sitouts, SettingsState, updateAll, Sitout } from './settingsSlice';
+import { SitoutType, sitouts, SettingsState, updateAll, Sitout, initialState } from './settingsSlice';
 import NumericInput from './NumericInput';
 
 export default function Settings({ navigation }: any) {
@@ -11,11 +11,8 @@ export default function Settings({ navigation }: any) {
   
   const [newSettings, setNewSettings] = useState<SettingsState>(settings);
   const [selectedOption, setSelectedOption] = useState<SitoutType>('none');
-  const [targetProps, setTargetProps] = useState({
-    setting: 'target',
-    originalValue: settings.target,
-    updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})},
-  });
+  const [originals, setOriginals] = useState<SettingsState>(settings);
+  const [props, setProps] = useState<{[key: string]: any}>(buildProps);
 
   function handleOptionPress(timeout: SitoutType) {
     setSelectedOption(timeout);
@@ -25,7 +22,6 @@ export default function Settings({ navigation }: any) {
     navigation.goBack()
   }
 
-  // TODO on save prevent any settings collisions
   function handleSave() {
     dispatch(updateAll(newSettings));
     navigation.goBack()
@@ -38,31 +34,33 @@ export default function Settings({ navigation }: any) {
   // TODO warn users of colliding settings, but allow to continue editing if they want (they may remedy before save)
 
   // TODO default button for different settings
-  
+
+  function buildProps() {
+    let temp: {[key: string]: any} = {};
+    for (const key of Object.keys(initialState)) {
+      const original = key !== 'sitout' ? originals[key as keyof SettingsState]: originals.sitout.value;
+      temp[key] = {
+        setting: key,
+        originalValue: original,
+        updateFunction: (newValue: number) => { setNewSettings({...newSettings, [key]: newValue})},
+      }
+    }
+    return temp;
+  }
+
   useEffect(() => {
-    setTargetProps({
-      setting: 'target',
-      originalValue: newSettings.target,
-      updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})}
-    })
-  }, [newSettings.target])
+    setOriginals(newSettings);
+  }, [newSettings])
 
-  const resetProps = {
-    setting: 'reset',
-    originalValue: settings.reset,
-    updateFunction: (newReset: number) => { setNewSettings({...newSettings, reset: newReset})},
-  }
+  useEffect(() => {
+    setProps(buildProps);
+  }, [originals]);
 
-  const sitoutProps = {
-    setting: 'sitout',
-    originalValue: settings.sitout.value,
-    updateFunction: (newValue: Sitout) => { setNewSettings({...newSettings, sitout: newValue})},
-  }
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <NumericInput {...targetProps}/>
-      <NumericInput {...resetProps}/>
+      <NumericInput {...props.target}/>
+      <NumericInput {...props.reset}/>
       <View style={styles.container}>
         {sitouts.map((sitout) => {
           return (
@@ -76,7 +74,7 @@ export default function Settings({ navigation }: any) {
           )
         })}
        </View>
-       {selectedOption !== 'none' && <NumericInput {...sitoutProps}/>}
+       {selectedOption !== 'none' && <NumericInput {...props.sitout}/>}
       <Button title="cancel" onPress={handleCancel} />
       <Button title="save" onPress={handleSave} />
       <Button title="reset defaults" onPress={handleDefaults} />
@@ -99,7 +97,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   selectedOption: {
-    backgroundColor: '#b3e0ff', // Change the color for the selected option
+    backgroundColor: '#b3e0ff',
   },
   optionText: {
     textAlign: 'center',
