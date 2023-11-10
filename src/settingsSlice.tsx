@@ -16,7 +16,7 @@ export interface SettingsState {
   sitout: Sitout,
 }
 
-const initialState: SettingsState = {
+export const initialState: SettingsState = {
   target: 50,
   reset: 25,
   missLimit: 3,
