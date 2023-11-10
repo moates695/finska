@@ -26,7 +26,8 @@ export default function NumericInput(props: NumericInputProps) {
       setValue('');
       return;
     }
-    dispatch(updateFunction(num));
+    //dispatch(updateFunction(num));
+    updateFunction(num);
     Keyboard.dismiss();
   }
   

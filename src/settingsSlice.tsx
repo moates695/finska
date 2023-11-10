@@ -4,12 +4,12 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 export const sitouts = ['turns', 'rounds', 'none'] as const;
 export type SitoutType = typeof sitouts[number];
 
-interface Sitout {
+export interface Sitout {
   type: SitoutType,
   value: number,
 }
 
-interface SettingsState {
+export interface SettingsState {
   target: number,
   reset: number,
   missLimit: number,
@@ -44,6 +44,9 @@ export const settingsSlice = createSlice({
     },
     allDefaults: (state) => {
       state = initialState;
+    },
+    updateAll: (state, action: PayloadAction<SettingsState>) => {
+      return {...state, ...action.payload};
     }
   }
 });
@@ -54,6 +57,7 @@ export const {
   updateReset,
   defaultReset,
   allDefaults,
+  updateAll,
 } = settingsSlice.actions
 
 export default settingsSlice.reducer

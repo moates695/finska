@@ -2,61 +2,68 @@ import { View, Text, Button, TextInput, Keyboard, StyleSheet, TouchableOpacity }
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store';
 import { useState, useEffect } from 'react';
-import { updateReset, updateTarget, SitoutType, sitouts, allDefaults } from './settingsSlice';
+import { updateReset, updateTarget, SitoutType, sitouts, allDefaults, SettingsState, updateAll, Sitout } from './settingsSlice';
 import NumericInput from './NumericInput';
 
 export default function Settings({ navigation }) {
   const settings = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch();
-  const startSettings = {...settings};
 
-  useEffect(() => {
-    //! TODO store start settings so can restore on cancel
-  }, [settings]);
-
+  const [newSettings, setNewSettings] = useState<SettingsState>(settings);
   const [selectedOption, setSelectedOption] = useState<SitoutType>('none');
-  // TODO responsice props useEffect + useState?
+  // const [targetProps, setTargetProps] = useState({
+  //   name: 'target',
+  //   originalValue: settings.target,
+  //   updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})},
+  // });
 
   function handleOptionPress(timeout: SitoutType) {
     setSelectedOption(timeout);
   }
 
-  // TODO on back revert to previous settings
   function handleCancel() {
-    dispatch(updateTarget(startSettings.target));
-    dispatch(updateReset(startSettings.reset));
     navigation.goBack()
   }
 
   // TODO on save prevent any settings collisions
   function handleSave() {
+    //console.log(newSettings);
+    dispatch(updateAll(newSettings));
     navigation.goBack()
   }
 
   function handleDefaults() {
-    dispatch(allDefaults());
+    //dispatch(allDefaults());
   }
 
   // TODO warn users of colliding settings, but allow to continue editing if they want (they may remedy before save)
 
   // TODO default button for different settings
+  // useEffect(() => {
+  //   setTargetProps({
+  //     name: 'target',
+  //     originalValue: settings.target,
+  //     updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})}
+  //   })
+  //   console.log(targetProps);
+  // }, [settings.target])
 
   const targetProps = {
     name: 'target',
     originalValue: settings.target,
-    updateFunction: updateTarget,
+    updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})},
   }
 
   const resetProps = {
     name: 'reset',
     originalValue: settings.reset,
-    updateFunction: updateReset,
+    updateFunction: (newReset: number) => { setNewSettings({...newSettings, reset: newReset})},
   }
 
   const sitoutProps = {
     name: 'sitout',
     originalValue: settings.sitout.value,
-    updateFunction: updateReset,
+    updateFunction: (newValue: Sitout) => { setNewSettings({...newSettings, sitout: newValue})},
   }
 
   return (
