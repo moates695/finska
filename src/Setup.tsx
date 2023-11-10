@@ -6,7 +6,7 @@ import PlayerListGroup from './PlayerListGroup';
 import { RootState } from './store';
 import { checkInvalidName } from './helper';
 
-export default function Setup({ navigation }) {
+export default function Setup({ navigation }: any) {
   const players = useSelector((state: RootState) => state.game.players);
   const dispatch = useDispatch();
 

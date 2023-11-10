@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Keyboard, Text, TextInput } from "react-native";
-import { useDispatch } from "react-redux";
 
 interface NumericInputProps {
   name: string;
@@ -13,7 +12,9 @@ export default function NumericInput(props: NumericInputProps) {
 
   const [value, setValue] = useState<string>(originalValue.toString());
 
-  const dispatch = useDispatch();
+  useEffect(() => {
+    setValue(originalValue.toString());
+  }, [originalValue]);
 
   function handleChange(text: string) {
     const filteredText = text.replace(/[^0-9]/g, '');
@@ -26,7 +27,6 @@ export default function NumericInput(props: NumericInputProps) {
       setValue('');
       return;
     }
-    //dispatch(updateFunction(num));
     updateFunction(num);
     Keyboard.dismiss();
   }

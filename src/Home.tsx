@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from './store';
 import { newGame } from './gameSlice';
 
-export default function Home({ navigation }) {
+export default function Home({ navigation }: any) {
   const dispatch = useDispatch();
   const status = useSelector((state: RootState) => state.game.status);
   const [modalVisible, setModalVisible] = useState<boolean>(false);

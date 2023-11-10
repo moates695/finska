@@ -5,17 +5,17 @@ import { useState, useEffect } from 'react';
 import { updateReset, updateTarget, SitoutType, sitouts, allDefaults, SettingsState, updateAll, Sitout } from './settingsSlice';
 import NumericInput from './NumericInput';
 
-export default function Settings({ navigation }) {
+export default function Settings({ navigation }: any) {
   const settings = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch();
-
+  
   const [newSettings, setNewSettings] = useState<SettingsState>(settings);
   const [selectedOption, setSelectedOption] = useState<SitoutType>('none');
-  // const [targetProps, setTargetProps] = useState({
-  //   name: 'target',
-  //   originalValue: settings.target,
-  //   updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})},
-  // });
+  const [targetProps, setTargetProps] = useState({
+    name: 'target',
+    originalValue: settings.target,
+    updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})},
+  });
 
   function handleOptionPress(timeout: SitoutType) {
     setSelectedOption(timeout);
@@ -27,32 +27,26 @@ export default function Settings({ navigation }) {
 
   // TODO on save prevent any settings collisions
   function handleSave() {
-    //console.log(newSettings);
     dispatch(updateAll(newSettings));
     navigation.goBack()
   }
 
   function handleDefaults() {
     //dispatch(allDefaults());
+    setNewSettings(settings);
   }
 
   // TODO warn users of colliding settings, but allow to continue editing if they want (they may remedy before save)
 
   // TODO default button for different settings
-  // useEffect(() => {
-  //   setTargetProps({
-  //     name: 'target',
-  //     originalValue: settings.target,
-  //     updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})}
-  //   })
-  //   console.log(targetProps);
-  // }, [settings.target])
-
-  const targetProps = {
-    name: 'target',
-    originalValue: settings.target,
-    updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})},
-  }
+  
+  useEffect(() => {
+    setTargetProps({
+      name: 'target',
+      originalValue: newSettings.target,
+      updateFunction: (newTarget: number) => { setNewSettings({...newSettings, target: newTarget})}
+    })
+  }, [newSettings.target])
 
   const resetProps = {
     name: 'reset',

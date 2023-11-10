@@ -42,11 +42,11 @@ export const settingsSlice = createSlice({
     defaultReset: (state) => {
       state.reset = initialState.reset;
     },
-    allDefaults: (state) => {
-      state = initialState;
+    allDefaults: (_) => {
+      return initialState;
     },
-    updateAll: (state, action: PayloadAction<SettingsState>) => {
-      return {...state, ...action.payload};
+    updateAll: (_, action: PayloadAction<SettingsState>) => {
+      return action.payload;
     }
   }
 });

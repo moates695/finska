@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 
-export default function Game({ navigation }) {
+export default function Game({ navigation }: any) {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
