@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux'
-import { addPlayer, setGameStatus } from './gameSlice'
+import { addPlayer, updateGameStatus } from './gameSlice'
 import PlayerListGroup from './PlayerListGroup';
 import { RootState } from './store';
 import { checkInvalidName } from './helper';
@@ -16,7 +16,7 @@ export default function Setup({ navigation }) {
   const [tempPlayers, setTempPlayers] = useState<string[]>([]);
 
   function handleDone() {
-    dispatch(setGameStatus(true));
+    dispatch(updateGameStatus(true));
     navigation.navigate('Game');
   }
 

@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 
 type TimeoutType = 'turns' | 'rounds' | 'none';
 
-interface Timeout {
+interface Sitout {
   type: TimeoutType,
   value: number | null,
 }
@@ -12,14 +12,14 @@ interface SettingsState {
   target: number,
   reset: number,
   missLimit: number | null,
-  timeout: Timeout,
+  sitout: Sitout,
 }
 
 const initialState: SettingsState = {
   target: 50,
   reset: 25,
   missLimit: 3,
-  timeout: {
+  sitout: {
     type: 'none',
     value: null,
   },

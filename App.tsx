@@ -6,7 +6,6 @@ import { Provider } from 'react-redux';
 import Home from './src/Home';
 import Game from './src/Game';
 import Settings from './src/Settings';
-import AddPlayer from './src/AddPlayer';
 import Setup from './src/Setup';
 
 import { store } from './src/store';
@@ -25,7 +24,6 @@ export default function App() {
           <Stack.Screen name="Home" component={Home} options={{headerShown: false}}/>
           <Stack.Screen name="Game" component={Game} options={{headerShown: false}}/>
           <Stack.Screen name="Setup" component={Setup} options={{headerShown: false}}/>
-          <Stack.Screen name="AddPlayer" component={AddPlayer} options={{headerShown: false}}/>
           <Stack.Screen name="Settings" component={Settings} options={{headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
