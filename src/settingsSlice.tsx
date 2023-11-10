@@ -1,17 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
-type TimeoutType = 'turns' | 'rounds' | 'none';
+export const sitouts = ['turns', 'rounds', 'none'] as const;
+export type SitoutType = typeof sitouts[number];
 
 interface Sitout {
-  type: TimeoutType,
-  value: number | null,
+  type: SitoutType,
+  value: number,
 }
 
 interface SettingsState {
   target: number,
   reset: number,
-  missLimit: number | null,
+  missLimit: number,
   sitout: Sitout,
 }
 
@@ -21,7 +22,7 @@ const initialState: SettingsState = {
   missLimit: 3,
   sitout: {
     type: 'none',
-    value: null,
+    value: Infinity,
   },
 }
 
@@ -41,6 +42,9 @@ export const settingsSlice = createSlice({
     defaultReset: (state) => {
       state.reset = initialState.reset;
     },
+    allDefaults: (state) => {
+      state = initialState;
+    }
   }
 });
 
@@ -49,6 +53,7 @@ export const {
   defaultTarget,
   updateReset,
   defaultReset,
+  allDefaults,
 } = settingsSlice.actions
 
 export default settingsSlice.reducer

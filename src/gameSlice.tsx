@@ -16,8 +16,18 @@ export interface PlayerState {
 }
 
 const initialState: GameState = {
-  players: [],
-  status: false,
+  players: [{
+    name: 'Player 1',
+    score: 0,
+    strikes: 0,
+    status: 'active',
+  },{
+    name: 'Player 2',
+    score: 0,
+    strikes: 0,
+    status: 'active',
+  }],
+  status: true,
 }
 
 interface EditNamePayload {

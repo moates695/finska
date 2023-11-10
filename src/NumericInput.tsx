@@ -32,10 +32,9 @@ export default function NumericInput(props: NumericInputProps) {
   
   return (
     <>
-    <Text>{name}</Text>
       <TextInput
         style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, paddingLeft: 8, width: 150 }}
-        placeholder={originalValue.toString()}
+        placeholder={name}
         onChangeText={handleChange}
         onSubmitEditing={handleSubmit}
         value={value}
