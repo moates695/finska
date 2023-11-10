@@ -73,7 +73,7 @@ export const gameSlice = createSlice({
     incrementByAmount: (state, action: PayloadAction<number>) => {
       state.players[action.payload].score += action.payload
     },
-    setPlayerStatus: (state, action: PayloadAction<SetStatusPayload>) => {
+    updatePlayerStatus: (state, action: PayloadAction<SetStatusPayload>) => {
       const {name, status} = action.payload;
       state.players.map(player => {
         if (player.name === name) {
@@ -89,7 +89,7 @@ export const gameSlice = createSlice({
         }
       });
     },
-    setGameStatus: (state, action: PayloadAction<boolean>) => {
+    updateGameStatus: (state, action: PayloadAction<boolean>) => {
       state.status = action.payload;
     },
     newGame: (state) => {
@@ -105,8 +105,9 @@ export const {
   skipTurn, 
   deletePlayer, 
   incrementByAmount,
+  updatePlayerStatus,
   editName, 
-  setGameStatus,
+  updateGameStatus,
   newGame,
 } = gameSlice.actions
 

@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: 20,
-      backgroundColor: 'gray',
     },
     nameContainer: {
       marginVertical: 10,
@@ -79,6 +78,5 @@ const styles = StyleSheet.create({
     box: {
       flex: 1,
       marginVertical: 10,
-      backgroundColor: 'red',
     },
   });

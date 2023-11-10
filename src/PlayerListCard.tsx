@@ -97,7 +97,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    backgroundColor: 'blue',
     paddingVertical: 10,
     paddingHorizontal: 20,
     marginVertical: 10,
