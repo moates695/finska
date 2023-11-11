@@ -11,11 +11,19 @@ export default function Settings({ navigation }: any) {
   
   const [newSettings, setNewSettings] = useState<SettingsState>(settings);
   const [selectedOption, setSelectedOption] = useState<SitoutType>('none');
-  const [originals, setOriginals] = useState<SettingsState>(settings);
+  const [originals, setOriginals] = useState<SettingsState>(settings); // TODO investigate if this is redundant
   const [props, setProps] = useState<{[key: string]: any}>(buildProps);
+  const [collidingSettings, setCollidingSettings] = useState<string[]>([]);
 
   function handleOptionPress(timeout: SitoutType) {
     setSelectedOption(timeout);
+    // TODO sitout shit next
+    if (timeout === 'none') {
+      setNewSettings({...newSettings, sitout: {type: 'none', value: Infinity}});
+      return;
+    } else {
+      setNewSettings({...newSettings, sitout: {type: timeout, value: 1}});
+    }
   }
 
   function handleCancel() {
@@ -28,7 +36,7 @@ export default function Settings({ navigation }: any) {
   }
 
   function handleDefaults() {
-    setNewSettings(settings);
+    setNewSettings(initialState);
   }
 
   // TODO warn users of colliding settings, but allow to continue editing if they want (they may remedy before save)

@@ -16,14 +16,22 @@ export default function NumericInput(props: NumericInputProps) {
     setValue(originalValue.toString());
   }, [originalValue]);
 
+  function checkNum(num: number): boolean {
+    return !isNaN(num) && Number.isInteger(num);
+  }
+
   function handleChange(text: string) {
     const filteredText = text.replace(/[^0-9]/g, '');
     setValue(filteredText);
+    const num = parseInt(filteredText);
+    if (checkNum(num)) {
+      updateFunction(num);
+    }
   }
 
   function handleSubmit() {
     const num = parseInt(value);
-    if (isNaN(num) || !Number.isInteger(num)) {
+    if (!checkNum(num)) {
       setValue('');
       return;
     }
