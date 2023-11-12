@@ -11,19 +11,22 @@ export default function Settings({ navigation }: any) {
   
   const [newSettings, setNewSettings] = useState<SettingsState>(settings);
   const [selectedOption, setSelectedOption] = useState<SitoutType>('none');
-  const [originals, setOriginals] = useState<SettingsState>(settings); // TODO investigate if this is redundant
   const [props, setProps] = useState<{[key: string]: any}>(buildProps);
+  const [sitoutTurns, setSitoutTurns] = useState<number>(3);
+  const [sitoutRounds, setSitoutRounds] = useState<number>(3);
   const [collidingSettings, setCollidingSettings] = useState<string[]>([]);
 
-  function handleOptionPress(timeout: SitoutType) {
-    setSelectedOption(timeout);
-    // TODO sitout shit next
-    if (timeout === 'none') {
-      setNewSettings({...newSettings, sitout: {type: 'none', value: Infinity}});
-      return;
+  function handleOptionPress(sitout: SitoutType) {
+    setSelectedOption(sitout);
+    let value: number;
+    if (sitout === 'none') {
+      value = Infinity;
+    } else if (sitout === 'turns') {
+      value = sitoutTurns;
     } else {
-      setNewSettings({...newSettings, sitout: {type: timeout, value: 1}});
+      value = sitoutRounds;
     }
+    setNewSettings({...newSettings, sitout: {type: 'none', value: value}});
   }
 
   function handleCancel() {
@@ -46,10 +49,10 @@ export default function Settings({ navigation }: any) {
   function buildProps() {
     let temp: {[key: string]: any} = {};
     for (const key of Object.keys(initialState)) {
-      const original = key !== 'sitout' ? originals[key as keyof SettingsState]: originals.sitout.value;
+      const initial = key !== 'sitout' ? newSettings[key as keyof SettingsState] : newSettings.sitout.value;
       temp[key] = {
         setting: key,
-        originalValue: original,
+        initialValue: initial,
         updateFunction: (newValue: number) => { setNewSettings({...newSettings, [key]: newValue})},
       }
     }
@@ -57,13 +60,8 @@ export default function Settings({ navigation }: any) {
   }
 
   useEffect(() => {
-    setOriginals(newSettings);
-  }, [newSettings])
-
-  useEffect(() => {
     setProps(buildProps);
-  }, [originals]);
-
+  }, [newSettings]);
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

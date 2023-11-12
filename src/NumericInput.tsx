@@ -3,18 +3,18 @@ import { Button, Keyboard, Text, TextInput } from "react-native";
 
 interface NumericInputProps {
   setting: string;
-  originalValue: number;
+  initialValue: number;
   updateFunction: any; 
 }
 
 export default function NumericInput(props: NumericInputProps) {
-  const { setting, originalValue, updateFunction } = props;
+  const { setting, initialValue, updateFunction } = props;
 
-  const [value, setValue] = useState<string>(originalValue.toString());
+  const [value, setValue] = useState<string>(initialValue.toString());
 
   useEffect(() => {
-    setValue(originalValue.toString());
-  }, [originalValue]);
+    setValue(initialValue.toString());
+  }, [initialValue]);
 
   function checkNum(num: number): boolean {
     return !isNaN(num) && Number.isInteger(num);
