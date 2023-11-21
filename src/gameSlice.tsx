@@ -45,6 +45,7 @@ export const gameSlice = createSlice({
   initialState,
   reducers: {
     addPlayer: (state, action: PayloadAction<string>) => {
+      // TODO add player with baseline score based on new setting
       const player: PlayerState = {
         name: action.payload,
         score: 0,

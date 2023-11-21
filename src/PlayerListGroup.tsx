@@ -8,11 +8,11 @@ export default function PlayerListGroup() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-       {players.slice(0).map((player) => {
-          return (
-            <PlayerListCard key={`playerList.${player.name}`} original={player.name}/>
-          );
-        })}
+      {players.map((player) => {
+        return (
+          <PlayerListCard key={`playerList.${player.name}`} original={player.name}/>
+        );
+      })}
     </ScrollView>
   )
 }

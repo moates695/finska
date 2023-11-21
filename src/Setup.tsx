@@ -13,7 +13,6 @@ export default function Setup({ navigation }: any) {
   const [validStart, setValidStart] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
   const [invalidName, setInvalidName] = useState<boolean>(true);
-  const [tempPlayers, setTempPlayers] = useState<string[]>([]);
 
   function handleDone() {
     dispatch(updateGameStatus(true));
@@ -59,7 +58,7 @@ export default function Setup({ navigation }: any) {
         />
         <Button title="add" onPress={handleAdd} disabled={invalidName}/>
         <Button title="done" onPress={handleDone} disabled={!validStart} />
-        <Button title="back" onPress={() => navigation.navigate('Home')} />
+        <Button title="back" onPress={() => navigation.goBack()} />
       </View>
     </View>
   )
