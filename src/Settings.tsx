@@ -8,63 +8,64 @@ import NumericInput from './NumericInput';
 export default function Settings({ navigation }: any) {
   const settings = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch();
-  
+
   const [newSettings, setNewSettings] = useState<SettingsState>(settings);
-  const [selectedOption, setSelectedOption] = useState<SitoutType>('none');
+  const [selectedOption, setSelectedOption] = useState<SitoutType>(settings.sitout.type);
   const [props, setProps] = useState<{[key: string]: any}>(buildProps);
-  const [sitoutTurns, setSitoutTurns] = useState<number>(3);
-  const [sitoutRounds, setSitoutRounds] = useState<number>(3);
-  const [collidingSettings, setCollidingSettings] = useState<string[]>([]);
+  const [collidingSettings, setCollidingSettings] = useState<boolean>(false);
 
   function handleOptionPress(sitout: SitoutType) {
     setSelectedOption(sitout);
-    let value: number;
-    if (sitout === 'none') {
-      value = Infinity;
-    } else if (sitout === 'turns') {
-      value = sitoutTurns;
-    } else {
-      value = sitoutRounds;
-    }
-    setNewSettings({...newSettings, sitout: {type: 'none', value: value}});
   }
+
+  useEffect(() => {
+    let value: number = Infinity;
+    value = selectedOption === settings.sitout.type ? settings.sitout.value : 3;
+    setNewSettings({...newSettings, sitout: {type: selectedOption, value: value}});
+  }, [selectedOption]);
 
   function handleCancel() {
     navigation.goBack()
   }
 
   function handleSave() {
+    if (collidingSettings) return;
     dispatch(updateAll(newSettings));
     navigation.goBack()
   }
 
   function handleDefaults() {
     setNewSettings(initialState);
+    setSelectedOption(initialState.sitout.type);
   }
-
-  // TODO warn users of colliding settings, but allow to continue editing if they want (they may remedy before save)
-
-  // TODO default button for different settings
 
   function buildProps() {
     let temp: {[key: string]: any} = {};
     for (const key of Object.keys(initialState)) {
-      const initial = key !== 'sitout' ? newSettings[key as keyof SettingsState] : newSettings.sitout.value;
-      temp[key] = {
-        setting: key,
-        initialValue: initial,
-        updateFunction: (newValue: number) => { setNewSettings({...newSettings, [key]: newValue})},
+      if (key == 'sitout') {
+        temp[key] = {
+          initialValue: newSettings.sitout.value,
+          updateFunction: (newValue: number) => { setNewSettings({...newSettings, sitout: {type: selectedOption, value: newValue}})},
+        }
+      } else {
+        temp[key] = {
+          initialValue: newSettings[key as keyof SettingsState],
+          updateFunction: (newValue: number) => { setNewSettings({...newSettings, [key]: newValue})},
+        }
       }
+      temp[key].setting = key;
     }
     return temp;
   }
 
   useEffect(() => {
     setProps(buildProps);
+    setCollidingSettings(newSettings.reset >= newSettings.target);
   }, [newSettings]);
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      {collidingSettings && <Text style={{color: 'red'}}>Settings are colliding!</Text>}
       <NumericInput {...props.target}/>
       <NumericInput {...props.reset}/>
       <View style={styles.container}>

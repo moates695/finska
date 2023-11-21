@@ -9,7 +9,7 @@ interface NumericInputProps {
 
 export default function NumericInput(props: NumericInputProps) {
   const { setting, initialValue, updateFunction } = props;
-
+  
   const [value, setValue] = useState<string>(initialValue.toString());
 
   useEffect(() => {
