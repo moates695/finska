@@ -16,6 +16,8 @@ export interface SettingsState {
   sitout: Sitout,
 }
 
+// TODO add setting toggle for score type
+
 export const initialState: SettingsState = {
   target: 50,
   reset: 25,
