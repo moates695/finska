@@ -60,13 +60,16 @@ export const gameSlice = createSlice({
         state.players[0].strikes = 0;
       } else {
         state.players[0].strikes += 1;
+        // TODO add setting for strikes to eliminate
         if (state.players[0].strikes == 3) {
           state.players[0].status = 'eliminated';
         }
       }
+      // TODO add check for if next player is out, or whether they come back in based on sitout settings
       const [first, ...rest] = state.players;
       state.players = [...rest, first];
     },
+    // TODO reference if skips count as strikes from settings
     skipTurn: (state) => {
       const [first, ...rest] = state.players;
       state.players = [...rest, first];

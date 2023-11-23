@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { Button, StyleSheet, View, TouchableOpacity, Text} from "react-native";
+import { enterTurn, skipTurn } from "./gameSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function ScoreInput() {
-  const [selected, setSelected] = useState<number[]>(Array(12).fill(0));
+  const emptyArray = Array(12).fill(0);
+  const [selected, setSelected] = useState<number[]>(emptyArray);
+  
+  const settings = useSelector((state: any) => state.settings);
+  const dispatch = useDispatch();
 
   function handlePress(num: number) {
     let temp = [...selected];
@@ -10,44 +16,58 @@ export default function ScoreInput() {
     setSelected(temp);
   }
 
+  function handleClear() {
+    setSelected(emptyArray);
+  }
+
+  function handleSubmit() {
+    let score = selected.filter(num => num === 1).length;
+    if (score === 0 || (score > 1 && settings.scoreType === 'original')) {
+      dispatch(enterTurn(score));
+      setSelected(emptyArray);
+      return;
+    }
+    score = 0;
+    for (let i in selected) {
+      if (!selected[i]) continue;
+      score += parseInt(i);
+    }
+    dispatch(enterTurn(score));
+    setSelected(emptyArray);
+  }
+
+  function handleSkip() {
+    dispatch(skipTurn());
+    setSelected(emptyArray);
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.row}>
-        {[7, 8, 9].map((num) => {
-          return (
-            <TouchableOpacity onPress={() => {handlePress(num)}} style={[styles.button, selected[num] ? styles.selectedButton : null]}>
-              <Text style={styles.buttonText}>{num}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-      <View style={styles.row}>
-      {[5, 11, 12, 6].map((num) => {
-          return (
-            <TouchableOpacity onPress={() => {handlePress(num)}} style={[styles.button, selected[num] ? styles.selectedButton : null]}>
-              <Text style={styles.buttonText}>{num}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-      <View style={styles.row}>
-      {[3, 10, 4].map((num) => {
-          return (
-            <TouchableOpacity onPress={() => {handlePress(num)}} style={[styles.button, selected[num] ? styles.selectedButton : null]}>
-              <Text style={styles.buttonText}>{num}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-      <View style={styles.row}>
-      {[1, 2].map((num) => {
-          return (
-            <TouchableOpacity onPress={() => {handlePress(num)}} style={[styles.button, selected[num] ? styles.selectedButton : null]}>
-              <Text style={styles.buttonText}>{num}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      {[[7,8,9], [5,11,12,6], [3,10,4], [1,2]].map((row) => {
+        return (
+          <View style={styles.row} key={`buttonRow${row}`}>
+            {row.map((num) => {
+              return (
+                <TouchableOpacity onPress={() => {handlePress(num)}} style={[styles.button, selected[num] ? styles.selectedButton : null]} key={`button${num}`}>
+                  <Text style={styles.buttonText}>{num}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )
+      })}
+    <View style={styles.row}>
+      <TouchableOpacity onPress={() => {handleClear()}} style={styles.button}>
+        <Text style={{color: 'black'}}>clear</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => {handleSkip()}} style={styles.button}>
+        <Text style={{color: 'black'}}>skip</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => {handleSubmit()}} style={styles.button}>
+        <Text style={{color: 'black'}}>submit</Text>
+      </TouchableOpacity>
+    </View>
+      
     </View>
   )
 }
@@ -68,7 +88,12 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: '#3498db',
     padding: 10,
-    borderRadius: 5,
+    margin: 2,
+    borderRadius: 10,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   selectedButton: {
     backgroundColor: '#2ecc71', // Green color when selected

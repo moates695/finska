@@ -4,6 +4,8 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 export const sitouts = ['turns', 'rounds', 'none'] as const;
 export type SitoutType = typeof sitouts[number];
 
+export type ScoreType = 'original' | 'fast';
+
 export interface Sitout {
   type: SitoutType,
   value: number,
@@ -14,9 +16,11 @@ export interface SettingsState {
   reset: number,
   missLimit: number,
   sitout: Sitout,
+  scoreType: ScoreType
 }
 
-// TODO add setting toggle for score type
+// TODO add setting toggle for score type (og vs fast)
+// TODO skip turns count as strikes toggle
 
 export const initialState: SettingsState = {
   target: 50,
@@ -26,6 +30,7 @@ export const initialState: SettingsState = {
     type: 'none',
     value: Infinity,
   },
+  scoreType: 'original',
 }
 
 export const settingsSlice = createSlice({
