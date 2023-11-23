@@ -2,8 +2,9 @@ import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store';
 import { useState, useEffect } from 'react';
-import { SitoutType, sitouts, SettingsState, updateAll, Sitout, initialState } from './settingsSlice';
+import { SitoutType, sitouts, SettingsState, updateAll, Sitout, initialState, scoreTypes, ScoreType } from './settingsSlice';
 import NumericInput from './NumericInput';
+import ToggleButton from './ToggleButton';
 
 export default function Settings({ navigation }: any) {
   const settings = useSelector((state: RootState) => state.settings);
@@ -81,7 +82,13 @@ export default function Settings({ navigation }: any) {
           )
         })}
        </View>
-       {selectedOption !== 'none' && <NumericInput {...props.sitout}/>}
+      {selectedOption !== 'none' && <NumericInput {...props.sitout}/>}
+      <ToggleButton value1={scoreTypes[1]} value2={scoreTypes[0]} initialValue={settings.scoreType === scoreTypes[0]} 
+        updateFunction={() => {
+          
+        }}/>
+      <ToggleButton value1='no' value2='yes' initialValue={settings.skipAsStrike} 
+        updateFunction={() => {}}/>
       <Button title="cancel" onPress={handleCancel} />
       <Button title="save" onPress={handleSave} />
       <Button title="reset defaults" onPress={handleDefaults} />

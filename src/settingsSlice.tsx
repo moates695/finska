@@ -4,7 +4,8 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 export const sitouts = ['turns', 'rounds', 'none'] as const;
 export type SitoutType = typeof sitouts[number];
 
-export type ScoreType = 'original' | 'fast';
+export const scoreTypes = ['original', 'fast'] as const;
+export type ScoreType = typeof scoreTypes[number];
 
 export interface Sitout {
   type: SitoutType,
@@ -16,7 +17,8 @@ export interface SettingsState {
   reset: number,
   missLimit: number,
   sitout: Sitout,
-  scoreType: ScoreType
+  scoreType: ScoreType,
+  skipAsStrike: boolean,
 }
 
 // TODO add setting toggle for score type (og vs fast)
@@ -31,38 +33,23 @@ export const initialState: SettingsState = {
     value: Infinity,
   },
   scoreType: 'original',
+  skipAsStrike: true,
 }
 
 export const settingsSlice = createSlice({
   name: 'settings',
   initialState,
   reducers: {
-    updateTarget: (state, action: PayloadAction<number>) => {
-      state.target = action.payload;
-    },
-    defaultTarget: (state) => {
-      state.target = initialState.target;
-    },
-    updateReset: (state, action: PayloadAction<number>) => {
-      state.reset = action.payload;
-    },
-    defaultReset: (state) => {
-      state.reset = initialState.reset;
-    },
     allDefaults: (_) => {
       return initialState;
     },
     updateAll: (_, action: PayloadAction<SettingsState>) => {
       return action.payload;
-    }
+    },
   }
 });
 
-export const { 
-  updateTarget,
-  defaultTarget,
-  updateReset,
-  defaultReset,
+export const {
   allDefaults,
   updateAll,
 } = settingsSlice.actions
