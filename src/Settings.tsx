@@ -60,6 +60,7 @@ export default function Settings({ navigation }: any) {
   }
 
   useEffect(() => {
+    console.log(newSettings.scoreType)
     setProps(buildProps);
     setCollidingSettings(newSettings.reset >= newSettings.target);
   }, [newSettings]);
@@ -85,10 +86,13 @@ export default function Settings({ navigation }: any) {
       {selectedOption !== 'none' && <NumericInput {...props.sitout}/>}
       <ToggleButton value1={scoreTypes[1]} value2={scoreTypes[0]} initialValue={settings.scoreType === scoreTypes[0]} 
         updateFunction={() => {
-          
+          // TODO input proper update function
+          setNewSettings({...newSettings, scoreType: settings.scoreType === scoreTypes[0] ? scoreTypes[0] : scoreTypes[1]});
         }}/>
       <ToggleButton value1='no' value2='yes' initialValue={settings.skipAsStrike} 
-        updateFunction={() => {}}/>
+        updateFunction={() => {
+          setNewSettings({...newSettings, skipAsStrike: settings.skipAsStrike ? false : true});
+        }}/>
       <Button title="cancel" onPress={handleCancel} />
       <Button title="save" onPress={handleSave} />
       <Button title="reset defaults" onPress={handleDefaults} />

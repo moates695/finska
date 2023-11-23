@@ -24,11 +24,11 @@ export default function ToggleButton (props: ToggleButtonProps) {
 
   const handleToggle = () => {
     setToggleOn(!isToggleOn);
-    updateFunction();
   };
 
   useEffect(() => {
     moveToggle();
+    updateFunction();
   }, [isToggleOn]);
 
   const translateX = toggleAnimation.interpolate({
