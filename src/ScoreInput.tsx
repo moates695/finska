@@ -20,19 +20,20 @@ export default function ScoreInput() {
     setSelected(emptyArray);
   }
 
-  function handleSubmit() {
+  function calculateScore(): number {
     let score = selected.filter(num => num === 1).length;
-    if (score === 0 || (score > 1 && settings.scoreType === 'original')) {
-      dispatch(enterTurn(score));
-      setSelected(emptyArray);
-      return;
-    }
+    if (score === 0 || (score > 1 && settings.scoreType === 'original')) return score;
+    
     score = 0;
     for (let i in selected) {
       if (!selected[i]) continue;
       score += parseInt(i);
     }
-    dispatch(enterTurn(score));
+    return score;
+  }
+
+  function handleSubmit() {
+    dispatch(enterTurn(calculateScore()));
     setSelected(emptyArray);
   }
 
@@ -42,7 +43,9 @@ export default function ScoreInput() {
   }
 
   return (
+    // TODO add score number above input
     <View style={styles.container}>
+      <Text>Score: {calculateScore()}</Text>
       {[[7,8,9], [5,11,12,6], [3,10,4], [1,2]].map((row) => {
         return (
           <View style={styles.row} key={`buttonRow${row}`}>
@@ -56,18 +59,17 @@ export default function ScoreInput() {
           </View>
         )
       })}
-    <View style={styles.row}>
-      <TouchableOpacity onPress={() => {handleClear()}} style={styles.button}>
-        <Text style={{color: 'black'}}>clear</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => {handleSkip()}} style={styles.button}>
-        <Text style={{color: 'black'}}>skip</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => {handleSubmit()}} style={styles.button}>
-        <Text style={{color: 'black'}}>submit</Text>
-      </TouchableOpacity>
-    </View>
-      
+      <View style={styles.row}>
+        <TouchableOpacity onPress={() => {handleClear()}} style={styles.button}>
+          <Text style={{color: 'black'}}>clear</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => {handleSkip()}} style={styles.button}>
+          <Text style={{color: 'black'}}>skip</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => {handleSubmit()}} style={styles.button}>
+          <Text style={{color: 'black'}}>submit</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }
