@@ -59,7 +59,6 @@ export default function Settings({ navigation }: any) {
   }
 
   useEffect(() => {
-    console.log(newSettings)
     setProps(buildProps);
     setCollidingSettings(newSettings.reset >= newSettings.target);
   }, [newSettings]);
