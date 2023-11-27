@@ -21,9 +21,6 @@ export interface SettingsState {
   skipAsStrike: boolean,
 }
 
-// TODO add setting toggle for score type (og vs fast)
-// TODO skip turns count as strikes toggle
-
 export const initialState: SettingsState = {
   target: 50,
   reset: 25,
