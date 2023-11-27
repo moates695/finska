@@ -1,7 +1,7 @@
 import { Text, StyleSheet, View, TouchableOpacity, TextInput } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from './store';
-import { deletePlayer, editName } from './gameSlice';
+import { deletePlayer, editName } from './appSlice';
 import { useState } from 'react';
 
 import { checkInvalidName } from './helper';

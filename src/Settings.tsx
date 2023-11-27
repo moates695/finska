@@ -2,12 +2,12 @@ import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from './store';
 import { useState, useEffect } from 'react';
-import { SitoutType, sitouts, SettingsState, updateAll, Sitout, initialState, scoreTypes, ScoreType } from './settingsSlice';
+import { SitoutType, sitouts, SettingsState, updateAll, Sitout, initialState, scoreTypes, ScoreType } from './appSlice';
 import NumericInput from './NumericInput';
 import ToggleButton from './ToggleButton';
 
 export default function Settings({ navigation }: any) {
-  const settings = useSelector((state: RootState) => state.settings);
+  const settings = useSelector((state: RootState) => state.app.settings);
   const dispatch = useDispatch();
 
   const [newSettings, setNewSettings] = useState<SettingsState>(settings);
@@ -36,13 +36,13 @@ export default function Settings({ navigation }: any) {
   }
 
   function handleDefaults() {
-    setNewSettings(initialState);
-    setSelectedOption(initialState.sitout.type);
+    setNewSettings(initialState.settings);
+    setSelectedOption(initialState.settings.sitout.type);
   }
 
   function buildProps() {
     let temp: {[key: string]: any} = {};
-    for (const key of Object.keys(initialState)) {
+    for (const key of Object.keys(initialState.settings)) {
       if (key == 'sitout') {
         temp[key] = {
           initialValue: newSettings.sitout.value,

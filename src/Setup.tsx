@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux'
-import { addPlayer, updateGameStatus } from './gameSlice'
+import { addPlayer, updateGameStatus } from './appSlice'
 import PlayerListGroup from './PlayerListGroup';
 import { RootState } from './store';
 import { checkInvalidName } from './helper';

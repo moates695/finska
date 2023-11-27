@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { View, Text, Button, Modal, StyleSheet } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from './store';
-import { newGame } from './gameSlice';
+import { newGame } from './appSlice';
 
 export default function Home({ navigation }: any) {
   const dispatch = useDispatch();
-  const status = useSelector((state: RootState) => state.game.status);
+  const status = useSelector((state: RootState) => state.app.game.status);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   function handleNewGame() {

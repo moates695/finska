@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Button, StyleSheet, View, TouchableOpacity, Text} from "react-native";
-import { enterTurn, skipTurn } from "./gameSlice";
+import { enterTurn, skipTurn } from "./appSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function ScoreInput() {
   const emptyArray = Array(12).fill(0);
   const [selected, setSelected] = useState<number[]>(emptyArray);
   
-  const settings = useSelector((state: any) => state.settings);
+  const settings = useSelector((state: any) => state.app.settings);
   const dispatch = useDispatch();
 
   function handlePress(num: number) {

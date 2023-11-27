@@ -1,4 +1,4 @@
-import { PlayerState } from "./gameSlice";
+import { PlayerState } from "./appSlice";
 
 export function checkInvalidName(name: string, players: PlayerState[]) {
   let found = false;

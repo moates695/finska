@@ -2,10 +2,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "./store";
 import PlayerDetailCard from "./PlayerDetailCard";
 import { ScrollView, StyleSheet } from "react-native";
-import { PlayerState } from "./gameSlice";
+import { PlayerState } from "./appSlice";
 
 export default function PlayerDetailGroup() {
-  const players: PlayerState[] = useSelector((state: RootState) => state.game.players);
+  const players: PlayerState[] = useSelector((state: RootState) => state.app.game.players);
 
   return (
     <ScrollView contentContainerStyle={styles.container} style={{maxHeight: 200}}>

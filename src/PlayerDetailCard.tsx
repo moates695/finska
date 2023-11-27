@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { PlayerState } from "./gameSlice";
+import { PlayerState } from "./appSlice";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from "./store";
 
@@ -9,7 +9,7 @@ interface PlayerDetailCardProps {
 
 export default function PlayerDetailCard(props: PlayerDetailCardProps) {
   const { player } = props;
-  const settings = useSelector((state: RootState) => state.settings);
+  const settings = useSelector((state: RootState) => state.app.settings);
 
   return (
     <View style={styles.centeredView}>

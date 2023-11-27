@@ -1,10 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-export interface GameState {
-  players: PlayerState[],
-  status: boolean,
-}
-
 export type PlayerStatus = 'active' | 'inactive' | 'eliminated';
 
 export interface PlayerState {
@@ -14,19 +9,62 @@ export interface PlayerState {
   status: PlayerStatus,
 }
 
-const initialState: GameState = {
-  players: [{
-    name: 'Player 1',
-    score: 0,
-    strikes: 0,
-    status: 'active',
-  },{
-    name: 'Player 2',
-    score: 0,
-    strikes: 0,
-    status: 'active',
-  }],
-  status: true,
+export interface GameState {
+  players: PlayerState[],
+  status: boolean,
+}
+
+export const sitouts = ['turns', 'rounds', 'none'] as const;
+export type SitoutType = typeof sitouts[number];
+
+export interface Sitout {
+  type: SitoutType,
+  value: number,
+}
+
+export const scoreTypes = ['original', 'fast'] as const;
+export type ScoreType = typeof scoreTypes[number];
+
+export interface SettingsState {
+  target: number,
+  reset: number,
+  missLimit: number,
+  sitout: Sitout,
+  scoreType: ScoreType,
+  skipAsStrike: boolean,
+}
+
+export interface AppState {
+  game: GameState,
+  settings: SettingsState,
+}
+
+export const initialState: AppState = {
+  game: {
+    players: [{
+      name: 'Player 1',
+      score: 0,
+      strikes: 0,
+      status: 'active',
+    },{
+      name: 'Player 2',
+      score: 0,
+      strikes: 0,
+      status: 'active',
+    }],
+    status: true,
+  },
+  settings: {
+    target: 50,
+    reset: 25,
+    missLimit: 3,
+    sitout: {
+      type: 'none',
+      value: Infinity,
+    },
+    scoreType: 'original',
+    skipAsStrike: true,
+  }
 }
 
 interface EditNamePayload {
@@ -40,7 +78,7 @@ interface SetStatusPayload {
 }
 
 export const gameSlice = createSlice({
-  name: 'game',
+  name: 'app',
   initialState,
   reducers: {
     addPlayer: (state, action: PayloadAction<string>) => {
@@ -51,44 +89,44 @@ export const gameSlice = createSlice({
         strikes: 0,
         status: 'active',
       }
-      state.players.push(player);
+      state.game.players.push(player);
     },
     enterTurn: (state, action: PayloadAction<number>) => {
       if (action.payload > 0) {
-        state.players[0].score += action.payload;
-        state.players[0].strikes = 0;
+        state.game.players[0].score += action.payload;
+        state.game.players[0].strikes = 0;
       } else {
-        state.players[0].strikes += 1;
+        state.game.players[0].strikes += 1;
         // TODO add setting for strikes to eliminate
-        if (state.players[0].strikes == 3) {
-          state.players[0].status = 'eliminated';
+        if (state.game.players[0].strikes == 3) {
+          state.game.players[0].status = 'eliminated';
         }
       }
       // TODO add check for if next player is out, or whether they come back in based on sitout settings
-      const [first, ...rest] = state.players;
-      state.players = [...rest, first];
+      const [first, ...rest] = state.game.players;
+      state.game.players = [...rest, first];
     },
     // TODO reference if skips count as strikes from settings
     skipTurn: (state) => {
-      const [first, ...rest] = state.players;
-      state.players = [...rest, first];
+      const [first, ...rest] = state.game.players;
+      state.game.players = [...rest, first];
     },
     deletePlayer: (state, action: PayloadAction<string>) => {
-      state.players = state.players.filter(player => player.name !== action.payload);
+      state.game.players = state.game.players.filter(player => player.name !== action.payload);
     },
     editPlayerName: (state, action: PayloadAction<string>) => {
-      state.players.map(player => {
+      state.game.players.map(player => {
         if (player.name === action.payload) {
           player.name = action.payload;
         }
       });
     },
     incrementByAmount: (state, action: PayloadAction<number>) => {
-      state.players[action.payload].score += action.payload
+      state.game.players[action.payload].score += action.payload
     },
     updatePlayerStatus: (state, action: PayloadAction<SetStatusPayload>) => {
       const {name, status} = action.payload;
-      state.players.map(player => {
+      state.game.players.map(player => {
         if (player.name === name) {
           player.status = status;
         }
@@ -96,19 +134,25 @@ export const gameSlice = createSlice({
     },
     editName: (state, action: PayloadAction<EditNamePayload>) => {
       const {name, newName } = action.payload;
-      state.players.map(player => {
+      state.game.players.map(player => {
         if (player.name === name) {
           player.name = newName;
         }
       });
     },
     updateGameStatus: (state, action: PayloadAction<boolean>) => {
-      state.status = action.payload;
+      state.game.status = action.payload;
     },
     newGame: (state) => {
-      state.players = [];
-      state.status = false;
-    }
+      state.game.players = [];
+      state.game.status = false;
+    },
+    allDefaults: (state) => {
+      state.settings = initialState.settings;
+    },
+    updateAll: (state, action: PayloadAction<SettingsState>) => {
+      state.settings = action.payload;
+    },
   },
 })
 
@@ -122,6 +166,8 @@ export const {
   editName, 
   updateGameStatus,
   newGame,
+  allDefaults,
+  updateAll,
 } = gameSlice.actions
 
 export default gameSlice.reducer
