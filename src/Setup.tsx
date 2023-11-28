@@ -7,7 +7,7 @@ import { RootState } from './store';
 import { checkInvalidName } from './helper';
 
 export default function Setup({ navigation }: any) {
-  const players = useSelector((state: RootState) => state.game.players);
+  const players = useSelector((state: RootState) => state.app.game.players);
   const dispatch = useDispatch();
 
   const [validStart, setValidStart] = useState<boolean>(false);

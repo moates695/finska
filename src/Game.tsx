@@ -2,8 +2,16 @@ import { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import PlayerDetailGroup from './PlayerDetailGroup';
 import ScoreInput from './ScoreInput';
+import { useSelector } from 'react-redux';
 
 export default function Game({ navigation }: any) {
+  const gameStatus = useSelector((state: any) => state.app.game.status);
+
+  useEffect(() => {
+    if (!gameStatus) {
+      navigation.navigate('Home');
+    }
+  }, [gameStatus])
 
   return (
     <View style={styles.centeredView}>

@@ -4,7 +4,7 @@ import { RootState } from './store';
 import PlayerListCard from './PlayerListCard';
 
 export default function PlayerListGroup() {
-  const players = useSelector((state: RootState) => state.game.players)
+  const players = useSelector((state: RootState) => state.app.game.players)
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
