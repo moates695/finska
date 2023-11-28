@@ -54,6 +54,7 @@ export default function Settings({ navigation }: any) {
           updateFunction: (newValue: number) => { setNewSettings({...newSettings, [key]: newValue})},
         }
       }
+      temp[key].setting = key;
     }
     return temp;
   }
