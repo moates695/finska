@@ -11,7 +11,7 @@ interface PlayerListCardProps {
 }
 
 export default function PlayerListCard({ original }: PlayerListCardProps) {
-  const players = useSelector((state: RootState) => state.game.players)
+  const players = useSelector((state: RootState) => state.app.game.players)
   const dispatch = useDispatch();
 
   const [name, setName] = useState<string>(original);

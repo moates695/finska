@@ -10,9 +10,11 @@ export interface PlayerState {
   status: PlayerStatus,
 }
 
+export type GameStatus = 'active' | 'won' | 'lost';
+
 export interface GameState {
   players: PlayerState[],
-  status: boolean,
+  status: GameStatus,
 }
 
 export const sitouts = ['turns', 'rounds', 'none'] as const;
@@ -56,7 +58,7 @@ export const initialState: AppState = {
         status: 'active',
       }
     ],
-    status: true,
+    status: 'active',
   },
   settings: {
     target: 50,
@@ -125,9 +127,16 @@ export const gameSlice = createSlice({
         }
       }
 
+      if (state.game.players[0].score === state.settings.target) {
+        state.game.status = 'won';
+        return;
+      } else if (state.game.players[0].score > state.settings.target) {
+        state.game.players[0].score = state.settings.reset;
+      }
+
       const index = nextPlayer(state.game.players);
       if (index === -1) {
-        state.game.status = false;
+        state.game.status = 'lost';
         return;
       }
       state.game.players = shiftPlayers(state.game.players, index);
@@ -142,10 +151,20 @@ export const gameSlice = createSlice({
       }
       const index = nextPlayer(state.game.players);
       if (index === -1) {
-        state.game.status = false;
+        state.game.status = 'lost';
         return;
       }
       state.game.players = shiftPlayers(state.game.players, index);
+    },
+
+    resetWinner: (state) => {
+      state.game.status = 'active';
+      state.game.players[0].score = state.settings.reset;
+      state.game.players.map(player => {
+        player.strikes = 0;
+      });
+      const [first, ...rest] = state.game.players;
+      state.game.players = [...rest, first]; 
     },
 
     deletePlayer: (state, action: PayloadAction<string>) => {
@@ -158,10 +177,6 @@ export const gameSlice = createSlice({
           player.name = action.payload;
         }
       });
-    },
-
-    incrementByAmount: (state, action: PayloadAction<number>) => {
-      state.game.players[action.payload].score += action.payload
     },
 
     updatePlayerStatus: (state, action: PayloadAction<SetStatusPayload>) => {
@@ -181,13 +196,14 @@ export const gameSlice = createSlice({
       });
     },
 
-    updateGameStatus: (state, action: PayloadAction<boolean>) => {
+    updateGameStatus: (state, action: PayloadAction<GameStatus>) => {
       state.game.status = action.payload;
     },
 
     newGame: (state) => {
       state.game.players = [];
-      state.game.status = false;
+      state.game.status = 'active';
+      state.settings = initialState.settings;
     },
     
     allDefaults: (state) => {
@@ -204,8 +220,8 @@ export const {
   addPlayer, 
   enterTurn, 
   skipTurn, 
+  resetWinner,
   deletePlayer, 
-  incrementByAmount,
   updatePlayerStatus,
   editName, 
   updateGameStatus,

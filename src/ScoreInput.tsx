@@ -43,7 +43,6 @@ export default function ScoreInput() {
   }
 
   return (
-    // TODO add score number above input
     <View style={styles.container}>
       <Text>Score: {calculateScore()}</Text>
       {[[7,8,9], [5,11,12,6], [3,10,4], [1,2]].map((row) => {

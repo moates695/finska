@@ -15,7 +15,7 @@ export default function Setup({ navigation }: any) {
   const [invalidName, setInvalidName] = useState<boolean>(true);
 
   function handleDone() {
-    dispatch(updateGameStatus(true));
+    // dispatch(updateGameStatus('active'));
     navigation.navigate('Game');
   }
 
