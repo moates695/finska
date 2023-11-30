@@ -157,9 +157,15 @@ export const gameSlice = createSlice({
       state.game.players = shiftPlayers(state.game.players, index);
     },
 
-    resetWinner: (state) => {
+    continueGame: (state, action: PayloadAction<boolean>) => {
       state.game.status = 'active';
-      state.game.players[0].score = state.settings.reset;
+      if (action.payload) {
+        state.game.players[0].score = state.settings.reset;
+      } else {
+        state.game.players.map(player => {
+          player.status = 'active';
+        });
+      }
       state.game.players.map(player => {
         player.strikes = 0;
       });
@@ -220,7 +226,7 @@ export const {
   addPlayer, 
   enterTurn, 
   skipTurn, 
-  resetWinner,
+  continueGame,
   deletePlayer, 
   updatePlayerStatus,
   editName, 

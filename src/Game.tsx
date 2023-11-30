@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet, Modal } from 'react-native';
 import PlayerDetailGroup from './PlayerDetailGroup';
 import ScoreInput from './ScoreInput';
 import { useDispatch, useSelector } from 'react-redux';
-import { newGame, resetWinner } from './appSlice';
+import { newGame, continueGame } from './appSlice';
 
 export default function Game({ navigation }: any) {
   const gameStatus = useSelector((state: any) => state.app.game.status);
@@ -18,14 +18,16 @@ export default function Game({ navigation }: any) {
     setModalVisible(true);
   }, [gameStatus])
 
-  function handleModalButton(confirm: boolean) {
+  type ModalButtonInput = 'leave' | 'continueWon' | 'continueLost';
+
+  function handleModalButton(input: ModalButtonInput) {
     setModalVisible(false);
-    if (confirm) {
+    if (input === 'leave') {
       dispatch(newGame());
-      navigation.navigate('Setup');
+      navigation.navigate('Home');
       return;
     }
-    dispatch(resetWinner());    
+    dispatch(continueGame(input === 'continueWon'));
   }
 
   function determineWinner() {
@@ -36,6 +38,7 @@ export default function Game({ navigation }: any) {
     return null;
   }
 
+  // TODO show target score and reset score?
   return (
     <View style={styles.centeredView}>
       <PlayerDetailGroup />
@@ -49,8 +52,8 @@ export default function Game({ navigation }: any) {
           {gameStatus === 'won' ? 
             <Text>{determineWinner()} wins!</Text> : 
             <Text>There are no winners here!</Text>}
-          <Button title='continue' onPress={() => handleModalButton(false)}/>
-          <Button title='leave' onPress={() => handleModalButton(true)}/>
+          <Button title='continue' onPress={() => handleModalButton(gameStatus === 'won' ? 'continueWon' : 'continueLost')}/>
+          <Button title='leave' onPress={() => handleModalButton('leave')}/>
         </View>
       </Modal>
     </View>

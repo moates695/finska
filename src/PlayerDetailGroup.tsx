@@ -6,7 +6,8 @@ import { PlayerState } from "./appSlice";
 
 export default function PlayerDetailGroup() {
   const players: PlayerState[] = useSelector((state: RootState) => state.app.game.players);
-
+  // TODO add edit last score button here or on game screen (last turn only?)
+  // TODO add in a way to let back in players who are eliminated
   return (
     <ScrollView contentContainerStyle={styles.container} style={{maxHeight: 200}}>
       {players.map((player) => {
