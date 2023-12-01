@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { RootState } from "./store";
 import PlayerDetailCard from "./PlayerDetailCard";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, Text } from "react-native";
 import { PlayerState } from "./appSlice";
 
 export default function PlayerDetailGroup() {
@@ -9,13 +9,17 @@ export default function PlayerDetailGroup() {
   // TODO add edit last score button here or on game screen (last turn only?)
   // TODO add in a way to let back in players who are eliminated
   return (
-    <ScrollView contentContainerStyle={styles.container} style={{maxHeight: 200}}>
-      {players.map((player) => {
-        return (
-          <PlayerDetailCard key={`playerDetail.${player.name}`} player={player}/>
-        );
-      })}
-    </ScrollView>
+    <>
+      <ScrollView contentContainerStyle={styles.container} style={{maxHeight: 200}}>
+        {players.slice(1).reverse().map((player) => {
+          return (
+            <PlayerDetailCard key={`playerDetail.${player.name}`} player={player}/>
+          );
+        })}
+      </ScrollView>
+      <Text style={{ color: 'black' }}>Current Player: </Text>
+      <PlayerDetailCard key={`playerDetail.${players[0].name}`} player={players[0]}/>
+    </>
   )
 }
 

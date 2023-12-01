@@ -8,7 +8,7 @@ import { newGame, continueGame } from './appSlice';
 export default function Game({ navigation }: any) {
   const gameStatus = useSelector((state: any) => state.app.game.status);
   const players = useSelector((state: any) => state.app.game.players);
-  const target = useSelector((state: any) => state.app.settings.target);
+  const settings = useSelector((state: any) => state.app.settings);
   const dispatch = useDispatch();
 
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -32,7 +32,7 @@ export default function Game({ navigation }: any) {
 
   function determineWinner() {
     for (const player of players) {
-      if (player.score !== target) continue;
+      if (player.score !== settings.target) continue;
       return player.name;
     }
     return null;
@@ -43,6 +43,7 @@ export default function Game({ navigation }: any) {
     <View style={styles.centeredView}>
       <PlayerDetailGroup />
       <ScoreInput />
+      <Text>Target: {settings.target} Reset: {settings.reset}</Text>
       <Button title="home" onPress={() => navigation.navigate('Home')} />
       <Button title="add player" onPress={() => navigation.navigate('Setup')} />
       <Button title="settings" onPress={() => navigation.navigate('Settings')} />
