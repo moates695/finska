@@ -37,27 +37,35 @@ export interface SettingsState {
   skipAsStrike: boolean,
 }
 
+export interface History {
+  snapshots: [PlayerState[]],
+  current: number,
+}
+
 export interface AppState {
   game: GameState,
   settings: SettingsState,
+  history: History,
 }
+
+const initialPlayers: PlayerState[] = [
+  {
+    name: 'Player 1',
+    score: 0,
+    strikes: 0,
+    status: 'active',
+  },
+  {
+    name: 'Player 2',
+    score: 0,
+    strikes: 0,
+    status: 'active',
+  }
+]
 
 export const initialState: AppState = {
   game: {
-    players: [
-      {
-        name: 'Player 1',
-        score: 0,
-        strikes: 0,
-        status: 'active',
-      },
-      {
-        name: 'Player 2',
-        score: 0,
-        strikes: 0,
-        status: 'active',
-      }
-    ],
+    players: initialPlayers,
     status: 'active',
   },
   settings: {
@@ -70,6 +78,10 @@ export const initialState: AppState = {
     },
     scoreType: 'original',
     skipAsStrike: true,
+  },
+  history: {
+    snapshots: [initialPlayers],
+    current: 0,
   }
 }
 
@@ -101,10 +113,10 @@ export const gameSlice = createSlice({
   initialState,
   reducers: {
     addPlayer: (state, action: PayloadAction<string>) => {
-      let startScore = 0;
+      let startScore = state.settings.reset;
       for (const player of state.game.players) {
-        if (player.score < state.settings.reset) continue;
-        startScore = state.settings.reset;
+        if (player.score >= state.settings.reset) continue;
+        startScore = 0;
         break;
       }
       const player: PlayerState = {
@@ -219,6 +231,8 @@ export const gameSlice = createSlice({
     updateAll: (state, action: PayloadAction<SettingsState>) => {
       state.settings = action.payload;
     },
+
+    // TODO undo and redo + overwriting history from current position
   },
 })
 

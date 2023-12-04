@@ -57,8 +57,8 @@ export default function Setup({ navigation }: any) {
           clearButtonMode="while-editing"
         />
         <Button title="add" onPress={handleAdd} disabled={invalidName}/>
-        <Button title="done" onPress={handleDone} disabled={!validStart} />
-        <Button title="back" onPress={() => navigation.goBack()} />
+        <Button title="done" onPress={handleDone} disabled={!validStart}/>
+        {/* <Button title="back" onPress={() => navigation.goBack()} /> */}
       </View>
     </View>
   )

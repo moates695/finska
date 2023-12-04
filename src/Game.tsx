@@ -38,7 +38,7 @@ export default function Game({ navigation }: any) {
     return null;
   }
 
-  // TODO show target score and reset score?
+  // TODO add ability to undo current game state (and then redo it if desired like ctrl+z / ctrl+shift+z)
   return (
     <View style={styles.centeredView}>
       <PlayerDetailGroup />
