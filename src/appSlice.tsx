@@ -13,7 +13,8 @@ export interface PlayerState {
 export type GameStatus = 'active' | 'won' | 'lost';
 
 export interface GameState {
-  players: PlayerState[],
+  snapshots: [PlayerState[]],
+  current: number,
   status: GameStatus,
 }
 
@@ -37,35 +38,30 @@ export interface SettingsState {
   skipAsStrike: boolean,
 }
 
-export interface History {
-  snapshots: [PlayerState[]],
-  current: number,
-}
-
 export interface AppState {
   game: GameState,
   settings: SettingsState,
-  history: History,
 }
-
-const initialPlayers: PlayerState[] = [
-  {
-    name: 'Player 1',
-    score: 0,
-    strikes: 0,
-    status: 'active',
-  },
-  {
-    name: 'Player 2',
-    score: 0,
-    strikes: 0,
-    status: 'active',
-  }
-]
 
 export const initialState: AppState = {
   game: {
-    players: initialPlayers,
+    snapshots: [
+      [
+        {
+          name: 'Player 1',
+          score: 0,
+          strikes: 0,
+          status: 'active',
+        },
+        {
+          name: 'Player 2',
+          score: 0,
+          strikes: 0,
+          status: 'active',
+        }
+      ]
+    ],
+    current: 0,
     status: 'active',
   },
   settings: {
@@ -78,10 +74,6 @@ export const initialState: AppState = {
     },
     scoreType: 'original',
     skipAsStrike: true,
-  },
-  history: {
-    snapshots: [initialPlayers],
-    current: 0,
   }
 }
 
@@ -114,7 +106,7 @@ export const gameSlice = createSlice({
   reducers: {
     addPlayer: (state, action: PayloadAction<string>) => {
       let startScore = state.settings.reset;
-      for (const player of state.game.players) {
+      for (const player of state.game.snapshots[state.game.current]) {
         if (player.score >= state.settings.reset) continue;
         startScore = 0;
         break;
@@ -130,67 +122,67 @@ export const gameSlice = createSlice({
 
     enterTurn: (state, action: PayloadAction<number>) => {
       if (action.payload > 0) {
-        state.game.players[0].score += action.payload;
-        state.game.players[0].strikes = 0;
+        state.game.snapshots[state.game.current][0].score += action.payload;
+        state.game.snapshots[state.game.current][0].strikes = 0;
       } else {
-        state.game.players[0].strikes += 1;
-        if (state.game.players[0].strikes >= state.settings.missLimit) {
-          state.game.players[0].status = 'eliminated';
+        state.game.snapshots[state.game.current][0].strikes += 1;
+        if (state.game.snapshots[state.game.current][0].strikes >= state.settings.missLimit) {
+          state.game.snapshots[state.game.current][0].status = 'eliminated';
         }
       }
 
-      if (state.game.players[0].score === state.settings.target) {
+      if (state.game.snapshots[state.game.current][0].score === state.settings.target) {
         state.game.status = 'won';
         return;
-      } else if (state.game.players[0].score > state.settings.target) {
-        state.game.players[0].score = state.settings.reset;
+      } else if (state.game.snapshots[state.game.current][0].score > state.settings.target) {
+        state.game.snapshots[state.game.current][0].score = state.settings.reset;
       }
 
-      const index = nextPlayer(state.game.players);
+      const index = nextPlayer(state.game.snapshots[state.game.current]);
       if (index === -1) {
         state.game.status = 'lost';
         return;
       }
-      state.game.players = shiftPlayers(state.game.players, index);
+      state.game.snapshots[state.game.current] = shiftPlayers(state.game.snapshots[state.game.current], index);
     },
 
     skipTurn: (state) => {
       if (state.settings.skipAsStrike) {
-        state.game.players[0].strikes += 1;
-        if (state.game.players[0].strikes >= state.settings.missLimit) {
-          state.game.players[0].status = 'eliminated';
+        state.game.snapshots[state.game.current][0].strikes += 1;
+        if (state.game.snapshots[state.game.current][0].strikes >= state.settings.missLimit) {
+          state.game.snapshots[state.game.current][0].status = 'eliminated';
         }
       }
-      const index = nextPlayer(state.game.players);
+      const index = nextPlayer(state.game.snapshots[state.game.current]);
       if (index === -1) {
         state.game.status = 'lost';
         return;
       }
-      state.game.players = shiftPlayers(state.game.players, index);
+      state.game.snapshots[state.game.current] = shiftPlayers(state.game.snapshots[state.game.current], index);
     },
 
     continueGame: (state, action: PayloadAction<boolean>) => {
       state.game.status = 'active';
       if (action.payload) {
-        state.game.players[0].score = state.settings.reset;
+        state.game.snapshots[state.game.current][0].score = state.settings.reset;
       } else {
-        state.game.players.map(player => {
+        state.game.snapshots[state.game.current].map(player => {
           player.status = 'active';
         });
       }
-      state.game.players.map(player => {
+      state.game.snapshots[state.game.current].map(player => {
         player.strikes = 0;
       });
-      const [first, ...rest] = state.game.players;
-      state.game.players = [...rest, first]; 
+      const [first, ...rest] = state.game.snapshots[state.game.current];
+      state.game.snapshots[state.game.current] = [...rest, first]; 
     },
 
     deletePlayer: (state, action: PayloadAction<string>) => {
-      state.game.players = state.game.players.filter(player => player.name !== action.payload);
+      state.game.snapshots[state.game.current] = state.game.snapshots[state.game.current].filter(player => player.name !== action.payload);
     },
 
     editPlayerName: (state, action: PayloadAction<string>) => {
-      state.game.players.map(player => {
+      state.game.snapshots[state.game.current].map(player => {
         if (player.name === action.payload) {
           player.name = action.payload;
         }
@@ -199,7 +191,7 @@ export const gameSlice = createSlice({
 
     updatePlayerStatus: (state, action: PayloadAction<SetStatusPayload>) => {
       const {name, status} = action.payload;
-      state.game.players.map(player => {
+      state.game.snapshots[state.game.current].map(player => {
         if (player.name !== name) return;
         player.status = status;
       });
@@ -207,7 +199,7 @@ export const gameSlice = createSlice({
 
     editName: (state, action: PayloadAction<EditNamePayload>) => {
       const {name, newName } = action.payload;
-      state.game.players.map(player => {
+      state.game.snapshots[state.game.current].map(player => {
         if (player.name === name) {
           player.name = newName;
         }
@@ -219,7 +211,7 @@ export const gameSlice = createSlice({
     },
 
     newGame: (state) => {
-      state.game.players = [];
+      state.game.snapshots[state.game.current] = [];
       state.game.status = 'active';
       state.settings = initialState.settings;
     },
