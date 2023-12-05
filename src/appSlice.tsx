@@ -117,10 +117,16 @@ export const gameSlice = createSlice({
         strikes: 0,
         status: 'active',
       }
-      state.game.players.push(player);
+      state.game.snapshots[state.game.current].push(player);
     },
 
     enterTurn: (state, action: PayloadAction<number>) => {
+      // TODO check that this is correct
+      if (state.game.current != state.game.snapshots.length - 1) {
+        state.game.snapshots.splice(state.game.current + 1);
+      }
+      state.game.snapshots.push(state.game.snapshots[state.game.current])
+
       if (action.payload > 0) {
         state.game.snapshots[state.game.current][0].score += action.payload;
         state.game.snapshots[state.game.current][0].strikes = 0;
