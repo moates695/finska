@@ -29,11 +29,19 @@ export interface Turn {
   score: number
 }
 
+export interface UpNextObject {
+  id: string
+  name: string
+  member?: string
+}
+
+// todo: rework up_next, need to have a queue for players / teams and then internal queues for each team
+
 export interface Game {
   participants: (Player | Team)[]
   state: GameState[]
   turns: Turn[]
-  up_next: string[]
+  up_next: UpNextObject[]
   target_score: number
   reset_score: number
   elimination_count: number

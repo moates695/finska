@@ -28,7 +28,7 @@ export default function Dropdown(props: DropdownProps) {
       value={selectedValue}
       labelField={"label"}
       valueField={"value"}
-      onChange={item => setSelectedValue(item.value)}
+      onChange={(item) => setSelectedValue(item.value)}
       style={{
         height: 40,
         borderRadius: 5,

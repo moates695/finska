@@ -19,6 +19,7 @@ export default ({ config }: any) => {
         package: "com.moates.finska"
       },
       extra: {
+        maxNameLength: process.env.MAX_NAME_LENGTH,
         eas: {
           "projectId": "17b301fd-3c8d-46a2-a0cc-90f945dd0f62"
         }
