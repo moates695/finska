@@ -5,7 +5,9 @@ import { generalStyles } from "@/styles/general";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Constants from 'expo-constants';
 import { useAtom } from "jotai";
-import { Game, gameAtom, Player, Team } from "@/store/general";
+import { Game, gameAtom, Team } from "@/store/general";
+import Feather from '@expo/vector-icons/Feather';
+import * as Crypto from 'expo-crypto';
 
 type ParticipantType = 'player' | 'team';
 interface ParticipantOption {
@@ -52,60 +54,79 @@ export default function AddParticipant() {
 
   // todo show name collisions on screen? (error message / popup)
   const isNameTaken = (newName: string): boolean => {
-    const gameNames = game.participants.map(object => object.name);
-    const existingNames = [name.trim()].concat(memberNames).concat(gameNames);
-    return existingNames.some((name) => { return name === newName});
+    const existingNames = Object.values(game.players);
+    for (const team of Object.values(game.teams)) {
+      existingNames.push(team.name);
+      for (const memberName of Object.values(team.members)) {
+        existingNames.push(memberName);
+      }
+    }
+    return existingNames.some((name) => { return name.trim().toLowerCase() === newName.trim().toLowerCase()});
   }
 
   const handleAddMember = () => {
     const newMember = memberName.trim();
     if (newMember === '' || isNameTaken(newMember)) return;
 
-    setMemberNames((prev) => [...prev, memberName]);
+    setMemberNames((prev) => [...prev, newMember]);
     setMemberName('');
+  };
+
+  const handleRemoveMember = (index: number) => {
+    setMemberNames(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleAddParticipant = () => {
     const newName = name.trim();
     if (newName === '' || isNameTaken(newName)) return;
 
+    const id = Crypto.randomUUID();
     if (isPlayer) {
-      const newPlayer: Player  = {
-        id: crypto.randomUUID(),
-        name
-      }
-
       setGame((prev) => {
         const game = prev as Awaited<Game>;
         return {
           ...game,
-          participants: [...game.participants, newPlayer],
-          // up_next: [...game.up_next]
+          players: {
+            ...game.players,
+            [id]: newName
+          },
+          up_next: [...game.up_next, id]
         };
       });
 
     } else {
-      const members: Player[] = [];
-      for (const name of memberNames) {
-        members.push({
-          id: crypto.randomUUID(),
-          name
-        })
+      const team: Team = {
+        name: newName,
+        members: {}
       }
-      const newTeam: Team = {
-        id: crypto.randomUUID(),
-        name,
-        members
+      const upNextMembers: string[] = [];
+      for (const name of memberNames) {
+        const memberId = Crypto.randomUUID();
+        team.members = {
+          ...team.members,
+          [memberId]: name
+        }
+        upNextMembers.push(memberId);
       }
 
       setGame((prev) => {
         const game = prev as Awaited<Game>;
         return {
           ...game,
-          participants: [...game.participants, newTeam]
+          teams: {
+            ...game.teams,
+            [id]: team,
+          },
+          up_next_members: {
+            ...game.up_next_members,
+            [id]: upNextMembers
+          }
         };
       });
+
+      setMemberNames([]);
     }
+    setName('');
   };
 
   const isSubmitDisabled = (): boolean => {
@@ -113,6 +134,8 @@ export default function AddParticipant() {
     if (!isPlayer && memberNames.length === 0) return true;
     return false;
   };
+
+  console.log(game);
 
   return (
     <View
@@ -133,7 +156,7 @@ export default function AddParticipant() {
           borderColor: 'black',
           borderWidth: 1,
           borderRadius: 5,
-          width: 200,
+          width: 250,
           padding: 4,
           height: 40,
           textAlign: 'center'
@@ -150,7 +173,7 @@ export default function AddParticipant() {
               borderColor: 'black',
               borderWidth: 1,
               borderRadius: 5,
-              width: 200,
+              width: 250,
               padding: 4,
               height: 40,
               textAlign: 'center'
@@ -173,11 +196,28 @@ export default function AddParticipant() {
                   alignItems: 'center'
                 }}
               >
-                <Text>{name}</Text>
-                <FontAwesome 
+                <Text
+                  style={{
+                    padding: 2
+                  }}
+                >{name}</Text>
+                {/* <FontAwesome 
                   name="remove" 
                   size={20} 
-                  color="red" 
+                  color="red"
+                  style={{
+                    // backgroundColor: 'purple'
+
+                  }}
+                /> */}
+                <Feather 
+                  name="delete" 
+                  size={24} 
+                  color="black"
+                  onPress={() => handleRemoveMember(i)} 
+                  style={{
+                    padding: 2
+                  }}
                 />
               </View>
             )

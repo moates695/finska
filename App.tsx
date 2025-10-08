@@ -6,6 +6,7 @@ import { gameAtom, initialGame, loadableGameAtom } from './store/general';
 import LoadingScreen from './components/LoadingScreen';
 import { generalStyles } from './styles/general';
 import AddParticipant from './components/AddParticipant';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // need to show:
 // players current scores (modal scoreboard?)
@@ -20,7 +21,11 @@ export default function App() {
   const [game, setGame] = useAtom(gameAtom);
 
   // if game already started, show options for continuing or starting new game
-  
+  const clearStorage = async () => {
+    await AsyncStorage.clear();
+  };
+  clearStorage();
+
   const [showNewParticipant, setShowNewParticipant] = useState<boolean>(false);
 
   if (loadableGame.state === 'loading') {

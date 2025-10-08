@@ -4,13 +4,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const storage = createJSONStorage(() => AsyncStorage) as any;
 
-export interface Player {
-  id: string
-  name: string
-}
+// export interface Player {
+//   id: string
+//   name: string
+// }
 
-export interface Team extends Player {
-  members: Player[]
+// export interface Team extends Player {
+//   members: Player[]
+// }
+
+export interface Team {
+  name: string
+  members: Record<string, string> //? id: name
 }
 
 export interface Participant {
@@ -35,13 +40,14 @@ export interface UpNextObject {
   member?: string
 }
 
-// todo: rework up_next, need to have a queue for players / teams and then internal queues for each team
-
 export interface Game {
-  participants: (Player | Team)[]
+  players: Record<string, string> //? id: name
+  teams: Record<string, Team>
+  // member_map: Record<string, string> //? member_id: team_id
   state: GameState[]
   turns: Turn[]
-  up_next: UpNextObject[]
+  up_next: string[]
+  up_next_members: Record<string, string[]>
   target_score: number
   reset_score: number
   elimination_count: number
@@ -49,10 +55,12 @@ export interface Game {
 }
 
 export const initialGame: Game = {
-  participants: [],
+  players: {},
+  teams: {},
   state: [],
   turns: [],
   up_next: [],
+  up_next_members: {},
   target_score: 50,
   reset_score: 25,
   elimination_count: 3,
@@ -65,17 +73,17 @@ export const loadableGameAtom = loadable(gameAtom);
 //######################################################
 // HELPERS
 
-export const getNewPlayer = (name: string): Player => {
-  return {
-    id: crypto.randomUUID(),
-    name: name
-  }
-};
+// export const getNewPlayer = (name: string): Player => {
+//   return {
+//     id: crypto.randomUUID(),
+//     name: name
+//   }
+// };
 
-export const getNewTeam = (name: string): Team => {
-  return {
-    id: crypto.randomUUID(),
-    name: name,
-    members: []
-  }
-};
+// export const getNewTeam = (name: string): Team => {
+//   return {
+//     id: crypto.randomUUID(),
+//     name: name,
+//     members: []
+//   }
+// };
