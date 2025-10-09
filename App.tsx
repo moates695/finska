@@ -8,7 +8,7 @@ import { generalStyles } from './styles/general';
 import AddParticipant from './components/AddParticipantModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Font from 'expo-font';
-import { MaterialIcons, AntDesign, Ionicons, Feather } from '@expo/vector-icons';
+import { MaterialIcons, AntDesign, Ionicons, Feather, FontAwesome } from '@expo/vector-icons';
 import StartOptions from './components/StartOptions';
 import Game from './components/Game';
 import GameSetup from './components/GameSetup';
@@ -24,7 +24,7 @@ import GameSetup from './components/GameSetup';
 export default function App() {
   const loadableGame = useAtomValue(loadableGameAtom);
   const [game, setGame] = useAtom(gameAtom);
-  const [initialLoad, setInitialLoad] = useAtom(initialLoadAtom);
+  // const [initialLoad, setInitialLoad] = useAtom(initialLoadAtom);
   const [screen, setScreen] = useAtom(screenAtom);
 
   //! todo update this with new Font sources
@@ -34,6 +34,7 @@ export default function App() {
       ...AntDesign.font,
       ...Ionicons.font,
       ...Feather.font,
+      ...FontAwesome.font,
     });
   };
 
@@ -42,12 +43,12 @@ export default function App() {
       await Promise.all([
         loadFonts()
       ])
-      setInitialLoad(false);
+      // setInitialLoad(false);
     };
     load();
   }, []);
 
-  if (loadableGame.state === 'loading' || initialLoad) {
+  if (loadableGame.state === 'loading') {
     return <LoadingScreen />;
   } else if (loadableGame.state === 'hasError') {
     console.log('could not load game state');

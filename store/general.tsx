@@ -33,8 +33,8 @@ export interface UpNextObject {
 }
 
 export interface Game {
-  players: Record<string, string> //? id: name
-  teams: Record<string, Team>
+  players: Record<string, string> //? player_id: name
+  teams: Record<string, Team> //? team_id: Team
   // member_map: Record<string, string> //? member_id: team_id
   state: GameState[]
   turns: Turn[]
@@ -73,6 +73,8 @@ export const isPlayerAtom = atom<boolean>(true);
 export const newNameAtom = atom<string>('');
 export const newMemberNameAtom = atom<string>('');
 export const newMemberNamesAtom = atom<string[]>([]);
+export const newNameErrorAtom = atom<string | null>(null);
+export const newMemberNameErrorAtom = atom<string | null>(null);
 
 //######################################################
 // HELPERS

@@ -1,4 +1,4 @@
-import { gameAtom, Team } from "@/store/general";
+import { gameAtom, newMemberNameAtom, newMemberNameErrorAtom, newNameAtom, newNameErrorAtom, Team } from "@/store/general";
 import { useAtom } from "jotai";
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -7,29 +7,36 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function ParticipantList() {
   const [game, setGame] = useAtom(gameAtom);
+  const [newName, setNewName] = useAtom(newNameAtom);
+  const [newMemberName, setNewMemberName] = useAtom(newMemberNameAtom);
+  const [newNameError, setNewNameError] = useAtom(newNameErrorAtom);
+  const [newMemberNameError, setNewMemberNameError] = useAtom(newMemberNameErrorAtom);
 
   const removePlayer = (id: string) => {
-    const { [id]: _, ...rest } = game.players;
+    const { [id]: removedName, ...rest } = game.players;
     setGame({
       ...game,
       players: rest,
       up_next: game.up_next.filter(tempId => tempId !== id)
     })
+    propogateRemovedNames([removedName]);
   };
 
   const removeTeam = (id: string) => {
-    const { [id]: removed1, ...restTeams} = game.teams;
-    const { [id]: removed2, ...restUpNextMembers} = game.up_next_members;
+    const { [id]: removedTeam, ...restTeams} = game.teams;
+    const { [id]: _, ...restUpNextMembers} = game.up_next_members;
     setGame({
       ...game,
       teams: restTeams,
       up_next: game.up_next.filter(tempId => tempId !== id),
       up_next_members: restUpNextMembers
     })
+    const removedNames = [removedTeam.name].concat(Object.values(removedTeam.members));
+    propogateRemovedNames(removedNames);
   };
 
   const removeMember = (teamId: string, memberId: string) => {
-    const { [memberId]: removed1, ...restMembers } = game.teams[teamId].members;
+    const { [memberId]: removedMember, ...restMembers } = game.teams[teamId].members;
     if (Object.keys(restMembers).length === 0) {
       removeTeam(teamId);
       return;
@@ -48,7 +55,19 @@ export default function ParticipantList() {
         [teamId]: game.up_next_members[teamId].filter(tempId => tempId !== memberId)
       }
     });
-    
+    propogateRemovedNames([removedMember]);
+  };
+
+  const propogateRemovedNames = (names: string[]) => {
+    for (const name of names) {
+      const lowerName = name.toLowerCase();
+      if (lowerName === newName.toLowerCase()) {
+        setNewNameError(null);
+      }
+      if (lowerName === newMemberName.toLowerCase()) {
+        setNewMemberNameError(null);
+      }
+    }
   };
 
   return (
