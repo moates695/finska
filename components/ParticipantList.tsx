@@ -28,8 +28,27 @@ export default function ParticipantList() {
     })
   };
 
-  const removeMember = (groupId: string, memberId: string) => {
-    // todo
+  const removeMember = (teamId: string, memberId: string) => {
+    const { [memberId]: removed1, ...restMembers } = game.teams[teamId].members;
+    if (Object.keys(restMembers).length === 0) {
+      removeTeam(teamId);
+      return;
+    }
+    setGame({
+      ...game,
+      teams: {
+        ...game.teams,
+        [teamId]: {
+          ...game.teams[teamId],
+          members: restMembers
+        }
+      },
+      up_next_members: {
+        ...game.up_next_members,
+        [teamId]: game.up_next_members[teamId].filter(tempId => tempId !== memberId)
+      }
+    });
+    
   };
 
   return (
@@ -42,26 +61,26 @@ export default function ParticipantList() {
         gap: 10,
       }}
     >
-      {game.up_next.map((groupId, i) => {
-        if (groupId in game.players) {
+      {game.up_next.map((id, i) => {
+        if (id in game.players) {
           return (
             <View 
               key={i}
               style={styles.row}
             >
-              <Text>{game.players[groupId]}</Text>
+              <Text>{game.players[id]}</Text>
               <Feather 
                 name="delete" 
                 size={24} 
                 color="black"
-                onPress={() => removePlayer(groupId)} 
+                onPress={() => removePlayer(id)} 
               />
             </View>
           )
         }
 
-        const team: Team = game.teams[groupId];
-        const up_next_ids = game.up_next_members[groupId];
+        const team: Team = game.teams[id];
+        const up_next_ids = game.up_next_members[id];
         return (
           <View key={i}>
             <View
@@ -72,7 +91,7 @@ export default function ParticipantList() {
                   name="delete" 
                   size={24} 
                   color="black"
-                  onPress={() => removeTeam(groupId)} 
+                  onPress={() => removeTeam(id)} 
                 />
             </View>
             <View>
@@ -94,7 +113,7 @@ export default function ParticipantList() {
                       name="remove-circle-outline"  
                       size={24} 
                       color="white"
-                      onPress={() => removeMember(groupId, memberId)} 
+                      onPress={() => removeMember(id, memberId)} 
                       style={{
                         color: 'black',
                         marginRight: 30,
