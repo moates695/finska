@@ -3,15 +3,7 @@ import { atomWithStorage, createJSONStorage, loadable } from 'jotai/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const storage = createJSONStorage(() => AsyncStorage) as any;
-
-// export interface Player {
-//   id: string
-//   name: string
-// }
-
-// export interface Team extends Player {
-//   members: Player[]
-// }
+// AsyncStorage.clear(); //!!!
 
 export interface Team {
   name: string
@@ -67,8 +59,20 @@ export const initialGame: Game = {
   has_game_started: false
 };
 
-export const gameAtom = atomWithStorage<Game>('gameAtom', initialGame, storage, { getOnInit: true });
+export const gameAtom = atomWithStorage<Game>('gameAtom', {...initialGame}, storage, { getOnInit: true });
 export const loadableGameAtom = loadable(gameAtom);
+
+export const initialLoadAtom = atom<boolean>(true);
+
+export const showNewParticipantModalAtom = atom<boolean>(false);
+
+export type ScreenType = 'start options' | 'game setup' | 'game';
+export const screenAtom = atom<ScreenType>('game setup');
+
+export const isPlayerAtom = atom<boolean>(true);
+export const newNameAtom = atom<string>('');
+export const newMemberNameAtom = atom<string>('');
+export const newMemberNamesAtom = atom<string[]>([]);
 
 //######################################################
 // HELPERS

@@ -22,6 +22,7 @@ export default function LoadingScreen(props: LoadingScreenProps) {
         flex: 1, 
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "#ffedaaff"
       }}
     >
       {show &&

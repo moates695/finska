@@ -11,6 +11,7 @@ export interface DropdownProps {
   options: DropdownOption[],
   selectedValue: string | number
   setSelectedValue: (value: any) => void
+  width?: number
   disabled?: boolean
 }
 
@@ -19,6 +20,7 @@ export default function Dropdown(props: DropdownProps) {
     options,
     selectedValue,
     setSelectedValue,
+    width = 150,
     disabled = false
   } = props;
 
@@ -34,7 +36,8 @@ export default function Dropdown(props: DropdownProps) {
         borderRadius: 5,
         paddingLeft: 5,
         paddingRight: 5,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        width: width
       }}
       selectedTextStyle={{}}
       renderItem={(item, selected) => (
