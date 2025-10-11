@@ -5,13 +5,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const storage = createJSONStorage(() => AsyncStorage) as any;
 // AsyncStorage.clear(); //!!!
 
+export type ParticipantType = 'player' | 'team';
+
 export interface Team {
   name: string
   members: Record<string, string> //? id: name
 }
 
 export interface Participant {
-  id: string
+  // id: string
   score: number
   num_misses: number
   is_eliminated: boolean
@@ -47,12 +49,59 @@ export interface Game {
 }
 
 export const initialGame: Game = {
-  players: {},
-  teams: {},
-  state: [],
+  players: {
+    "1": "Player 1",
+    "2": "Player 2"
+  },
+  teams: {
+    "3": {
+      "name": "Team 1",
+      "members": {
+        "4": "Member 1",
+      }
+    },
+    "5": {
+      "name": "Team 2",
+      "members": {
+        "6": "Member 2",
+        "7": "Member 3",
+      }
+    }
+  },
+  state: [
+    {
+      participantStates: {
+        "1": {
+          score: 0,
+          num_misses: 0,
+          is_eliminated: false,
+        },
+        "2": {
+          score: 0,
+          num_misses: 0,
+          is_eliminated: false,
+        },
+        "3": {
+          score: 0,
+          num_misses: 0,
+          is_eliminated: false,
+        },
+        "5": {
+          score: 0,
+          num_misses: 0,
+          is_eliminated: false,
+        }
+      }
+    }
+  ],
   turns: [],
-  up_next: [],
-  up_next_members: {},
+  up_next: [
+    "1", "2", "3", "5"
+  ],
+  up_next_members: {
+    "3": ["4"],
+    "5": ["6", "7"],
+  },
   target_score: 50,
   reset_score: 25,
   elimination_count: 3,

@@ -46,8 +46,8 @@ export default function PinMap() {
         width: '90%',
         borderRadius: 20,
         backgroundColor: "#e2d298ff",
-        position: 'absolute',
-        bottom: 20,
+        // position: 'absolute',
+        // bottom: 20,
         padding: 20,
       }}
     >
@@ -114,6 +114,7 @@ export default function PinMap() {
           bottom: 20,
           right: 20,
         }}
+        disabled={selectedPins.size === 0}
       >
         <Ionicons
           name="checkmark-circle" 
@@ -129,6 +130,7 @@ export default function PinMap() {
           bottom: 20,
           left: 20,
         }}
+        disabled={selectedPins.size > 0}
       >
         <FontAwesome 
           name="remove" 
