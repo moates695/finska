@@ -75,6 +75,7 @@ export const newMemberNameAtom = atom<string>('');
 export const newMemberNamesAtom = atom<string[]>([]);
 export const newNameErrorAtom = atom<string | null>(null);
 export const newMemberNameErrorAtom = atom<string | null>(null);
+export const isNameInputFocusedAtom = atom<boolean>(false);
 
 //######################################################
 // HELPERS

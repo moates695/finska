@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
+import PinMap from "./PinMap";
 
 export default function Game() {
   return (
@@ -11,7 +12,7 @@ export default function Game() {
         width: '100%',
       }}
     >
-      <Text>game screen</Text>
+      <PinMap />
     </View>
   )
 }

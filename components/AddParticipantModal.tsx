@@ -5,7 +5,7 @@ import { generalStyles } from "@/styles/general";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Constants from 'expo-constants';
 import { useAtom } from "jotai";
-import { Game, gameAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newMemberNamesAtom, newNameAtom, newNameErrorAtom, showNewParticipantModalAtom, Team } from "@/store/general";
+import { Game, gameAtom, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newMemberNamesAtom, newNameAtom, newNameErrorAtom, showNewParticipantModalAtom, Team } from "@/store/general";
 import Feather from '@expo/vector-icons/Feather';
 import * as Crypto from 'expo-crypto';
 import { Ionicons } from "@expo/vector-icons";
@@ -27,6 +27,7 @@ export default function AddParticipantModal() {
   const [memberNames, setMemberNames] = useAtom(newMemberNamesAtom);
   const [nameError, setNameError] = useAtom(newNameErrorAtom);
   const [memberNameError, setMemberNameError] = useAtom(newMemberNameErrorAtom);
+  const [isNameFocused, setIsNameFocused] = useAtom(isNameInputFocusedAtom);
 
   const maxNameLength = Constants.expoConfig?.extra?.maxNameLength;
 
@@ -130,6 +131,7 @@ export default function AddParticipantModal() {
         }
       })
       setMemberNames([]);
+      setMemberName('');
     }
     setName('');
   };
@@ -149,15 +151,21 @@ export default function AddParticipantModal() {
 
   return (
     <View
-      style={{
-        borderRadius: 20,
-        position: 'absolute',
-        bottom: 60,
-        padding: 10,
-        width: 350,
-        alignItems: 'center',
-        backgroundColor: "#e2d298ff",
-      }}
+      style={[
+        {
+          borderRadius: 20,
+          position: 'absolute',
+          bottom: 10,
+          padding: 10,
+          width: 350,
+          alignItems: 'center',
+          backgroundColor: "#e2d298ff",
+        },
+        !isNameFocused && {
+          marginBottom: isPlayer ? 73 : 0,
+          bottom: 60,
+        }
+      ]}
     >
       <View
         style={{
@@ -215,6 +223,8 @@ export default function AddParticipantModal() {
               height: 40,
               marginRight: 5,
             }}
+            onFocus={() => setIsNameFocused(true)}
+            onBlur={() => setIsNameFocused(false)}
           />
           <TouchableOpacity
             onPress={() => handleAddParticipant()}
@@ -261,6 +271,8 @@ export default function AddParticipantModal() {
                   height: 40,
                   marginRight: 5,
                 }}
+                onFocus={() => setIsNameFocused(true)}
+                onBlur={() => setIsNameFocused(false)}
               />
               <TouchableOpacity
                 onPress={() => handleAddMember()}

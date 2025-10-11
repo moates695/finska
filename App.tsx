@@ -24,8 +24,8 @@ import GameSetup from './components/GameSetup';
 export default function App() {
   const loadableGame = useAtomValue(loadableGameAtom);
   const [game, setGame] = useAtom(gameAtom);
-  // const [initialLoad, setInitialLoad] = useAtom(initialLoadAtom);
   const [screen, setScreen] = useAtom(screenAtom);
+  const [initialLoad, setInitialLoad] = useAtom(initialLoadAtom);
 
   //! todo update this with new Font sources
   const loadFonts = async () => {
@@ -43,20 +43,25 @@ export default function App() {
       await Promise.all([
         loadFonts()
       ])
-      // setInitialLoad(false);
     };
     load();
   }, []);
+
+  // useEffect(() => {
+  //   if (loadableGame.state === 'loading') return;
+  //   setInitialLoad(false);
+  // }, [loadableGame.state]);
 
   if (loadableGame.state === 'loading') {
     return <LoadingScreen />;
   } else if (loadableGame.state === 'hasError') {
     console.log('could not load game state');
     setGame({...initialGame});
-  } else if (loadableGame.state === 'hasData') {
+    setInitialLoad(false);
+  } else if (loadableGame.state === 'hasData' && initialLoad) {
+    setInitialLoad(false);
     if (game.has_game_started) {
       setScreen('start options');
-      // setShowNewParticipantModal(false);
     }
   }
 
