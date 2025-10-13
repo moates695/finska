@@ -30,7 +30,7 @@ export default function ParticipantList() {
         return index !== stateIndex ? state : currentState;
       })
     })
-    propogateRemovedNames([removedName]);
+    // propogateRemovedNames([removedName]);
   };
 
   const removeTeam = (id: string) => {
@@ -52,7 +52,7 @@ export default function ParticipantList() {
     })
 
     const removedNames = [removedTeam.name].concat(Object.values(removedTeam.members));
-    propogateRemovedNames(removedNames);
+    // propogateRemovedNames(removedNames);
   };
 
   const removeMember = (teamId: string, memberId: string) => {
@@ -82,21 +82,21 @@ export default function ParticipantList() {
         return index !== stateIndex ? state : currentState
       })
     });
-    propogateRemovedNames([removedMember]);
+    // propogateRemovedNames([removedMember]);
   };
 
   // todo see if can move this to addParticpant comp ???
-  const propogateRemovedNames = (names: string[]) => {
-    for (const name of names) {
-      const lowerName = name.toLowerCase();
-      if (lowerName === newName.toLowerCase()) {
-        setNewNameError(null);
-      }
-      if (lowerName === newMemberName.toLowerCase()) {
-        setNewMemberNameError(null);
-      }
-    }
-  };
+  // const propogateRemovedNames = (names: string[]) => {
+  //   for (const name of names) {
+  //     const lowerName = name.toLowerCase();
+  //     if (lowerName === newName.toLowerCase()) {
+  //       setNewNameError(null);
+  //     }
+  //     if (lowerName === newMemberName.toLowerCase()) {
+  //       setNewMemberNameError(null);
+  //     }
+  //   }
+  // };
 
   return (
       <View

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleSheet } from "react-native";
 import Dropdown, { DropdownOption } from "./Dropdown";
 import { generalStyles } from "@/styles/general";
@@ -29,11 +29,22 @@ export default function AddParticipantModal() {
   const [memberNameError, setMemberNameError] = useAtom(newMemberNameErrorAtom);
   const [isNameFocused, setIsNameFocused] = useAtom(isNameInputFocusedAtom);
 
+  const existingNames = useMemo(() => {
+    const names = Object.values(game.players).concat(memberNames);
+    for (const team of Object.values(game.teams)) {
+      names.push(team.name);
+      for (const memberName of Object.values(team.members)) {
+        names.push(memberName);
+      }
+    }
+    return names;
+  }, [game, memberNames]);
+
   const maxNameLength = Constants.expoConfig?.extra?.maxNameLength;
 
   const handleChangeName = (text: string) => {
     if (isNameTaken(text)) {
-      setNameError(`${isPlayer ? 'player' : 'team'} name is already taken`)
+      setNameError('name is already taken')
     } else if (namesAreSame(text, memberName)) {
       setNameError('team and member names are equal'); 
     } else {
@@ -45,7 +56,7 @@ export default function AddParticipantModal() {
 
   const handleChangeMemberName = (text: string) => {
     if (isNameTaken(text)) {
-      setMemberNameError('member name is already taken');
+      setMemberNameError('name is already taken');
     } else if (namesAreSame(name, text)) {
       setNameError('team and member names are equal'); 
     } else {
@@ -57,13 +68,13 @@ export default function AddParticipantModal() {
 
   const isNameTaken = (newName: string): boolean => {
     if (newName.trim() === '') return true;
-    const existingNames = Object.values(game.players).concat(memberNames);
-    for (const team of Object.values(game.teams)) {
-      existingNames.push(team.name);
-      for (const memberName of Object.values(team.members)) {
-        existingNames.push(memberName);
-      }
-    }
+    // const existingNames = Object.values(game.players).concat(memberNames);
+    // for (const team of Object.values(game.teams)) {
+    //   existingNames.push(team.name);
+    //   for (const memberName of Object.values(team.members)) {
+    //     existingNames.push(memberName);
+    //   }
+    // }
     return existingNames.some((tempName) => { return tempName.trim().toLowerCase() === newName.trim().toLowerCase()});
   }
 
@@ -160,6 +171,18 @@ export default function AddParticipantModal() {
     if (isNameTaken(memberName) || namesAreSame(name, memberName)) return true;
     return false;
   };
+
+  useEffect(() => {
+    let isNameError = false;
+    let isMemberNameError = false;
+    for (const existing of existingNames) {
+      if (existing === name) isNameError = true;
+      if (existing === memberName) isMemberNameError = true;
+      if (isNameError && isMemberNameError) break;
+    }
+    setNameError(isNameError ? 'name is already taken' : null);
+    setMemberNameError(isMemberNameError ? 'name is already taken' : null);
+  }, [existingNames]);
 
   return (
     <View

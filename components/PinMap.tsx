@@ -4,7 +4,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { gameAtom } from "@/store/general";
+import { gameAtom, GameState, Turn } from "@/store/general";
 import { useAtom } from "jotai";
 
 export default function PinMap() {
@@ -32,10 +32,6 @@ export default function PinMap() {
     return selectedPins.size;
   };
 
-  // const getParticipantId = (): string => {
-  //   return game.up;
-  // };
-
   const handleSubmit = () => {
     const gameState = game.state.at(-1)!;
     const id = gameState.up_next[0];
@@ -43,9 +39,29 @@ export default function PinMap() {
     if (id in game.teams) {
       participantId = gameState.up_next_members[id][0];
     }
+
     const score = countScore();
-    const nextState = {...game.state.at(-1)};
-    // todo
+    let newScore = score + game.state.at(-1)!.participants[id].score;
+    if (newScore > game.target_score) {
+      newScore = game.reset_score;
+    }
+
+    const nextState = {...game.state.at(-1)!};
+    nextState.participants[id].score = newScore;
+    updateUpNext(nextState, id === participantId, id);
+
+    const turn: Turn = {
+      id: participantId,
+      type: 'score',
+      score: score
+    }
+
+    setGame({
+      ...game,
+      state: [...game.state, nextState],
+      turns: [...game.turns, turn]
+    });
+    setSelectedPins(new Set());
   };
 
   const handleSkip = () => {
@@ -56,14 +72,57 @@ export default function PinMap() {
       participantId = gameState.up_next_members[id][0];
     }
 
-    const score = countScore();
-    const nextState = {...game.state.at(-1)};
-    
-  
+    const nextState = {...game.state.at(-1)!};
+    updateUpNext(nextState, id === participantId, id);
+
+    const turn: Turn = {
+      id: participantId,
+      type: 'skip',
+    }
+
+    setGame({
+      ...game,
+      state: [...game.state, nextState],
+      turns: [...game.turns, turn]
+    });
+    setSelectedPins(new Set());
   };
 
   const handleMiss = () => {
+    const gameState = game.state.at(-1)!;
+    const id = gameState.up_next[0];
+    let participantId = id;
+    if (id in game.teams) {
+      participantId = gameState.up_next_members[id][0];
+    }
 
+    const nextState = {...game.state.at(-1)!};
+    const participantState = nextState.participants[id];
+    participantState.num_misses = participantState.num_misses + 1;
+    if (participantState.num_misses >= game.elimination_count) {
+      participantState.is_eliminated = true;
+    }
+    updateUpNext(nextState, id === participantId, id);
+
+    const turn: Turn = {
+      id: participantId,
+      type: 'miss',
+    }
+
+    setGame({
+      ...game,
+      state: [...game.state, nextState],
+      turns: [...game.turns, turn]
+    });
+    setSelectedPins(new Set());
+  };
+
+  const updateUpNext = (nextState: GameState, isPlayer: boolean, teamId?: string) => {
+    nextState.up_next = [...nextState.up_next.slice(1), nextState.up_next.slice(0, 1)[0]];
+    if (!isPlayer) {
+      const upNextMembers = nextState.up_next_members[teamId!];
+      nextState.up_next_members[teamId!] = [...upNextMembers.slice(1), upNextMembers.slice(0, 1)[0]];
+    }
   };
 
   const getPinOutlineColor = (pinNumber: number): string => {
