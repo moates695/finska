@@ -5,35 +5,52 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-nati
 import Feather from '@expo/vector-icons/Feather';
 import { Ionicons } from "@expo/vector-icons";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { unwrap } from "jotai/utils";
 
 export default function ParticipantList() {
   const [game, setGame] = useAtom(gameAtom);
-  const [newName, setNewName] = useAtom(newNameAtom);
-  const [newMemberName, setNewMemberName] = useAtom(newMemberNameAtom);
-  const [newNameError, setNewNameError] = useAtom(newNameErrorAtom);
-  const [newMemberNameError, setNewMemberNameError] = useAtom(newMemberNameErrorAtom);
-  const [isNameInputFocused, setIsNameInputFocused] = useAtom(isNameInputFocusedAtom);
+  const [newName, ] = useAtom(newNameAtom);
+  const [newMemberName, ] = useAtom(newMemberNameAtom);
+  const [, setNewNameError] = useAtom(newNameErrorAtom);
+  const [, setNewMemberNameError] = useAtom(newMemberNameErrorAtom);
+  const [isNameInputFocused, ] = useAtom(isNameInputFocusedAtom);
   const [showEdit, setShowEdit] = useState<boolean>(false);
 
   const removePlayer = (id: string) => {
     const { [id]: removedName, ...rest } = game.players;
+
+    const stateIndex = game.state.length - 1;
+    const currentState = {...game.state[stateIndex]};
+    currentState.up_next = currentState.up_next.filter(_id => _id !== id);
+
     setGame({
       ...game,
       players: rest,
-      up_next: game.up_next.filter(tempId => tempId !== id)
+      state: game.state.map((state, index) => {
+        return index !== stateIndex ? state : currentState;
+      })
     })
     propogateRemovedNames([removedName]);
   };
 
   const removeTeam = (id: string) => {
     const { [id]: removedTeam, ...restTeams} = game.teams;
-    const { [id]: _, ...restUpNextMembers} = game.up_next_members;
+    
+    const stateIndex = game.state.length - 1;
+    const currentState = {...game.state[stateIndex]};
+    currentState.up_next = currentState.up_next.filter(_id => _id !== id);
+    
+    const { [id]: removedUpNextMembers, ...restUpNextMembers } = currentState.up_next_members;
+    currentState.up_next_members = restUpNextMembers;
+
     setGame({
       ...game,
       teams: restTeams,
-      up_next: game.up_next.filter(tempId => tempId !== id),
-      up_next_members: restUpNextMembers
+      state: game.state.map((state, index) => {
+        return index !== stateIndex ? state : currentState
+      })
     })
+
     const removedNames = [removedTeam.name].concat(Object.values(removedTeam.members));
     propogateRemovedNames(removedNames);
   };
@@ -44,6 +61,14 @@ export default function ParticipantList() {
       removeTeam(teamId);
       return;
     }
+
+    const stateIndex = game.state.length - 1;
+    const currentState = {...game.state[stateIndex]};
+    currentState.up_next_members = {
+      ...currentState.up_next_members,
+      [teamId]: currentState.up_next_members[teamId].filter(tempId => tempId !== memberId)
+    }
+
     setGame({
       ...game,
       teams: {
@@ -53,14 +78,14 @@ export default function ParticipantList() {
           members: restMembers
         }
       },
-      up_next_members: {
-        ...game.up_next_members,
-        [teamId]: game.up_next_members[teamId].filter(tempId => tempId !== memberId)
-      }
+      state: game.state.map((state, index) => {
+        return index !== stateIndex ? state : currentState
+      })
     });
     propogateRemovedNames([removedMember]);
   };
 
+  // todo see if can move this to addParticpant comp ???
   const propogateRemovedNames = (names: string[]) => {
     for (const name of names) {
       const lowerName = name.toLowerCase();
@@ -116,7 +141,7 @@ export default function ParticipantList() {
           showsVerticalScrollIndicator={false}
           horizontal={false}
         >
-        {game.up_next.map((id, i) => {
+        {game.state.at(-1)!.up_next.map((id, i) => {
           if (id in game.players) {
             return (
               <View 
@@ -139,7 +164,7 @@ export default function ParticipantList() {
           }
 
           const team: Team = game.teams[id];
-          const up_next_ids = game.up_next_members[id];
+          const up_next_ids = game.state.at(-1)!.up_next_members[id];
           return (
             <View key={i}>
               <View

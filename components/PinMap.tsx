@@ -4,8 +4,12 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { gameAtom } from "@/store/general";
+import { useAtom } from "jotai";
 
 export default function PinMap() {
+  const [game, setGame] = useAtom(gameAtom);
+  
   const [selectedPins, setSelectedPins] = useState<Set<number>>(new Set());
 
   const pressPin = (number: number) => {
@@ -21,16 +25,52 @@ export default function PinMap() {
     return selectedPins.has(number);
   };
 
-  const handleSubmit = () => {
+  const countScore = (): number => {
+    if (selectedPins.size === 1) {
+      return [...selectedPins][0];
+    }
+    return selectedPins.size;
+  };
 
+  // const getParticipantId = (): string => {
+  //   return game.up;
+  // };
+
+  const handleSubmit = () => {
+    const gameState = game.state.at(-1)!;
+    const id = gameState.up_next[0];
+    let participantId = id;
+    if (id in game.teams) {
+      participantId = gameState.up_next_members[id][0];
+    }
+    const score = countScore();
+    const nextState = {...game.state.at(-1)};
+    // todo
   };
 
   const handleSkip = () => {
+    const gameState = game.state.at(-1)!;
+    const id = gameState.up_next[0];
+    let participantId = id;
+    if (id in game.teams) {
+      participantId = gameState.up_next_members[id][0];
+    }
 
+    const score = countScore();
+    const nextState = {...game.state.at(-1)};
+    
+  
   };
 
   const handleMiss = () => {
 
+  };
+
+  const getPinOutlineColor = (pinNumber: number): string => {
+    const id = game.state.at(-1)!.up_next[0];
+    const score = game.state.at(-1)?.participants[id].score;
+    if (score === undefined || game.target_score - score > 12) return 'white';
+    return pinNumber === game.target_score - score ? 'orange' : 'white';
   };
 
   const rows = [
@@ -46,8 +86,6 @@ export default function PinMap() {
         width: '90%',
         borderRadius: 20,
         backgroundColor: "#e2d298ff",
-        // position: 'absolute',
-        // bottom: 20,
         padding: 20,
       }}
     >
@@ -73,7 +111,7 @@ export default function PinMap() {
                   width: 60,
                   height: 60,
                   borderRadius: 30,
-                  borderColor: 'white',
+                  borderColor: getPinOutlineColor(num),
                   borderWidth: 2,
                   backgroundColor: isPinSelected(num) ? '#3fec00ff' : '#ffedaaff',
                   justifyContent: 'center',
@@ -107,6 +145,17 @@ export default function PinMap() {
           color="black"
         />
       </TouchableOpacity>
+      <Text
+        style={{
+          fontSize: 18,
+          position: 'absolute',
+          bottom: 65,
+          right: 10,
+          width: 90,
+        }}
+      >
+        Score: {selectedPins.size === 0 ? 'miss' : countScore()}
+      </Text>
       <TouchableOpacity
         onPress={handleSubmit}
         style={{
@@ -115,12 +164,13 @@ export default function PinMap() {
           right: 20,
         }}
         disabled={selectedPins.size === 0}
-      >
+      > 
         <Ionicons
           name="checkmark-circle" 
           size={36} 
           color={selectedPins.size > 0 ? "green": "black"} 
           disabled={selectedPins.size === 0}
+          style={{alignSelf: 'flex-end'}}
         />
       </TouchableOpacity>
       <TouchableOpacity

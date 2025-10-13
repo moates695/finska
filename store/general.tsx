@@ -1,5 +1,5 @@
 import { atom, useAtom } from 'jotai'
-import { atomWithStorage, createJSONStorage, loadable } from 'jotai/utils';
+import { atomWithStorage, createJSONStorage, loadable, unwrap } from 'jotai/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const storage = createJSONStorage(() => AsyncStorage) as any;
@@ -13,26 +13,30 @@ export interface Team {
 }
 
 export interface Participant {
-  // id: string
   score: number
   num_misses: number
   is_eliminated: boolean
 }
 
 export interface GameState {
-  participantStates: Record<string, Participant>
+  participants: Record<string, Participant> //? id: state
+  up_next: string[]
+  up_next_members: Record<string, string[]>
 }
 
-export interface Turn {
+export type TurnType = 'score' | 'miss' | 'skip';
+
+export interface BaseTurn {
   id: string
+  type: TurnType
+}
+
+export interface ScoreTurn extends BaseTurn {
+  type: 'score'
   score: number
 }
 
-export interface UpNextObject {
-  id: string
-  name: string
-  member?: string
-}
+export type Turn = BaseTurn | ScoreTurn;
 
 export interface Game {
   players: Record<string, string> //? player_id: name
@@ -40,8 +44,6 @@ export interface Game {
   // member_map: Record<string, string> //? member_id: team_id
   state: GameState[]
   turns: Turn[]
-  up_next: string[]
-  up_next_members: Record<string, string[]>
   target_score: number
   reset_score: number
   elimination_count: number
@@ -70,9 +72,9 @@ export const initialGame: Game = {
   },
   state: [
     {
-      participantStates: {
+      participants: {
         "1": {
-          score: 0,
+          score: 38,
           num_misses: 0,
           is_eliminated: false,
         },
@@ -91,17 +93,17 @@ export const initialGame: Game = {
           num_misses: 0,
           is_eliminated: false,
         }
-      }
+      },
+      up_next: [
+        "1", "3", "5", "2"
+      ],
+      up_next_members: {
+        "3": ["4"],
+        "5": ["6", "7"],
+      },
     }
   ],
   turns: [],
-  up_next: [
-    "1", "2", "3", "5"
-  ],
-  up_next_members: {
-    "3": ["4"],
-    "5": ["6", "7"],
-  },
   target_score: 50,
   reset_score: 25,
   elimination_count: 3,
@@ -128,18 +130,3 @@ export const isNameInputFocusedAtom = atom<boolean>(false);
 
 //######################################################
 // HELPERS
-
-// export const getNewPlayer = (name: string): Player => {
-//   return {
-//     id: crypto.randomUUID(),
-//     name: name
-//   }
-// };
-
-// export const getNewTeam = (name: string): Team => {
-//   return {
-//     id: crypto.randomUUID(),
-//     name: name,
-//     members: []
-//   }
-// };

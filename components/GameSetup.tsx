@@ -28,7 +28,7 @@ export default function GameSetup() {
   };
 
   const disabledContinue = () => {
-    return game.up_next.length === 0;
+    return game.state.at(-1)!.up_next.length <= 1;
   };
 
   return (
@@ -102,7 +102,7 @@ export default function GameSetup() {
         }
 
       </View>
-      {Object.keys(game.up_next).length === 0 ?
+      {Object.keys(game.state.at(-1)!).length === 0 ?
         <Text>add players or teams below</Text>
       :
         <ParticipantList />

@@ -55,7 +55,6 @@ export default function AddParticipantModal() {
     setMemberName(text);
   }
 
-  // todo show name collisions on screen? (error message / popup)
   const isNameTaken = (newName: string): boolean => {
     if (newName.trim() === '') return true;
     const existingNames = Object.values(game.players).concat(memberNames);
@@ -65,7 +64,7 @@ export default function AddParticipantModal() {
         existingNames.push(memberName);
       }
     }
-    return existingNames.some((name) => { return name.trim().toLowerCase() === newName.trim().toLowerCase()});
+    return existingNames.some((tempName) => { return tempName.trim().toLowerCase() === newName.trim().toLowerCase()});
   }
 
   const namesAreSame = (name1: string, name2: string): boolean => {
@@ -75,7 +74,7 @@ export default function AddParticipantModal() {
 
   const handleAddMember = () => {
     const newMember = memberName.trim();
-    if (isNameTaken(newMember)) return;
+    if (isNameTaken(newMember) || namesAreSame(newMember, name)) return;
 
     setMemberNames((prev) => [...prev, newMember]);
     setMemberName('');
@@ -91,53 +90,66 @@ export default function AddParticipantModal() {
 
     const id = Crypto.randomUUID();
     if (isPlayer) {
+      const stateIndex = game.state.length - 1;
+      const currentState = {...game.state[stateIndex]};
+      currentState.up_next = [...currentState.up_next, id];
+      
       setGame({
         ...game,
         players: {
           ...game.players,
           [id]: newName
         },
-        up_next: [...game.up_next, id]
+        state: game.state.map((item, index) => {
+          return index === stateIndex ? currentState : item
+        })        
       })
+    
     } else {
       const team: Team = {
         name: newName,
         members: {}
       }
-      const upNextMembers: string[] = [];
       
       const members = [...memberNames];
-      if (!isNameTaken(memberName)) members.push(memberName.trim());
+      if (!isNameTaken(memberName) && !namesAreSame(name, memberName)) members.push(memberName.trim());
       if (members.length === 0) return;
       
+      const stateIndex = game.state.length - 1;
+      const currentState = {...game.state[stateIndex]};
+      currentState.up_next = [...currentState.up_next, id];
+
       for (const name of members) {
         const memberId = Crypto.randomUUID();
         team.members = {
           ...team.members,
           [memberId]: name
         }
-        upNextMembers.push(memberId);
+        currentState.up_next_members = {
+          ...currentState.up_next_members,
+          [id]: [...currentState.up_next_members[id], memberId]
+        };
       }
+
       setGame({
         ...game,
         teams: {
           ...game.teams,
           [id]: team
         },
-        up_next: [...game.up_next, id],
-        up_next_members: {
-          ...game.up_next_members,
-          [id]: upNextMembers
-        }
+        state: game.state.map((item, index) => {
+          return index === stateIndex ? currentState : item
+        })
       })
+
       setMemberNames([]);
       setMemberName('');
     }
     setName('');
   };
 
-  const isButtonDisabled = (input: string): boolean => {
-    if (isNameTaken(input)) return true;
+  const disableAddMember = (input: string): boolean => {
+    if (isNameTaken(input) || namesAreSame(name, memberName)) return true;
     return false;
   };
 
@@ -145,7 +157,7 @@ export default function AddParticipantModal() {
     if (name.trim() === '') return true;
     if (isPlayer) return false;
     if (memberName.trim() === '' && memberNames.length === 0) return true;
-    if (isNameTaken(memberName)) return true;
+    if (isNameTaken(memberName) || namesAreSame(name, memberName)) return true;
     return false;
   };
 
@@ -276,7 +288,7 @@ export default function AddParticipantModal() {
               />
               <TouchableOpacity
                 onPress={() => handleAddMember()}
-                disabled={isButtonDisabled(memberName)}
+                disabled={disableAddMember(memberName)}
               >
                 <Ionicons 
                   name="add-circle-outline" 
