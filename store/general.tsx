@@ -5,110 +5,97 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const storage = createJSONStorage(() => AsyncStorage) as any;
 // AsyncStorage.clear(); //!!!
 
-export type ParticipantType = 'player' | 'team';
+export type Players = Record<string, string>;
 
 export interface Team {
   name: string
   members: Record<string, string> //? id: name
 }
+export type Teams = Record<string, Team>
 
-export interface Participant {
+export type ParticipantType = 'player' | 'team';
+
+export interface ParticipantState {
   score: number
   num_misses: number
   is_eliminated: boolean
 }
 
-export interface GameState {
-  participants: Record<string, Participant> //? id: state
-  up_next: string[]
-  up_next_members: Record<string, string[]>
+export const initialParticipantState: ParticipantState = {
+  score: 0,
+  num_misses: 0,
+  is_eliminated: false
 }
 
-export type TurnType = 'score' | 'miss' | 'skip';
-
-export interface BaseTurn {
-  id: string
-  type: TurnType
-}
-
-export interface ScoreTurn extends BaseTurn {
-  type: 'score'
-  score: number
-}
-
-export type Turn = BaseTurn | ScoreTurn;
+export type GameState = Record<string, ParticipantState>
 
 export interface Game {
-  players: Record<string, string> //? player_id: name
-  teams: Record<string, Team> //? team_id: Team
-  // member_map: Record<string, string> //? member_id: team_id
-  state: GameState[]
-  turns: Turn[]
+  players: Players //? player_id: name
+  teams: Teams //? team_id: Team
+  state: GameState
+  up_next: string[]
+  up_next_members: Record<string, string[]>
   target_score: number
   reset_score: number
+  use_pin_value: boolean
   elimination_count: number
+  elimination_reset_score: number
+  skip_is_miss: boolean
   has_game_started: boolean
 }
 
-export const initialGame: Game = {
+export let initialGame: Game = {
   players: {
-    "1": "Player 1",
-    "2": "Player 2"
   },
   teams: {
-    "3": {
+    "1": {
       "name": "Team 1",
       "members": {
-        "4": "Member 1",
+        "2": "Member 1",
       }
     },
-    "5": {
+    "3": {
       "name": "Team 2",
       "members": {
-        "6": "Member 2",
-        "7": "Member 3",
+        "4": "Member 2",
+        "5": "Member 3",
       }
     }
   },
-  state: [
-    {
-      participants: {
-        "1": {
-          score: 38,
-          num_misses: 0,
-          is_eliminated: false,
-        },
-        "2": {
-          score: 0,
-          num_misses: 0,
-          is_eliminated: false,
-        },
-        "3": {
-          score: 0,
-          num_misses: 0,
-          is_eliminated: false,
-        },
-        "5": {
-          score: 0,
-          num_misses: 0,
-          is_eliminated: false,
-        }
-      },
-      up_next: [
-        "1", "3", "5", "2"
-      ],
-      up_next_members: {
-        "3": ["4"],
-        "5": ["6", "7"],
-      },
+  state: {
+    "1": {
+      score: 0,
+      num_misses: 0,
+      is_eliminated: false,
+    },
+    "3": {
+      score: 0,
+      num_misses: 0,
+      is_eliminated: false,
     }
+  },
+  up_next: [
+    "1", "3"
   ],
-  turns: [],
+  up_next_members: {
+    "1": ["2"],
+    "3": ["4", "5"],
+  },
   target_score: 50,
   reset_score: 25,
+  use_pin_value: false,
   elimination_count: 3,
+  elimination_reset_score: 0,
+  skip_is_miss: false,
   has_game_started: false
 };
+
+for (let i = 10; i < 35; i++) {
+  const id = i.toString();
+  initialGame.players[id] = `Player ${i}`
+  initialGame.state[id] = {...initialParticipantState};
+  initialGame.up_next.push(id);
+}
 
 export const gameAtom = atomWithStorage<Game>('gameAtom', {...initialGame}, storage, { getOnInit: true });
 export const loadableGameAtom = loadable(gameAtom);
@@ -130,3 +117,12 @@ export const isNameInputFocusedAtom = atom<boolean>(false);
 
 //######################################################
 // HELPERS
+
+export const getMaxScore = (game: Game): number => {
+  try {
+    return game.use_pin_value ? 78 : 12;
+  } catch (error) {
+    console.log(error);
+    return 12;
+  }
+};

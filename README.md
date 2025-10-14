@@ -50,3 +50,8 @@ Three consecutive misses → you’re out.
 - Change miss count before elimination
 - Continue playing after someone has won
 - Allow eliminated players back in manually or after sitting out throws or turns
+
+## Assumptions
+
+- must always be > 1 participants playing
+- teams have >= 1 member (1 member kinda defeats the point though)

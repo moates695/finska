@@ -4,6 +4,8 @@ import PinMap from "./PinMap";
 import { useAtom } from "jotai";
 import { gameAtom } from "@/store/general";
 import UpNext from "./UpNext";
+import Scoreboard from "./Scoreboard";
+import { Col, Row, Grid } from "react-native-easy-grid";
 
 export default function Game() {
   const [game, setGame] = useAtom(gameAtom);
@@ -12,23 +14,13 @@ export default function Game() {
     <View
       style={{
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
       }}
     >
-      <View
-        style={{
-          width: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'absolute',
-          bottom: 20,
-        }}
-      >
-        <UpNext />
-        <PinMap />
-      </View>
+      <Scoreboard />
+      <UpNext />
+      <PinMap />
     </View>
   )
 }

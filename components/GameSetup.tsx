@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import AddParticipantButton from "./AddParticipantButton";
 import AddParticipant from "./AddParticipant";
@@ -12,6 +12,8 @@ export default function GameSetup() {
   const [showNewParticipantModal, setShowNewParticipantModal] = useAtom(showNewParticipantModalAtom);
   const [, setScreen] = useAtom(screenAtom);
   
+  const [shuffleUpNext, setShuffleUpNext] = useState<boolean>(true);
+
   useEffect(() => {
     if (showNewParticipantModal) return;
     setShowNewParticipantModal(true);
@@ -28,7 +30,7 @@ export default function GameSetup() {
   };
 
   const disabledContinue = () => {
-    return game.state.at(-1)!.up_next.length <= 1;
+    return game.up_next.length <= 1;
   };
 
   return (
@@ -102,7 +104,7 @@ export default function GameSetup() {
         }
 
       </View>
-      {Object.keys(game.state.at(-1)!).length === 0 ?
+      {game.up_next.length === 0 ?
         <Text>add players or teams below</Text>
       :
         <ParticipantList />

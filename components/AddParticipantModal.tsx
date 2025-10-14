@@ -5,7 +5,7 @@ import { generalStyles } from "@/styles/general";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Constants from 'expo-constants';
 import { useAtom } from "jotai";
-import { Game, gameAtom, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newMemberNamesAtom, newNameAtom, newNameErrorAtom, showNewParticipantModalAtom, Team } from "@/store/general";
+import { Game, gameAtom, initialParticipantState, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newMemberNamesAtom, newNameAtom, newNameErrorAtom, showNewParticipantModalAtom, Team } from "@/store/general";
 import Feather from '@expo/vector-icons/Feather';
 import * as Crypto from 'expo-crypto';
 import { Ionicons } from "@expo/vector-icons";
@@ -50,7 +50,10 @@ export default function AddParticipantModal() {
     } else {
       setNameError(null);
     }
-    if (text.length >= maxNameLength) return;
+    if (text.length >= maxNameLength) {
+      setNameError('name is too long');
+      return;
+    }
     setName(text);
   }
 
@@ -62,7 +65,10 @@ export default function AddParticipantModal() {
     } else {
       setMemberNameError(null);
     }
-    if (text.length >= maxNameLength) return;
+    if (text.length >= maxNameLength) {
+      setNameError('name is too long');
+      return;
+    }
     setMemberName(text);
   }
 
@@ -101,46 +107,36 @@ export default function AddParticipantModal() {
 
     const id = Crypto.randomUUID();
     if (isPlayer) {
-      const stateIndex = game.state.length - 1;
-      const currentState = {...game.state[stateIndex]};
-      currentState.up_next = [...currentState.up_next, id];
-      
       setGame({
         ...game,
         players: {
           ...game.players,
           [id]: newName
         },
-        state: game.state.map((item, index) => {
-          return index === stateIndex ? currentState : item
-        })        
+        state: {
+          ...game.state,
+          [id]: {...initialParticipantState}
+        },
+        up_next: [...game.up_next, id]        
       })
     
     } else {
+      const tempMembers = [...memberNames];
+      if (!isNameTaken(memberName) && !namesAreSame(name, memberName)) {
+        tempMembers.push(memberName.trim());
+      }
+      if (tempMembers.length === 0) return;
+
+      const members = Object.fromEntries(
+        tempMembers.map((name) => [ Crypto.randomUUID(), name])
+      )
+
       const team: Team = {
         name: newName,
-        members: {}
+        members
       }
-      
-      const members = [...memberNames];
-      if (!isNameTaken(memberName) && !namesAreSame(name, memberName)) members.push(memberName.trim());
-      if (members.length === 0) return;
-      
-      const stateIndex = game.state.length - 1;
-      const currentState = {...game.state[stateIndex]};
-      currentState.up_next = [...currentState.up_next, id];
 
-      for (const name of members) {
-        const memberId = Crypto.randomUUID();
-        team.members = {
-          ...team.members,
-          [memberId]: name
-        }
-        currentState.up_next_members = {
-          ...currentState.up_next_members,
-          [id]: [...currentState.up_next_members[id], memberId]
-        };
-      }
+      const up_next_members = Object.keys(members);
 
       setGame({
         ...game,
@@ -148,14 +144,21 @@ export default function AddParticipantModal() {
           ...game.teams,
           [id]: team
         },
-        state: game.state.map((item, index) => {
-          return index === stateIndex ? currentState : item
-        })
+        state: {
+          ...game.state,
+          [id]: {...initialParticipantState}
+        },
+        up_next: [...game.up_next, id],
+        up_next_members: {
+          ...game.up_next_members,
+          [id]: up_next_members
+        }
       })
 
       setMemberNames([]);
       setMemberName('');
     }
+
     setName('');
   };
 

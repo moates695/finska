@@ -4,9 +4,10 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { gameAtom, GameState, Turn } from "@/store/general";
+import { gameAtom, GameState, getMaxScore } from "@/store/general";
 import { useAtom } from "jotai";
 
+// todo handle win, handle game invalidated (eliminations)
 export default function PinMap() {
   const [game, setGame] = useAtom(gameAtom);
   
@@ -25,7 +26,11 @@ export default function PinMap() {
     return selectedPins.has(number);
   };
 
-  const countScore = (): number => {
+  const countPins = (): number => {
+    if (game.use_pin_value) {
+      return [...selectedPins].reduce((a, b) => a + b, 0);
+    }
+
     if (selectedPins.size === 1) {
       return [...selectedPins][0];
     }
@@ -33,102 +38,105 @@ export default function PinMap() {
   };
 
   const handleSubmit = () => {
-    const gameState = game.state.at(-1)!;
-    const id = gameState.up_next[0];
-    let participantId = id;
-    if (id in game.teams) {
-      participantId = gameState.up_next_members[id][0];
-    }
+    const id = game.up_next[0];
 
-    const score = countScore();
-    let newScore = score + game.state.at(-1)!.participants[id].score;
-    if (newScore > game.target_score) {
+    const count = countPins();
+    let newScore = count + game.state[id].score;
+    if (newScore === game.target_score) {
+      // todo handle win
+    } else if (newScore > game.target_score) {
       newScore = game.reset_score;
     }
 
-    const nextState = {...game.state.at(-1)!};
-    nextState.participants[id].score = newScore;
-    updateUpNext(nextState, id === participantId, id);
-
-    const turn: Turn = {
-      id: participantId,
-      type: 'score',
-      score: score
+    const up_next = [...game.up_next.slice(1), game.up_next[0]]
+    let up_next_members = {...game.up_next_members};
+    if (id in game.teams) {
+      up_next_members = {
+        ...up_next_members,
+        [id]: [...up_next_members[id].slice(1), up_next_members[id][0]]
+      }
     }
 
     setGame({
       ...game,
-      state: [...game.state, nextState],
-      turns: [...game.turns, turn]
+      state: {
+        ...game.state,
+        [id]: {
+          ...game.state[id],
+          score: newScore
+        }
+      },
+      up_next,
+      up_next_members 
     });
     setSelectedPins(new Set());
   };
 
   const handleSkip = () => {
-    const gameState = game.state.at(-1)!;
-    const id = gameState.up_next[0];
-    let participantId = id;
+    if (game.skip_is_miss) return handleMiss(); 
+
+    const id = game.up_next[0];
+
+    const up_next = [...game.up_next.slice(1), game.up_next[0]]
+    let up_next_members = {...game.up_next_members};
     if (id in game.teams) {
-      participantId = gameState.up_next_members[id][0];
-    }
-
-    const nextState = {...game.state.at(-1)!};
-    updateUpNext(nextState, id === participantId, id);
-
-    const turn: Turn = {
-      id: participantId,
-      type: 'skip',
+      up_next_members = {
+        ...up_next_members,
+        [id]: [...up_next_members[id].slice(1), up_next_members[id][0]]
+      }
     }
 
     setGame({
       ...game,
-      state: [...game.state, nextState],
-      turns: [...game.turns, turn]
+      up_next,
+      up_next_members 
     });
     setSelectedPins(new Set());
   };
 
   const handleMiss = () => {
-    const gameState = game.state.at(-1)!;
-    const id = gameState.up_next[0];
-    let participantId = id;
-    if (id in game.teams) {
-      participantId = gameState.up_next_members[id][0];
-    }
+    const id = game.up_next[0];
 
-    const nextState = {...game.state.at(-1)!};
-    const participantState = nextState.participants[id];
-    participantState.num_misses = participantState.num_misses + 1;
-    if (participantState.num_misses >= game.elimination_count) {
-      participantState.is_eliminated = true;
+    let up_next = [...game.up_next];
+    let up_next_members = {...game.up_next_members};
+    let is_eliminated = false;
+    const num_misses = game.state[id].num_misses + 1;
+    if (num_misses >= game.elimination_count) {
+      up_next = up_next.slice(1);
+      delete up_next_members[id];
+      is_eliminated = true;
+    } else {
+      up_next = [...up_next.slice(1), up_next[0]];
+      if (id in game.teams) {
+        up_next_members = {
+          ...up_next_members,
+          [id]: [...up_next_members[id].slice(1), up_next_members[id][0]]
+        }
+      }
     }
-    updateUpNext(nextState, id === participantId, id);
-
-    const turn: Turn = {
-      id: participantId,
-      type: 'miss',
-    }
-
+    
     setGame({
       ...game,
-      state: [...game.state, nextState],
-      turns: [...game.turns, turn]
-    });
+      state: {
+        ...game.state,
+        [id]: {
+          ...game.state[id],
+          num_misses,
+          is_eliminated
+        }
+      },
+      up_next,
+      up_next_members
+    })
     setSelectedPins(new Set());
   };
 
-  const updateUpNext = (nextState: GameState, isPlayer: boolean, teamId?: string) => {
-    nextState.up_next = [...nextState.up_next.slice(1), nextState.up_next.slice(0, 1)[0]];
-    if (!isPlayer) {
-      const upNextMembers = nextState.up_next_members[teamId!];
-      nextState.up_next_members[teamId!] = [...upNextMembers.slice(1), upNextMembers.slice(0, 1)[0]];
-    }
-  };
-
   const getPinOutlineColor = (pinNumber: number): string => {
-    const id = game.state.at(-1)!.up_next[0];
-    const score = game.state.at(-1)?.participants[id].score;
-    if (score === undefined || game.target_score - score > 12) return 'white';
+    if (game.use_pin_value) return 'white';
+
+    const id = game.up_next[0];
+    const score = game.state[id].score;
+    if (score === undefined || game.target_score - score > getMaxScore(game)) return 'white';
     return pinNumber === game.target_score - score ? 'orange' : 'white';
   };
 
@@ -146,6 +154,8 @@ export default function PinMap() {
         borderRadius: 20,
         backgroundColor: "#e2d298ff",
         padding: 20,
+        height: 310,
+        marginBottom: 10,
       }}
     >
       <View
@@ -209,11 +219,11 @@ export default function PinMap() {
           fontSize: 18,
           position: 'absolute',
           bottom: 65,
-          right: 10,
+          right: 5,
           width: 90,
         }}
       >
-        Score: {selectedPins.size === 0 ? 'miss' : countScore()}
+        count: {selectedPins.size === 0 ? 0 : countPins()}
       </Text>
       <TouchableOpacity
         onPress={handleSubmit}

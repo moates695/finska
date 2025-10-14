@@ -2,7 +2,8 @@ import { gameAtom, initialGame, screenAtom, showNewParticipantModalAtom } from "
 import { generalStyles } from "@/styles/general";
 import { useAtom } from "jotai";
 import React, { useState } from "react";
-import { TouchableOpacity, Text, View } from "react-native";
+import { TouchableOpacity, Text, View, StyleSheet} from "react-native";
+import Scoreboard from "./Scoreboard";
 
 // todo show current game stats (to determine whether to continue or not)
 export default function StartOptions() {
@@ -39,18 +40,55 @@ export default function StartOptions() {
         width: '100%',
       }}
     >
+      <View
+        style={{
+          width: '100%',
+          height: '60%', 
+          alignItems: 'center',
+          // backgroundColor: 'red',
+        }}
+      >
+        <Scoreboard />
+      <View
+        style={{
+          height: 150,
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+        }}
+      >
       {showConfirmation ? 
         <>
-        <Text>Are you sure?</Text>
-        <Text>This will overwrite the existing game</Text>
+          <Text
+            style={{
+              fontSize: 16
+            }}
+          >
+            Are you sure?
+          </Text>
+          <Text
+            style={{
+              marginBottom: 10,
+            }}
+          >
+            This will overwrite the existing game
+          </Text>
           <TouchableOpacity
-            style={generalStyles.button}
+            style={[
+              generalStyles.button,
+              styles.bigButton,
+              {
+                marginBottom: 10,
+              }
+            ]}
             onPress={handleConfirmStartNewGame}
           >
             <Text>yes</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={generalStyles.button}
+            style={[
+              generalStyles.button,
+              styles.bigButton
+            ]}
             onPress={handleCancelConfirm}
           >
             <Text>back</Text>
@@ -59,20 +97,39 @@ export default function StartOptions() {
       :
         <>
           <TouchableOpacity
-            style={generalStyles.button}
+            style={[
+              generalStyles.button,
+              styles.bigButton,
+              {
+                marginBottom: 10,
+              }
+            ]}
             onPress={handleContinueGame}
           >
             <Text>continue game</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={generalStyles.button}
+            style={[
+              generalStyles.button,
+              styles.bigButton
+            ]}
             onPress={handlePressStartNewGame}
           >
             <Text>start new game</Text>
           </TouchableOpacity>
         </>
+        
       }
+      </View>
+      </View>
         
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  bigButton: {
+    width: 120,
+    padding: 10,
+  }
+})
