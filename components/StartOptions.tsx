@@ -75,7 +75,7 @@ export default function StartOptions() {
           <TouchableOpacity
             style={[
               generalStyles.button,
-              styles.bigButton,
+              generalStyles.bigButton,
               {
                 marginBottom: 10,
               }
@@ -87,7 +87,7 @@ export default function StartOptions() {
           <TouchableOpacity
             style={[
               generalStyles.button,
-              styles.bigButton
+              generalStyles.bigButton
             ]}
             onPress={handleCancelConfirm}
           >
@@ -99,7 +99,7 @@ export default function StartOptions() {
           <TouchableOpacity
             style={[
               generalStyles.button,
-              styles.bigButton,
+              generalStyles.bigButton,
               {
                 marginBottom: 10,
               }
@@ -111,7 +111,7 @@ export default function StartOptions() {
           <TouchableOpacity
             style={[
               generalStyles.button,
-              styles.bigButton
+              generalStyles.bigButton
             ]}
             onPress={handlePressStartNewGame}
           >
@@ -128,8 +128,4 @@ export default function StartOptions() {
 }
 
 const styles = StyleSheet.create({
-  bigButton: {
-    width: 120,
-    padding: 10,
-  }
 })

@@ -1,6 +1,6 @@
-import { gameAtom, isNameInputFocusedAtom, newMemberNameAtom, newMemberNameErrorAtom, newNameAtom, newNameErrorAtom, Team } from "@/store/general";
+import { gameAtom, getDistinctUpNext, isNameInputFocusedAtom, newMemberNameAtom, newMemberNameErrorAtom, newNameAtom, newNameErrorAtom, Team } from "@/store/general";
 import { useAtom } from "jotai";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import Feather from '@expo/vector-icons/Feather';
 import { Ionicons } from "@expo/vector-icons";
@@ -15,6 +15,10 @@ export default function ParticipantList() {
   const [, setNewMemberNameError] = useAtom(newMemberNameErrorAtom);
   const [isNameInputFocused, ] = useAtom(isNameInputFocusedAtom);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+
+  // const allUpNext = useMemo(() => {
+  //   return Object.values(getDistinctUpNext(game)).flat();
+  // }, [game.up_next]);
 
   const removePlayer = (id: string) => {
     const { [id]: _, ...restPlayers } = game.players;

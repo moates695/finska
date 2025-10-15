@@ -15,34 +15,41 @@ export type Teams = Record<string, Team>
 
 export type ParticipantType = 'player' | 'team';
 
+export type ParticipantStanding = 'playing' | 'eliminated' | 'paused';
+
 export interface ParticipantState {
   score: number
   num_misses: number
-  is_eliminated: boolean
+  standing: ParticipantStanding
+  eliminated_turns: number
 }
 
 export const initialParticipantState: ParticipantState = {
   score: 0,
   num_misses: 0,
-  is_eliminated: false
+  standing: 'playing',
+  eliminated_turns: 0
 }
 
 export type GameState = Record<string, ParticipantState>
+
 
 export interface Game {
   players: Players //? player_id: name
   teams: Teams //? team_id: Team
   state: GameState
-  up_next: string[]
+  up_next: string[] //? id: is_valid (not eliminated)
   up_next_members: Record<string, string[]>
   target_score: number
   reset_score: number
   use_pin_value: boolean
   elimination_count: number
   elimination_reset_score: number
+  elimination_reset_turns: number | null
   skip_is_miss: boolean
   has_game_started: boolean
 }
+
 
 export let initialGame: Game = {
   players: {
@@ -63,20 +70,10 @@ export let initialGame: Game = {
     }
   },
   state: {
-    "1": {
-      score: 0,
-      num_misses: 0,
-      is_eliminated: false,
-    },
-    "3": {
-      score: 0,
-      num_misses: 0,
-      is_eliminated: false,
-    }
+    "1": {...initialParticipantState},
+    "3": {...initialParticipantState}
   },
-  up_next: [
-    "1", "3"
-  ],
+  up_next: ["1", "3"],
   up_next_members: {
     "1": ["2"],
     "3": ["4", "5"],
@@ -86,11 +83,12 @@ export let initialGame: Game = {
   use_pin_value: false,
   elimination_count: 3,
   elimination_reset_score: 0,
+  elimination_reset_turns: null,
   skip_is_miss: false,
   has_game_started: false
 };
 
-for (let i = 10; i < 35; i++) {
+for (let i = 10; i < 12; i++) {
   const id = i.toString();
   initialGame.players[id] = `Player ${i}`
   initialGame.state[id] = {...initialParticipantState};
@@ -104,7 +102,7 @@ export const initialLoadAtom = atom<boolean>(true);
 
 export const showNewParticipantModalAtom = atom<boolean>(false);
 
-export type ScreenType = 'start options' | 'game setup' | 'game';
+export type ScreenType = 'start options' | 'game setup' | 'game' | 'settings';
 export const screenAtom = atom<ScreenType>('game setup');
 
 export const isPlayerAtom = atom<boolean>(true);
@@ -125,4 +123,20 @@ export const getMaxScore = (game: Game): number => {
     console.log(error);
     return 12;
   }
+};
+
+export type DistinctUpNext = Record<ParticipantStanding, string[]>
+
+export const getDistinctUpNext = (game: Game): DistinctUpNext => {
+  const distinct: DistinctUpNext = {
+    playing: [],
+    eliminated: [],
+    paused: []
+  }
+
+  for (const id of game.up_next) {
+    distinct[game.state[id].standing].push(id);
+  }
+
+  return distinct;
 };

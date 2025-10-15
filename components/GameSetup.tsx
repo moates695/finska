@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import AddParticipantButton from "./AddParticipantButton";
 import AddParticipant from "./AddParticipant";
 import { useAtom } from "jotai";
-import { gameAtom, screenAtom, showNewParticipantModalAtom } from "@/store/general";
+import { gameAtom, getDistinctUpNext, screenAtom, showNewParticipantModalAtom } from "@/store/general";
 import ParticipantList from "./ParticipantList";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -13,6 +13,10 @@ export default function GameSetup() {
   const [, setScreen] = useAtom(screenAtom);
   
   const [shuffleUpNext, setShuffleUpNext] = useState<boolean>(true);
+  
+  const distinctUpNext = useMemo(() => {
+    return getDistinctUpNext(game)
+  }, [game.up_next]);
 
   useEffect(() => {
     if (showNewParticipantModal) return;
@@ -30,7 +34,7 @@ export default function GameSetup() {
   };
 
   const disabledContinue = () => {
-    return game.up_next.length <= 1;
+    return distinctUpNext.playing.length <= 1;
   };
 
   return (
@@ -104,7 +108,7 @@ export default function GameSetup() {
         }
 
       </View>
-      {game.up_next.length === 0 ?
+      {distinctUpNext.playing.length === 0 ?
         <Text>add players or teams below</Text>
       :
         <ParticipantList />

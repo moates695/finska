@@ -12,6 +12,7 @@ import { MaterialIcons, AntDesign, Ionicons, Feather, FontAwesome } from '@expo/
 import StartOptions from './components/StartOptions';
 import Game from './components/Game';
 import GameSetup from './components/GameSetup';
+import Settings from './components/Settings';
 
 // need to show:
 // players current scores (modal scoreboard?)
@@ -47,10 +48,7 @@ export default function App() {
     load();
   }, []);
 
-  // useEffect(() => {
-  //   if (loadableGame.state === 'loading') return;
-  //   setInitialLoad(false);
-  // }, [loadableGame.state]);
+  // setGame({...initialGame}); // !!!
 
   if (loadableGame.state === 'loading') {
     return <LoadingScreen />;
@@ -68,7 +66,8 @@ export default function App() {
   const screenMap: Record<ScreenType, JSX.Element> = {
     'start options': <StartOptions />,
     'game setup': <GameSetup />,
-    'game': <Game />
+    'game': <Game />,
+    'settings': <Settings />,
   }
 
   return (

@@ -10,5 +10,9 @@ export const generalStyles = StyleSheet.create({
     borderColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  bigButton: {
+    width: 120,
+    padding: 10,
   }
 })

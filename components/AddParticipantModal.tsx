@@ -117,9 +117,8 @@ export default function AddParticipantModal() {
           ...game.state,
           [id]: {...initialParticipantState}
         },
-        up_next: [...game.up_next, id]        
+        up_next: [...game.up_next, id]
       })
-    
     } else {
       const tempMembers = [...memberNames];
       if (!isNameTaken(memberName) && !namesAreSame(name, memberName)) {
@@ -260,6 +259,7 @@ export default function AddParticipantModal() {
               padding: 4,
               height: 40,
               marginRight: 5,
+              textAlign: 'center',
             }}
             onFocus={() => setIsNameFocused(true)}
             onBlur={() => setIsNameFocused(false)}
@@ -308,6 +308,7 @@ export default function AddParticipantModal() {
                   padding: 4,
                   height: 40,
                   marginRight: 5,
+                  textAlign: 'center',
                 }}
                 onFocus={() => setIsNameFocused(true)}
                 onBlur={() => setIsNameFocused(false)}

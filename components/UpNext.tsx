@@ -1,7 +1,7 @@
-import { gameAtom, ParticipantType } from "@/store/general";
+import { gameAtom, getDistinctUpNext, ParticipantType } from "@/store/general";
 import { get } from "http";
 import { useAtom } from "jotai";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Col, Row, Grid } from "react-native-easy-grid";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -19,6 +19,11 @@ export default function UpNext() {
   const [game, setGame] = useAtom(gameAtom);
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+  
+  const distinctUpNext = useMemo(() => {
+      return getDistinctUpNext(game);
+    }, [game.up_next]);
 
   const getParticipantData = (index: number): ParticipantData => {
     const up_next_id = game.up_next[index];
@@ -43,7 +48,15 @@ export default function UpNext() {
   };
 
   const upNow = getParticipantData(0);
-  const upNext = getParticipantData(1);
+  const upNext = (() => {
+    let index = 1;
+    for (const [i, id] of game.up_next.slice(1).entries()) {
+      if (game.state[id].standing !== 'playing') continue;
+      index = i + 1;
+      break;
+    }
+    return getParticipantData(index);
+  })();
 
   const displayName = (details: ParticipantData): string => {
     if (details.type === 'player') {
@@ -55,6 +68,11 @@ export default function UpNext() {
   const getRemainingScore = (score: number): string => {
     return (game.target_score - score).toString();
   };
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    scrollViewRef.current?.scrollToEnd({ animated: false });
+  }, [isExpanded]);
 
   // todo add team member order and colours (similar to participant list)
   return (
@@ -73,8 +91,6 @@ export default function UpNext() {
             bottom: 80,
             left: 0,
             backgroundColor: 'orange', 
-            // paddingLeft: 20,
-            // paddingRight: 20,
             paddingBottom: 10,
             paddingTop: 10,
             borderRadius: 10,
@@ -83,22 +99,45 @@ export default function UpNext() {
           }}
         >
           <ScrollView
+            ref={scrollViewRef}
             style={{
-              paddingLeft: 30,
-              paddingRight: 30,
+              paddingLeft: 20,
+              paddingRight: 20,
             }}
           >
-            {game.up_next.slice(2).reverse().map((id) => {
+            {distinctUpNext.playing.slice(2).reverse().map((id, i) => {
               return (
                 <View
                   key={id}
+                  style={{
+                    backgroundColor: i % 2 ? '#ffca7aff' : 'transparent',
+                    padding: 4,
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                    borderRadius: 4,
+                  }}
                 >
-                  {id in game.players ?
-                    <Text>{game.players[id]}</Text>
-                  :
-                    <Text>{game.teams[id].name}</Text>
-                  }
-                  
+
+                    {id in game.players ?
+                      <Text>{game.players[id]}</Text>
+                    :
+                      <View>
+                        <View
+                          style={{
+                            marginLeft: 10,
+                          }}
+                        >
+                          {game.up_next_members[id].reverse().map((memberId) => {
+                            return (
+                              <View key={memberId}>
+                                <Text>{game.teams[id].members[memberId]}</Text>
+                              </View>
+                            )
+                          })}
+                        </View>
+                        <Text>{game.teams[id].name}</Text>
+                      </View>
+                    }
                 </View>
               )
             })}
@@ -115,6 +154,7 @@ export default function UpNext() {
           borderRadius: 10,
           height: 65
         }}
+        disabled={distinctUpNext.playing.length <= 2}
       >
         <Grid>
           <Row>

@@ -33,10 +33,10 @@ export default function Scoreboard() {
     });
     
     sorted.sort((a, b) => {
-      if (a.is_eliminated && !b.is_eliminated) {
-        return -1;
-      } else if (!a.is_eliminated && b.is_eliminated) {
+      if (a.standing === 'playing' && b.standing === 'eliminated') {
         return 1;
+      } else if (a.standing === 'eliminated' && b.standing === 'playing') {
+        return -1;
       }
 
       if (a.score === b.score) {
@@ -49,13 +49,13 @@ export default function Scoreboard() {
     for (let i = 0; i < sorted.length - 1; i++) {
       const currInRange = sorted[i].score >= game.target_score - maxScore;
       const nextInRange = sorted[i + 1].score >= game.target_score - maxScore;
-      if (currInRange && !nextInRange && !sorted[i + 1].is_eliminated) {
+      if (currInRange && !nextInRange && sorted[i + 1].standing !== 'eliminated') {
         sorted[i].last_can_win = true;
       }
     }
 
     for (let i = 1; i < sorted.length; i++) {
-      if (!sorted[i - 1].is_eliminated && sorted[i].is_eliminated) {
+      if (sorted[i - 1].standing !== 'eliminated' && sorted[i].standing === 'eliminated') {
         sorted[i].is_first_eliminated = true;
         break;
       } 
@@ -190,7 +190,7 @@ export default function Scoreboard() {
                         width: 45,
                         textAlign: 'center',
                         fontSize: 20,
-                        color: data.is_eliminated ? 'red' : 'black'
+                        color: data.standing === 'eliminated' ? 'red' : 'black'
                       }}
                     >
                       {data.num_misses}/{game.elimination_count}
