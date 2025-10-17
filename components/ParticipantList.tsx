@@ -1,4 +1,4 @@
-import { gameAtom, getDistinctUpNext, isNameInputFocusedAtom, newMemberNameAtom, newMemberNameErrorAtom, newNameAtom, newNameErrorAtom, Team } from "@/store/general";
+import { gameAtom, getDistinctUpNext, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newNameAtom, newNameErrorAtom, Team } from "@/store/general";
 import { useAtom } from "jotai";
 import React, { useMemo, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
@@ -14,6 +14,8 @@ export default function ParticipantList() {
   const [, setNewNameError] = useAtom(newNameErrorAtom);
   const [, setNewMemberNameError] = useAtom(newMemberNameErrorAtom);
   const [isNameInputFocused, ] = useAtom(isNameInputFocusedAtom);
+  const [isPlayer,] = useAtom(isPlayerAtom); //? remember last choice? (global state, no load in)
+  
   const [showEdit, setShowEdit] = useState<boolean>(false);
 
   // const allUpNext = useMemo(() => {
@@ -63,86 +65,55 @@ export default function ParticipantList() {
   };
 
   return (
+    <View
+      style={{
+        backgroundColor: 'orange',
+        width: 350,
+        borderRadius: 20,
+        padding: 20,
+        gap: 10,
+      }}
+    >
       <View
-        style={[
-          {
-            backgroundColor: 'orange',
-            width: 350,
-            borderRadius: 20,
-            padding: 20,
-            gap: 10,
-            marginBottom: 100,
-            maxHeight: 500,
-          },
-          isNameInputFocused && {
-            position: isNameInputFocused ? 'absolute' : 'relative',
-            top: 60,
-            maxHeight: 350,
-          }
-        ]}
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
       >
-        <View
+        <Text>Player list</Text>
+        <TouchableOpacity
+          onPress={() => setShowEdit(!showEdit)}
+          disabled={game.up_next.length === 0}
+        >
+          <MaterialIcons
+            name="edit-note"
+            size={24}
+            color="black"
+            style={{marginTop: -6, padding: 2}}      
+          />
+        </TouchableOpacity>
+      </View>
+      {game.up_next.length === 0 &&
+        <Text
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            // alignContent: 'flex-start',
+            textAlign: 'center'
           }}
         >
-          <Text>Current players</Text>
-          <TouchableOpacity
-            onPress={() => setShowEdit(!showEdit)}
-          >
-            <MaterialIcons 
-              name="edit-note"
-              size={24} 
-              color="black"
-              style={{marginTop: -6, padding: 2}}
-              
-            />
-          </TouchableOpacity>
-        </View>
-        <ScrollView 
-          style={{flexGrow: 1}}
-          showsVerticalScrollIndicator={true}
-          horizontal={false}
-        >
-        {game.up_next.map((id, i) => {
-          if (id in game.players) {
-            return (
-              <View 
-                key={i}
-                style={[
-                  styles.row,
-                  {
-                    backgroundColor: i % 2 ? 'transparent' : '#ffca7aff',
-                    borderRadius: 10,
-                    padding: 2,
-                    paddingLeft: 10,
-                    paddingRight: 10,
-                    marginBottom: 5,
-                  }
-                ]}
-              >
-                <Text>{game.players[id]}</Text>
-                <Feather 
-                  name="delete" 
-                  size={24} 
-                  color="black"
-                  onPress={() => removePlayer(id)} 
-                  style={{
-                    opacity: showEdit ? 1 : 0
-                  }}
-                  disabled={!showEdit}
-                />
-              </View>
-            )
-          }
-
-          const team: Team = game.teams[id];
+          add players/teams to get going!
+        </Text>
+      }
+      <ScrollView 
+        style={{flexGrow: 1}}
+        showsVerticalScrollIndicator={true}
+        horizontal={false}
+      >
+      {game.up_next.map((id, i) => {
+        if (id in game.players) {
           return (
             <View 
               key={i}
               style={[
+                styles.row,
                 {
                   backgroundColor: i % 2 ? 'transparent' : '#ffca7aff',
                   borderRadius: 10,
@@ -151,60 +122,89 @@ export default function ParticipantList() {
                   paddingRight: 10,
                   marginBottom: 5,
                 }
-              ]}  
+              ]}
             >
-              <View
-                style={styles.row}
-              >
-                <Text>{team.name}</Text>
-                <Feather 
-                    name="delete" 
-                    size={24} 
-                    color="black"
-                    onPress={() => removeTeam(id)} 
-                    style={{
-                      opacity: showEdit ? 1 : 0
-                    }}
-                    disabled={!showEdit}
-                  />
-              </View>
-              <View>
-                {game.up_next_members[id].map((memberId, j) => {
-                  return (
-                    <View
-                      key={j}
-                      style={styles.row}
-                    >
-                      <Text 
-                        key={j}
-                        style={{
-                          paddingLeft: 20
-                        }}
-                      >
-                        {team.members[memberId]}
-                      </Text>
-                      <Ionicons 
-                        name="remove-circle-outline"  
-                        size={24} 
-                        color="white"
-                        onPress={() => removeMember(id, memberId)} 
-                        style={{
-                          color: 'black',
-                          marginRight: 30,
-                          opacity: showEdit ? 1 : 0
-                        }}
-                        disabled={!showEdit}
-                      />
-                    </View>
-                  )
-                })}
-              </View>
+              <Text>{game.players[id]}</Text>
+              <Feather 
+                name="delete" 
+                size={24} 
+                color="black"
+                onPress={() => removePlayer(id)} 
+                style={{
+                  opacity: showEdit ? 1 : 0
+                }}
+                disabled={!showEdit}
+              />
             </View>
           )
-        })}
-      </ScrollView>
-    </View>
-    
+        }
+
+        const team: Team = game.teams[id];
+        return (
+          <View 
+            key={i}
+            style={[
+              {
+                backgroundColor: i % 2 ? 'transparent' : '#ffca7aff',
+                borderRadius: 10,
+                padding: 2,
+                paddingLeft: 10,
+                paddingRight: 10,
+                marginBottom: 5,
+              }
+            ]}  
+          >
+            <View
+              style={styles.row}
+            >
+              <Text>{team.name}</Text>
+              <Feather 
+                  name="delete" 
+                  size={24} 
+                  color="black"
+                  onPress={() => removeTeam(id)} 
+                  style={{
+                    opacity: showEdit ? 1 : 0
+                  }}
+                  disabled={!showEdit}
+                />
+            </View>
+            <View>
+              {game.up_next_members[id].map((memberId, j) => {
+                return (
+                  <View
+                    key={j}
+                    style={styles.row}
+                  >
+                    <Text 
+                      key={j}
+                      style={{
+                        paddingLeft: 20
+                      }}
+                    >
+                      {team.members[memberId]}
+                    </Text>
+                    <Ionicons 
+                      name="remove-circle-outline"  
+                      size={24} 
+                      color="white"
+                      onPress={() => removeMember(id, memberId)} 
+                      style={{
+                        color: 'black',
+                        marginRight: 30,
+                        opacity: showEdit ? 1 : 0
+                      }}
+                      disabled={!showEdit}
+                    />
+                  </View>
+                )})
+              }
+            </View>
+          </View>
+        )})
+      }
+    </ScrollView>
+  </View>
   )
 }
 

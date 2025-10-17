@@ -14,22 +14,16 @@ import Game from './components/Game';
 import GameSetup from './components/GameSetup';
 import Settings from './components/Settings';
 
-// need to show:
-// players current scores (modal scoreboard?)
-// current players turn and who is up next
-// numeric input or pin input for each turn
-// which players are eliminated
-// player miss count out of elimination num
-// for players within scoring distance, the number of points they need to score
-
 export default function App() {
   const loadableGame = useAtomValue(loadableGameAtom);
   const [game, setGame] = useAtom(gameAtom);
   const [screen, setScreen] = useAtom(screenAtom);
   const [initialLoad, setInitialLoad] = useAtom(initialLoadAtom);
+  
+  const [loadingFonts, setLoadingFonts] = useState<boolean>(false);
 
-  //! todo update this with new Font sources
   const loadFonts = async () => {
+    setLoadingFonts(true);
     await Font.loadAsync({
       ...MaterialIcons.font,
       ...AntDesign.font,
@@ -37,6 +31,7 @@ export default function App() {
       ...Feather.font,
       ...FontAwesome.font,
     });
+    setLoadingFonts(false);
   };
 
   useEffect(() => {
@@ -48,9 +43,7 @@ export default function App() {
     load();
   }, []);
 
-  // setGame({...initialGame}); // !!!
-
-  if (loadableGame.state === 'loading') {
+  if (loadableGame.state === 'loading' || loadingFonts) {
     return <LoadingScreen />;
   } else if (loadableGame.state === 'hasError') {
     console.log('could not load game state');

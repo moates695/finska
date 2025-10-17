@@ -4,23 +4,17 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { gameAtom, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom } from "@/store/general";
+import { completeStateAtom, gameAtom, gameIsValid, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom, showCompleteModalAtom } from "@/store/general";
 import { useAtom } from "jotai";
 
 // todo handle win, handle game invalidated (eliminations)
 export default function PinMap() {
   const [game, setGame] = useAtom(gameAtom);
   const [, setScreen] = useAtom(screenAtom);
-  
+  const [, setComplateState] = useAtom(completeStateAtom);
+  const [, setShowCompleteModal] = useAtom(showCompleteModalAtom);
+
   const [selectedPins, setSelectedPins] = useState<Set<number>>(new Set());
-
-  // const distinctUpNext = useMemo(() => {
-  //   return getDistinctUpNext(game);
-  // }, [game.up_next]);
-
-  console.log(game.state)
-
-  // todo handle eliminated turns >= settings (!= null)
 
   const pressPin = (number: number) => {
     setSelectedPins(prev => {
@@ -52,7 +46,8 @@ export default function PinMap() {
     const count = countPins();
     let newScore = count + game.state[id].score;
     if (newScore === game.target_score) {
-      // todo handle win (udpate game state to show win)
+      setComplateState('win');
+      setShowCompleteModal(true);
     } else if (newScore > game.target_score) {
       newScore = game.reset_score;
     }
@@ -71,6 +66,11 @@ export default function PinMap() {
         break;
       } else if (game.state[id].standing === 'eliminated') {
         tempState[id].eliminated_turns++;
+        if (game.elimination_reset_turns && tempState[id].eliminated_turns >= game.elimination_reset_turns) {
+          tempState[id].standing = 'playing';
+          tempState[id].num_misses = 0;
+          tempState[id].eliminated_turns = 0;
+        }
       }
     }
 
@@ -105,6 +105,11 @@ export default function PinMap() {
         break;
       } else if (game.state[id].standing === 'eliminated') {
         tempState[id].eliminated_turns++;
+        if (game.elimination_reset_turns && tempState[id].eliminated_turns >= game.elimination_reset_turns) {
+          tempState[id].standing = 'playing';
+          tempState[id].num_misses = 0;
+          tempState[id].eliminated_turns = 0;
+        }
       }
     }
 
@@ -148,6 +153,11 @@ export default function PinMap() {
         break;
       } else if (game.state[id].standing === 'eliminated') {
         tempState[id].eliminated_turns++;
+        if (game.elimination_reset_turns && tempState[id].eliminated_turns >= game.elimination_reset_turns) {
+          tempState[id].standing = 'playing';
+          tempState[id].num_misses = 0;
+          tempState[id].eliminated_turns = 0;
+        }
       }
     }
 
@@ -159,6 +169,10 @@ export default function PinMap() {
       }
     }
 
+    if (!gameIsValid(tempState)) {
+      setComplateState('default');
+      setShowCompleteModal(true);
+    }
 
     setGame({
       ...game,
@@ -193,7 +207,7 @@ export default function PinMap() {
         backgroundColor: "#e2d298ff",
         padding: 20,
         height: 310,
-        marginBottom: 10,
+        marginBottom: 5,
       }}
     >
       <View
@@ -225,6 +239,7 @@ export default function PinMap() {
                   alignItems: 'center',
                   margin: 4
                 }}
+                disabled={!gameIsValid(game.state)}
               >
                 <Text
                   style={{
@@ -245,6 +260,7 @@ export default function PinMap() {
           top: 20,
           right: 20,
         }}
+        disabled={!gameIsValid(game.state)}
       >
         <Feather 
           name="fast-forward" 
@@ -284,31 +300,16 @@ export default function PinMap() {
         onPress={handleMiss}
         style={{
           position: 'absolute',
-          bottom: 20,
+          top: 20,
           left: 20,
         }}
-        disabled={selectedPins.size > 0}
+        disabled={selectedPins.size > 0 || !gameIsValid(game.state)}
       >
         <FontAwesome 
           name="remove" 
           size={28} 
           color={selectedPins.size === 0 ? "red": "black"} 
           disabled={selectedPins.size > 0}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => setScreen('settings')}
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 20,
-        }}
-        disabled={selectedPins.size > 0}
-      >
-        <Ionicons 
-          name="settings-outline" 
-          size={24}
-          color="black" 
         />
       </TouchableOpacity>
     </View>

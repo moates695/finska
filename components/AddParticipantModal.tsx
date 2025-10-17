@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleSheet, Switch, ScrollView } from "react-native";
 import Dropdown, { DropdownOption } from "./Dropdown";
 import { generalStyles } from "@/styles/general";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -16,9 +16,8 @@ interface ParticipantOption {
   value: ParticipantType
 }
 
-
-// todo allow submit when member name sitting in team input?
 export default function AddParticipantModal() {
+
   const [game, setGame] = useAtom(gameAtom);
 
   const [isPlayer, setIsPlayer] = useAtom(isPlayerAtom); //? remember last choice? (global state, no load in)
@@ -27,7 +26,7 @@ export default function AddParticipantModal() {
   const [memberNames, setMemberNames] = useAtom(newMemberNamesAtom);
   const [nameError, setNameError] = useAtom(newNameErrorAtom);
   const [memberNameError, setMemberNameError] = useAtom(newMemberNameErrorAtom);
-  const [isNameFocused, setIsNameFocused] = useAtom(isNameInputFocusedAtom);
+  // const [isNameFocused, setIsNameFocused] = useAtom(isNameInputFocusedAtom);
 
   const existingNames = useMemo(() => {
     const names = Object.values(game.players).concat(memberNames);
@@ -43,7 +42,9 @@ export default function AddParticipantModal() {
   const maxNameLength = Constants.expoConfig?.extra?.maxNameLength;
 
   const handleChangeName = (text: string) => {
-    if (isNameTaken(text)) {
+    if (text.trim() === '') {
+      setNameError('name is empty');
+    } else if (isNameTaken(text)) {
       setNameError('name is already taken')
     } else if (namesAreSame(text, memberName)) {
       setNameError('team and member names are equal'); 
@@ -58,7 +59,9 @@ export default function AddParticipantModal() {
   }
 
   const handleChangeMemberName = (text: string) => {
-    if (isNameTaken(text)) {
+    if (text.trim() === '') {
+      setMemberNameError('name is empty');
+    } else if (isNameTaken(text)) {
       setMemberNameError('name is already taken');
     } else if (namesAreSame(name, text)) {
       setNameError('team and member names are equal'); 
@@ -74,13 +77,6 @@ export default function AddParticipantModal() {
 
   const isNameTaken = (newName: string): boolean => {
     if (newName.trim() === '') return true;
-    // const existingNames = Object.values(game.players).concat(memberNames);
-    // for (const team of Object.values(game.teams)) {
-    //   existingNames.push(team.name);
-    //   for (const memberName of Object.values(team.members)) {
-    //     existingNames.push(memberName);
-    //   }
-    // }
     return existingNames.some((tempName) => { return tempName.trim().toLowerCase() === newName.trim().toLowerCase()});
   }
 
@@ -191,24 +187,14 @@ export default function AddParticipantModal() {
       style={[
         {
           borderRadius: 20,
-          position: 'absolute',
-          bottom: 10,
           padding: 10,
           width: 350,
           alignItems: 'center',
           backgroundColor: "#e2d298ff",
-        },
-        !isNameFocused && {
-          marginBottom: isPlayer ? 73 : 0,
-          bottom: 60,
         }
       ]}
     >
-      <View
-        style={{
-          // marginBottom: 10,
-        }}
-      >
+      <View>
         <View
           style={{
             flexDirection: 'row',
@@ -261,8 +247,8 @@ export default function AddParticipantModal() {
               marginRight: 5,
               textAlign: 'center',
             }}
-            onFocus={() => setIsNameFocused(true)}
-            onBlur={() => setIsNameFocused(false)}
+            // onFocus={() => setIsNameFocused(true)}
+            // onBlur={() => setIsNameFocused(false)}
           />
           <TouchableOpacity
             onPress={() => handleAddParticipant()}
@@ -310,8 +296,8 @@ export default function AddParticipantModal() {
                   marginRight: 5,
                   textAlign: 'center',
                 }}
-                onFocus={() => setIsNameFocused(true)}
-                onBlur={() => setIsNameFocused(false)}
+                // onFocus={() => setIsNameFocused(true)}
+                // onBlur={() => setIsNameFocused(false)}
               />
               <TouchableOpacity
                 onPress={() => handleAddMember()}
@@ -338,38 +324,44 @@ export default function AddParticipantModal() {
           {memberNames.length === 0 &&
             <Text>add some team mates!</Text>
           }
-          {memberNames.map((name, i) => {
-            return (
-              <View
-                key={i}
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  width: 280,
-                  paddingRight: 30,
-                }}
-              >
-                <Text
+          <ScrollView
+            style={{
+              maxHeight: 130
+            }}
+          >
+            {memberNames.map((name, i) => {
+              return (
+                <View
+                  key={i}
                   style={{
-                    padding: 2
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: 280,
+                    paddingRight: 30,
                   }}
-                >{name}</Text>
-                <Ionicons 
-                  name="remove-circle-outline" 
-                  size={24} 
-                  color="black"
-                  onPress={() => handleRemoveMember(i)} 
-                  style={{
-                    padding: 2
-                  }}
-                />
-              </View>
-            )
-          })}
+                >
+                  <Text
+                    style={{
+                      padding: 2
+                    }}
+                  >{name}</Text>
+                  <Ionicons 
+                    name="remove-circle-outline" 
+                    size={24} 
+                    color="black"
+                    onPress={() => handleRemoveMember(i)} 
+                    style={{
+                      padding: 2
+                    }}
+                  />
+                </View>
+              )
+            })}
+          </ScrollView>
         </>
       }
-    </View>
+  </View>
   )
 }
 

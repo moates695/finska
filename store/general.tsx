@@ -51,33 +51,49 @@ export interface Game {
 }
 
 
+// export let initialGame: Game = {
+//   players: {
+//   },
+//   teams: {
+//     "1": {
+//       "name": "Team 1",
+//       "members": {
+//         "2": "Member 1",
+//       }
+//     },
+//     "3": {
+//       "name": "Team 2",
+//       "members": {
+//         "4": "Member 2",
+//         "5": "Member 3",
+//       }
+//     }
+//   },
+//   state: {
+//     "1": {...initialParticipantState},
+//     "3": {...initialParticipantState}
+//   },
+//   up_next: ["1", "3"],
+//   up_next_members: {
+//     "1": ["2"],
+//     "3": ["4", "5"],
+//   },
+//   target_score: 50,
+//   reset_score: 25,
+//   use_pin_value: false,
+//   elimination_count: 3,
+//   elimination_reset_score: 0,
+//   elimination_reset_turns: null,
+//   skip_is_miss: false,
+//   has_game_started: false
+// };
+
 export let initialGame: Game = {
-  players: {
-  },
-  teams: {
-    "1": {
-      "name": "Team 1",
-      "members": {
-        "2": "Member 1",
-      }
-    },
-    "3": {
-      "name": "Team 2",
-      "members": {
-        "4": "Member 2",
-        "5": "Member 3",
-      }
-    }
-  },
-  state: {
-    "1": {...initialParticipantState},
-    "3": {...initialParticipantState}
-  },
-  up_next: ["1", "3"],
-  up_next_members: {
-    "1": ["2"],
-    "3": ["4", "5"],
-  },
+  players: {},
+  teams: {},
+  state: {},
+  up_next: [],
+  up_next_members: {},
   target_score: 50,
   reset_score: 25,
   use_pin_value: false,
@@ -88,12 +104,12 @@ export let initialGame: Game = {
   has_game_started: false
 };
 
-for (let i = 10; i < 12; i++) {
-  const id = i.toString();
-  initialGame.players[id] = `Player ${i}`
-  initialGame.state[id] = {...initialParticipantState};
-  initialGame.up_next.push(id);
-}
+// for (let i = 10; i < 40; i++) {
+//   const id = i.toString();
+//   initialGame.players[id] = `Player ${i}`
+//   initialGame.state[id] = {...initialParticipantState};
+//   initialGame.up_next.push(id);
+// }
 
 export const gameAtom = atomWithStorage<Game>('gameAtom', {...initialGame}, storage, { getOnInit: true });
 export const loadableGameAtom = loadable(gameAtom);
@@ -112,6 +128,12 @@ export const newMemberNamesAtom = atom<string[]>([]);
 export const newNameErrorAtom = atom<string | null>(null);
 export const newMemberNameErrorAtom = atom<string | null>(null);
 export const isNameInputFocusedAtom = atom<boolean>(false);
+
+export const showCompleteModalAtom = atom<boolean>(false);
+
+export type CompleteState = 'win' | 'finish' | 'default';
+
+export const completeStateAtom = atom<CompleteState>('win');
 
 //######################################################
 // HELPERS
@@ -139,4 +161,14 @@ export const getDistinctUpNext = (game: Game): DistinctUpNext => {
   }
 
   return distinct;
+};
+
+export const getRemainingScore = (game: Game, score: number): string => {
+  return (game.target_score - score).toString();
+};
+
+export const gameIsValid = (state: GameState): boolean => {
+  const numPlaying = Object.values(state).reduce((sum, item) => {
+    return sum + (item.standing === 'playing' ? 1 : 0)}, 0);
+  return numPlaying >= 2;
 };

@@ -1,4 +1,4 @@
-import { gameAtom, getMaxScore } from "@/store/general";
+import { gameAtom, getMaxScore, getRemainingScore } from "@/store/general";
 import { useAtom } from "jotai";
 import React, { useMemo } from "react";
 import { View, Text, ScrollView } from "react-native";
@@ -6,19 +6,12 @@ import { Col, Row, Grid } from "react-native-easy-grid";
 
 export default function Scoreboard() {
   const [game, setGame] = useAtom(gameAtom);
-  
-  // console.log(game);
 
   const getName = (id: string): string => {
     if (id in game.players) {
       return game.players[id];
     }
     return game.teams[id].name;
-  };
-
-  // todo reduce duplicate function
-  const getRemainingScore = (score: number): string => {
-    return (game.target_score - score).toString();
   };
 
   const sortedParticipants = useMemo(() => {
@@ -183,7 +176,7 @@ export default function Scoreboard() {
                         fontSize: 20,
                       }}
                     >
-                      {getRemainingScore(data.score)}
+                      {getRemainingScore(game, data.score)}
                     </Text>
                     <Text
                       style={{

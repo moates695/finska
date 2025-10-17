@@ -1,14 +1,27 @@
-import React from "react";
-import { View, Text } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Modal, TouchableOpacity } from "react-native";
 import PinMap from "./PinMap";
-import { useAtom } from "jotai";
-import { gameAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
+import { completeStateAtom, gameAtom, screenAtom, showCompleteModalAtom } from "@/store/general";
 import UpNext from "./UpNext";
 import Scoreboard from "./Scoreboard";
 import { Col, Row, Grid } from "react-native-easy-grid";
+import { GameEndModal } from "./GameEndModal";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import AddParticipantModal from "./AddParticipantModal";
 
 export default function Game() {
-  const [game, setGame] = useAtom(gameAtom);
+  const [, setScreen] = useAtom(screenAtom);
+  const showCompleteModal = useAtomValue(showCompleteModalAtom);
+  const [, setComplateState] = useAtom(completeStateAtom);
+  const [, setShowCompleteModal] = useAtom(showCompleteModalAtom);
+
+  const [showAddParticipant, setShowAddParticipant] = useState<boolean>(false);
+
+  const handlePressSave = () => {
+    setComplateState('finish');
+    setShowCompleteModal(true);
+  };
 
   return (
     <View
@@ -21,6 +34,54 @@ export default function Game() {
       <Scoreboard />
       <UpNext />
       <PinMap />
+      {showAddParticipant && <AddParticipantModal /> }
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '90%',
+          marginBottom: 5,
+          paddingLeft: 20,
+          paddingRight: 25,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => setScreen('settings')}
+        >
+          <Ionicons 
+            name="settings-outline" 
+            size={24}
+            color="black" 
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handlePressSave}
+        >
+          <Ionicons 
+            name="save-outline" 
+            size={24} 
+            color="black" 
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setShowAddParticipant(!showAddParticipant)}
+        >
+          <Ionicons 
+            name={showAddParticipant ? "person-remove" : "person-add-outline"} 
+            size={24}
+            color="black" 
+          />
+        </TouchableOpacity>
+      </View>
+      <Modal 
+        visible={showCompleteModal}
+        transparent={true}
+        onRequestClose={() => {}}
+        animationType='fade'
+      >
+        <GameEndModal />
+      </Modal>
     </View>
   )
 }

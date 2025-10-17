@@ -1,4 +1,4 @@
-import { gameAtom, getDistinctUpNext, ParticipantType } from "@/store/general";
+import { gameAtom, getDistinctUpNext, getRemainingScore, ParticipantType } from "@/store/general";
 import { get } from "http";
 import { useAtom } from "jotai";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -14,7 +14,6 @@ interface ParticipantData {
   misses: number
 }
 
-// todo: press on component to expand to show complete list upcoming turns (may need scroll)
 export default function UpNext() {
   const [game, setGame] = useAtom(gameAtom);
 
@@ -22,8 +21,10 @@ export default function UpNext() {
   const scrollViewRef = useRef<ScrollView>(null);
   
   const distinctUpNext = useMemo(() => {
-      return getDistinctUpNext(game);
-    }, [game.up_next]);
+    return getDistinctUpNext(game);
+  }, [game.up_next]);
+
+  useEffect(() => {}, []);
 
   const getParticipantData = (index: number): ParticipantData => {
     const up_next_id = game.up_next[index];
@@ -65,16 +66,11 @@ export default function UpNext() {
     return `${details.name} -> ${details.memberName}`;
   };
 
-  const getRemainingScore = (score: number): string => {
-    return (game.target_score - score).toString();
-  };
-
   useEffect(() => {
     if (!isExpanded) return;
     scrollViewRef.current?.scrollToEnd({ animated: false });
   }, [isExpanded]);
-
-  // todo add team member order and colours (similar to participant list)
+  
   return (
     <View
       style={{
@@ -117,20 +113,19 @@ export default function UpNext() {
                     borderRadius: 4,
                   }}
                 >
-
                     {id in game.players ?
                       <Text>{game.players[id]}</Text>
                     :
                       <View>
                         <View
                           style={{
-                            marginLeft: 10,
+                            // marginLeft: 4,
                           }}
                         >
-                          {game.up_next_members[id].reverse().map((memberId) => {
+                          {[...game.up_next_members[id]].reverse().map((memberId) => {
                             return (
                               <View key={memberId}>
-                                <Text>{game.teams[id].members[memberId]}</Text>
+                                <Text>{'\u2022'} {game.teams[id].members[memberId]}</Text>
                               </View>
                             )
                           })}
@@ -238,7 +233,7 @@ export default function UpNext() {
                   fontSize: 20,
                 }}
               >
-                {getRemainingScore(upNow.score)}
+                {getRemainingScore(game, upNow.score)}
               </Text>
             </Col>
             <Col style={{alignItems: 'center'}}>

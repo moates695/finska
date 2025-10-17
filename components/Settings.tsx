@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAtom } from "jotai";
@@ -59,6 +59,8 @@ export default function Settings() {
     }
   };
 
+  const tooBigError = 'reset score too big'
+
   const handleChangeReset = (
     text: string, 
     setter: Dispatch<SetStateAction<string>>, 
@@ -74,7 +76,7 @@ export default function Settings() {
       if (!num && num !== 0) throw new Error(`bad num '${num}'`);
       setter(num.toString());
       if (num >= parseInt(targetScore)) {
-        setError('reset score too big');
+        setError(tooBigError);
       } else {
         setError(null);
       }
@@ -97,11 +99,22 @@ export default function Settings() {
     const tempReset = parseInt(resetScore) ?? game.reset_score;
     const tempElimCount = parseInt(eliminationCount) ?? game.elimination_count;
     const tempElimReset = parseInt(eliminationScore) ?? game.elimination_reset_score;
-    let tempElimTurns = game.elimination_reset_turns;
-    if (parseInt(eliminationTurns)) {
-      tempElimTurns = parseInt(eliminationTurns);
-    }
     
+    if (tempReset >= tempTarget || tempElimReset >= tempTarget) return;
+    
+    let tempElimTurns: number | null = game.elimination_reset_turns;
+    if (eliminationTurns === '') {
+      tempElimTurns = null;
+    } else {
+      try {
+        const num = parseInt(eliminationTurns);
+        if (Number.isNaN(num)) throw Error('could not convert turns to int');
+        tempElimTurns = num;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     const tempGame = {...game}
     for (const [id, currState] of Object.entries(game.state)) {
       const tempState = tempGame.state[id];
@@ -138,6 +151,31 @@ export default function Settings() {
       use_pin_value: usePinValue
     })
   };
+
+  
+  useEffect(() => {
+    const tempTarget = parseInt(targetScore) ?? game.target_score;
+    const tempReset = parseInt(resetScore) ?? game.reset_score;
+    
+    if (tempTarget <= tempReset) {
+      setResetScoreError(tooBigError);
+      return;
+    } else if (resetScoreError === tooBigError) {
+      setResetScoreError(null);
+    }
+  }, [targetScore]);
+
+  useEffect(() => {
+    const tempTarget = parseInt(targetScore) ?? game.target_score;
+    const tempElimReset = parseInt(eliminationScore) ?? game.elimination_reset_score;
+
+    if (tempTarget <= tempElimReset) {
+      setEliminationScoreError(tooBigError);
+      return;
+    } else if (eliminationScoreError === tooBigError) {
+      setEliminationScoreError(null);
+    }
+  }, [targetScore]);
 
   return (
     <View

@@ -6,11 +6,12 @@ import { useAtomValue } from "jotai";
 import { showNewParticipantModalAtom } from "@/store/general";
 
 export interface AddParticipantProps {
-  showButton?: boolean 
+  showButton: boolean 
+  showShuffle: boolean
 }
 
 export default function AddParticipant(props: AddParticipantProps) {
-  const { showButton=true } = props;
+  const { showButton, showShuffle } = props;
   
   const showNewParticipantModal = useAtomValue(showNewParticipantModalAtom);
   
@@ -18,7 +19,7 @@ export default function AddParticipant(props: AddParticipantProps) {
     <>
       {showButton && <AddParticipantButton />}
       {showNewParticipantModal &&
-        <AddParticipantModal />
+        <AddParticipantModal showShuffle={showShuffle}/>
       }
     </>
   )

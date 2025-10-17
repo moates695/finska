@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { TouchableOpacity, Text, View, StyleSheet} from "react-native";
 import Scoreboard from "./Scoreboard";
 
-// todo show current game stats (to determine whether to continue or not)
 export default function StartOptions() {
   const [, setGame] = useAtom(gameAtom);
   const [, setScreen] = useAtom(screenAtom);
