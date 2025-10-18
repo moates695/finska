@@ -136,10 +136,10 @@ export type CompleteState = 'win' | 'finish' | 'default';
 
 export const completeStateAtom = atom<CompleteState>('win');
 
-export const themeAtom = atomWithStorage<Theme>('themeAtom', themes.sand, storage, { getOnInit: true })
+export const themeAtom = atomWithStorage<Theme>('themeAtom', themes.dark, storage, { getOnInit: true })
 export const loadableThemeAtom = loadable(themeAtom);
 
-export const useDeviceThemeAtom = atomWithStorage<boolean>('useDeviceThemeAtom', true, storage, { getOnInit: true })
+export const useDeviceThemeAtom = atomWithStorage<boolean>('useDeviceThemeAtom', false, storage, { getOnInit: true })
 export const loadableUseDeviceThemeAtom = loadable(useDeviceThemeAtom);
 
 //######################################################

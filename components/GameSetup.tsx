@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, TouchableOpacity, Switch, Platform, KeyboardAvoidingView } from "react-native";
-import AddParticipantButton from "./AddParticipantButton";
-import AddParticipant from "./AddParticipant";
-import { useAtom } from "jotai";
-import { gameAtom, getDistinctUpNext, screenAtom, showNewParticipantModalAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
+import { gameAtom, getDistinctUpNext, screenAtom, showNewParticipantModalAtom, themeAtom } from "@/store/general";
 import ParticipantList from "./ParticipantList";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddParticipantModal from "./AddParticipantModal";
@@ -12,7 +10,8 @@ export default function GameSetup() {
   const [game, setGame] = useAtom(gameAtom);
   const [showNewParticipantModal, setShowNewParticipantModal] = useAtom(showNewParticipantModalAtom);
   const [, setScreen] = useAtom(screenAtom);
-    
+  const theme = useAtomValue(themeAtom);
+  
   const [shuffleOrder, setShuffleOrder] = useState<boolean>(true);
 
   const distinctUpNext = useMemo(() => {

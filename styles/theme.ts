@@ -7,9 +7,15 @@ export interface Theme {
   listColorA: Color,
   listColorB: Color,
   participantListItem: Color
+  pinSelected: Color
+  pinNotSelected: Color
+  text: Color
 }
 
 export type ThemeType = 'light' | 'dark' | 'sand' | 'midnight';
+
+// todo go through each component and add all necessary color types above
+// todo then make each color way
 
 export const themes: Record<ThemeType, Theme> = {
   light: {
@@ -19,6 +25,9 @@ export const themes: Record<ThemeType, Theme> = {
     listColorA: '#9afaff7a',
     listColorB: '#9affbf7a',
     participantListItem: '#ffca7aff',
+    pinSelected: '#3fec00ff',
+    pinNotSelected: '#ffedaaff',
+    text: '#000000',
   },
   dark: {
     primaryBackground: '#0b0b0bff',
@@ -27,6 +36,9 @@ export const themes: Record<ThemeType, Theme> = {
     listColorA: '#9afaff7a',
     listColorB: '#9affbf7a',
     participantListItem: '#ffca7aff',
+    pinSelected: '#3fec00ff',
+    pinNotSelected: '#ffedaaff',
+    text: '#ffffff',
   },
   sand: {
     primaryBackground: '#ffedaaff',
@@ -35,13 +47,19 @@ export const themes: Record<ThemeType, Theme> = {
     listColorA: '#9afaff7a',
     listColorB: '#9affbf7a',
     participantListItem: '#ffca7aff',
+    pinSelected: '#3fec00ff',
+    pinNotSelected: '#ffedaaff',
+    text: '#000000',
   },
-  midnight: {
+  midnight: { // todo
     primaryBackground: '#ffedaaff',
     paleComponent: '#e2d298ff',
     brightComponent: '#ffa500',
     listColorA: '#9afaff7a',
     listColorB: '#9affbf7a',
     participantListItem: '#ffca7aff',
+    pinSelected: '#3fec00ff',
+    pinNotSelected: '#ffedaaff',
+    text: '#ffffff',
   }
 }

@@ -138,7 +138,7 @@ export default function Scoreboard() {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     height: 40,
-                    backgroundColor: i % 2 ? theme.listA : theme.listColorB,
+                    backgroundColor: i % 2 ? theme.listColorA : theme.listColorB,
                     borderRadius: 10,
                     padding: 4,
                     marginBottom: 5,

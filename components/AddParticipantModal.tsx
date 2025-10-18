@@ -4,8 +4,8 @@ import Dropdown, { DropdownOption } from "./Dropdown";
 import { generalStyles } from "@/styles/general";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Constants from 'expo-constants';
-import { useAtom } from "jotai";
-import { Game, gameAtom, initialParticipantState, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newMemberNamesAtom, newNameAtom, newNameErrorAtom, showNewParticipantModalAtom, Team } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
+import { Game, gameAtom, initialParticipantState, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newMemberNamesAtom, newNameAtom, newNameErrorAtom, showNewParticipantModalAtom, Team, themeAtom } from "@/store/general";
 import Feather from '@expo/vector-icons/Feather';
 import * as Crypto from 'expo-crypto';
 import { Ionicons } from "@expo/vector-icons";
@@ -17,9 +17,9 @@ interface ParticipantOption {
 }
 
 export default function AddParticipantModal() {
-
   const [game, setGame] = useAtom(gameAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const [isPlayer, setIsPlayer] = useAtom(isPlayerAtom); //? remember last choice? (global state, no load in)
   const [name, setName] = useAtom(newNameAtom);
   const [memberName, setMemberName] = useAtom(newMemberNameAtom);
@@ -190,7 +190,7 @@ export default function AddParticipantModal() {
           padding: 10,
           width: 350,
           alignItems: 'center',
-          backgroundColor: "#e2d298ff",
+          backgroundColor: theme.paleComponent,
         }
       ]}
     >

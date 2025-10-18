@@ -4,8 +4,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { completeStateAtom, gameAtom, gameIsValid, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom, showCompleteModalAtom } from "@/store/general";
-import { useAtom } from "jotai";
+import { completeStateAtom, gameAtom, gameIsValid, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
 
 // todo handle win, handle game invalidated (eliminations)
 export default function PinMap() {
@@ -13,7 +13,8 @@ export default function PinMap() {
   const [, setScreen] = useAtom(screenAtom);
   const [, setComplateState] = useAtom(completeStateAtom);
   const [, setShowCompleteModal] = useAtom(showCompleteModalAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const [selectedPins, setSelectedPins] = useState<Set<number>>(new Set());
 
   const pressPin = (number: number) => {
@@ -234,7 +235,7 @@ export default function PinMap() {
                   borderRadius: 30,
                   borderColor: getPinOutlineColor(num),
                   borderWidth: 2,
-                  backgroundColor: isPinSelected(num) ? '#3fec00ff' : '#ffedaaff',
+                  backgroundColor: isPinSelected(num) ? theme.pinSelected : theme.pinNotSelected,
                   justifyContent: 'center',
                   alignItems: 'center',
                   margin: 4

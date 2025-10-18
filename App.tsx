@@ -67,7 +67,6 @@ export default function App() {
     if (loadableUseDeviceTheme.state === 'hasError' && loadableTheme.state === 'hasError') {
       setTheme(themes.sand);
     } else if (loadableUseDeviceTheme.state === 'hasData') {
-      console.log(colorScheme)
       if (colorScheme === 'light') {
         setTheme(themes.light);
       } else if (colorScheme === 'dark') {
