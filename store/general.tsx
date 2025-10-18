@@ -1,6 +1,7 @@
 import { atom, useAtom } from 'jotai'
 import { atomWithStorage, createJSONStorage, loadable, unwrap } from 'jotai/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Theme, themes } from '@/styles/theme';
 
 const storage = createJSONStorage(() => AsyncStorage) as any;
 // AsyncStorage.clear(); //!!!
@@ -134,6 +135,12 @@ export const showCompleteModalAtom = atom<boolean>(false);
 export type CompleteState = 'win' | 'finish' | 'default';
 
 export const completeStateAtom = atom<CompleteState>('win');
+
+export const themeAtom = atomWithStorage<Theme>('themeAtom', themes.sand, storage, { getOnInit: true })
+export const loadableThemeAtom = loadable(themeAtom);
+
+export const useDeviceThemeAtom = atomWithStorage<boolean>('useDeviceThemeAtom', true, storage, { getOnInit: true })
+export const loadableUseDeviceThemeAtom = loadable(useDeviceThemeAtom);
 
 //######################################################
 // HELPERS

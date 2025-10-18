@@ -1,12 +1,13 @@
-import { gameAtom, getMaxScore, getRemainingScore } from "@/store/general";
-import { useAtom } from "jotai";
+import { gameAtom, getMaxScore, getRemainingScore, themeAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useMemo } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { Col, Row, Grid } from "react-native-easy-grid";
 
 export default function Scoreboard() {
   const [game, setGame] = useAtom(gameAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const getName = (id: string): string => {
     if (id in game.players) {
       return game.players[id];
@@ -70,7 +71,7 @@ export default function Scoreboard() {
     >
       <View
         style={{
-          backgroundColor: '#e2d298ff',
+          backgroundColor: theme.paleComponent,
           padding: 10,
           borderRadius: 10,
           paddingBottom: 20,
@@ -137,7 +138,7 @@ export default function Scoreboard() {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     height: 40,
-                    backgroundColor: i % 2 ? '#9afaff7a' : '#9affbf7a',
+                    backgroundColor: i % 2 ? theme.listA : theme.listColorB,
                     borderRadius: 10,
                     padding: 4,
                     marginBottom: 5,

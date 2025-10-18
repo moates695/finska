@@ -1,5 +1,5 @@
-import { gameAtom, getDistinctUpNext, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newNameAtom, newNameErrorAtom, Team } from "@/store/general";
-import { useAtom } from "jotai";
+import { gameAtom, getDistinctUpNext, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newNameAtom, newNameErrorAtom, Team, themeAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useMemo, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import Feather from '@expo/vector-icons/Feather';
@@ -15,6 +15,7 @@ export default function ParticipantList() {
   const [, setNewMemberNameError] = useAtom(newMemberNameErrorAtom);
   const [isNameInputFocused, ] = useAtom(isNameInputFocusedAtom);
   const [isPlayer,] = useAtom(isPlayerAtom); //? remember last choice? (global state, no load in)
+  const theme = useAtomValue(themeAtom);
   
   const [showEdit, setShowEdit] = useState<boolean>(false);
 
@@ -67,7 +68,7 @@ export default function ParticipantList() {
   return (
     <View
       style={{
-        backgroundColor: 'orange',
+        backgroundColor: theme.brightComponent,
         width: 350,
         borderRadius: 20,
         padding: 20,
@@ -115,7 +116,7 @@ export default function ParticipantList() {
               style={[
                 styles.row,
                 {
-                  backgroundColor: i % 2 ? 'transparent' : '#ffca7aff',
+                  backgroundColor: i % 2 ? 'transparent' : theme.participantListItem,
                   borderRadius: 10,
                   padding: 2,
                   paddingLeft: 10,
@@ -145,7 +146,7 @@ export default function ParticipantList() {
             key={i}
             style={[
               {
-                backgroundColor: i % 2 ? 'transparent' : '#ffca7aff',
+                backgroundColor: i % 2 ? 'transparent' : theme.participantListItem,
                 borderRadius: 10,
                 padding: 2,
                 paddingLeft: 10,

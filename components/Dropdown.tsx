@@ -1,3 +1,5 @@
+import { themeAtom } from "@/store/general";
+import { useAtomValue } from "jotai";
 import React from "react";
 import { View, Text } from "react-native";
 import { Dropdown as DropdownComponent } from 'react-native-element-dropdown';
@@ -16,6 +18,8 @@ export interface DropdownProps {
 }
 
 export default function Dropdown(props: DropdownProps) {
+  const theme = useAtomValue(themeAtom);
+
   const {
     options,
     selectedValue,

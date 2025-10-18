@@ -1,8 +1,8 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAtom } from "jotai";
-import { gameAtom, initialGame, screenAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
+import { gameAtom, initialGame, screenAtom, themeAtom } from "@/store/general";
 import { generalStyles } from "@/styles/general";
 
 // target score
@@ -17,7 +17,8 @@ import { generalStyles } from "@/styles/general";
 export default function Settings() {
   const [game, setGame] = useAtom(gameAtom);
   const [, setScreen] = useAtom(screenAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const [targetScore, setTargetScore] = useState<string>(game.target_score.toString());
   const [resetScore, setResetScore] = useState<string>(game.reset_score.toString());
   const [eliminationCount, setEliminationCount] = useState<string>(game.elimination_count.toString());
@@ -190,7 +191,7 @@ export default function Settings() {
         style={{
           width: '90%',
           justifyContent: 'center',
-          backgroundColor: '#e2d298ff',
+          backgroundColor: theme.paleComponent,
           padding: 20,
           borderRadius: 20,
         }}

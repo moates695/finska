@@ -1,6 +1,6 @@
-import { gameAtom, getDistinctUpNext, getRemainingScore, ParticipantType } from "@/store/general";
+import { gameAtom, getDistinctUpNext, getRemainingScore, ParticipantType, themeAtom } from "@/store/general";
 import { get } from "http";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Col, Row, Grid } from "react-native-easy-grid";
@@ -16,7 +16,8 @@ interface ParticipantData {
 
 export default function UpNext() {
   const [game, setGame] = useAtom(gameAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const scrollViewRef = useRef<ScrollView>(null);
   
@@ -106,7 +107,7 @@ export default function UpNext() {
                 <View
                   key={id}
                   style={{
-                    backgroundColor: i % 2 ? '#ffca7aff' : 'transparent',
+                    backgroundColor: i % 2 ? theme.brightComponent : 'transparent',
                     padding: 4,
                     paddingLeft: 10,
                     paddingRight: 10,

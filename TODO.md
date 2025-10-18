@@ -5,3 +5,4 @@
 - scoreboard
 - show participants within range of target, and what they need to score
 - finish game, allow to send to devices?
+- fix header flickering colors
