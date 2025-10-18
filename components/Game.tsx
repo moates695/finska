@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Modal, TouchableOpacity } from "react-native";
 import PinMap from "./PinMap";
 import { useAtom, useAtomValue } from "jotai";
-import { completeStateAtom, gameAtom, screenAtom, showCompleteModalAtom } from "@/store/general";
+import { completeStateAtom, gameAtom, screenAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
 import UpNext from "./UpNext";
 import Scoreboard from "./Scoreboard";
 import { Col, Row, Grid } from "react-native-easy-grid";
@@ -15,6 +15,7 @@ export default function Game() {
   const showCompleteModal = useAtomValue(showCompleteModalAtom);
   const [, setComplateState] = useAtom(completeStateAtom);
   const [, setShowCompleteModal] = useAtom(showCompleteModalAtom);
+  const theme = useAtomValue(themeAtom);
 
   const [showAddParticipant, setShowAddParticipant] = useState<boolean>(false);
 
@@ -52,7 +53,7 @@ export default function Game() {
           <Ionicons 
             name="settings-outline" 
             size={24}
-            color="black" 
+            color={theme.staticButton}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -61,7 +62,7 @@ export default function Game() {
           <Ionicons 
             name="save-outline" 
             size={24} 
-            color="black" 
+            color={theme.staticButton}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -70,7 +71,7 @@ export default function Game() {
           <Ionicons 
             name={showAddParticipant ? "person-remove" : "person-add-outline"} 
             size={24}
-            color="black" 
+            color={theme.staticButton}
           />
         </TouchableOpacity>
       </View>

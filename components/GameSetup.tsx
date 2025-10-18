@@ -109,7 +109,7 @@ export default function GameSetup() {
               <Ionicons 
                 name="chevron-forward" 
                 size={16} 
-                color="black"
+                color={theme.staticButton}
                 style={{
                   marginBottom: 2,
                 }} 
@@ -117,7 +117,7 @@ export default function GameSetup() {
               <Ionicons 
                 name="chevron-forward" 
                 size={16} 
-                color="black"
+                color={theme.staticButton}
                 style={{
                   marginBottom: 2,
                   marginLeft: -8,
@@ -159,9 +159,9 @@ export default function GameSetup() {
             <Switch
               value={shuffleOrder}
               onValueChange={() => setShuffleOrder(!shuffleOrder)}
-              trackColor={{true: '#b4fcac', false: '#767577'}}
-              thumbColor={shuffleOrder ? '#1aff00' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
+              trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
+              thumbColor={shuffleOrder ? theme.switchThumbOn : theme.switchThumbOff}
+              ios_backgroundColor={theme.switchIosBackground}
             />
           </View>
       </View>

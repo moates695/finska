@@ -87,7 +87,7 @@ export default function UpNext() {
             position: 'absolute',
             bottom: 80,
             left: 0,
-            backgroundColor: 'orange', 
+            backgroundColor: theme.brightComponent, 
             paddingBottom: 10,
             paddingTop: 10,
             borderRadius: 10,
@@ -143,7 +143,7 @@ export default function UpNext() {
       <TouchableOpacity
         onPress={() => setIsExpanded(!isExpanded)}
         style={{
-          backgroundColor: 'orange',
+          backgroundColor: theme.brightComponent,
           width: '100%',
           margin: 10,
           padding: 10,
@@ -172,14 +172,14 @@ export default function UpNext() {
                 <MaterialIcons 
                   name="expand-more" 
                   size={16}
-                  color="black"
+                  color={theme.staticButton}
                   style={{marginLeft: 5}}
                 />
               :
                 <MaterialIcons 
                   name="expand-less" 
                   size={16}
-                  color="black"
+                  color={theme.staticButton}
                   style={{marginLeft: 5}}
                 />
               }

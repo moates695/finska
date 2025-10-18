@@ -205,7 +205,7 @@ export default function Settings() {
           <Ionicons 
             name="arrow-back" 
             size={24} 
-            color="black"
+            color={theme.staticButton}
           />
         </TouchableOpacity>
         <View
@@ -223,7 +223,7 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -237,7 +237,7 @@ export default function Settings() {
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: targetScoreError !== null ? 1 : 0,
               }}
             >
@@ -256,7 +256,7 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -270,7 +270,7 @@ export default function Settings() {
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: resetScoreError !== null ? 1 : 0,
               }}
             >
@@ -293,7 +293,7 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -307,7 +307,7 @@ export default function Settings() {
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: eliminationCountError !== null ? 1 : 0,
               }}
             >
@@ -326,7 +326,7 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -340,7 +340,7 @@ export default function Settings() {
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: eliminationScoreError !== null ? 1 : 0,
               }}
             >
@@ -369,7 +369,7 @@ export default function Settings() {
               keyboardType="number-pad"
               placeholder="never"
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -383,7 +383,7 @@ export default function Settings() {
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: eliminationTurnsError !== null ? 1 : 0,
               }}
             >
@@ -412,9 +412,9 @@ export default function Settings() {
             <Switch
               value={skipIsMiss}
               onValueChange={() => setSkipIsMiss(!skipIsMiss)}
-              trackColor={{true: '#b4fcac', false: '#767577'}}
-              thumbColor={skipIsMiss ? '#1aff00' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
+              trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
+              thumbColor={skipIsMiss ? theme.switchThumbOn : theme.switchThumbOff}
+              ios_backgroundColor={theme.switchIosBackground}
             />
           </View>
           <View
@@ -429,9 +429,9 @@ export default function Settings() {
             <Switch
               value={usePinValue}
               onValueChange={() => setUsePinValue(!usePinValue)}
-              trackColor={{true: '#b4fcac', false: '#767577'}}
-              thumbColor={usePinValue ? '#1aff00' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
+              trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
+              thumbColor={skipIsMiss ? theme.switchThumbOn : theme.switchThumbOff}
+              ios_backgroundColor={theme.switchIosBackground}
             />
           </View>
         </View>

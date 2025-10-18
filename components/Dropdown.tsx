@@ -40,7 +40,7 @@ export default function Dropdown(props: DropdownProps) {
         borderRadius: 5,
         paddingLeft: 5,
         paddingRight: 5,
-        backgroundColor: '#ffffff',
+        backgroundColor: theme.dropdownBackground,
         width: width
       }}
       selectedTextStyle={{}}
@@ -53,7 +53,13 @@ export default function Dropdown(props: DropdownProps) {
             justifyContent: 'center',
           }}
         >
-          <Text style={{ color: selected ? 'green' : 'black' }}>{item.label}</Text>
+          <Text 
+            style={{ 
+              color: selected ? theme.dropdownSelectedText : theme.dropdownText 
+            }}
+          >
+            {item.label}
+          </Text>
         </View>
       )}
       disable={disabled}

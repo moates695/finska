@@ -126,7 +126,7 @@ export default function Scoreboard() {
                   <View 
                     style={{
                       height: 2,
-                      backgroundColor: 'red',
+                      backgroundColor: theme.eliminatedSeperator,
                       borderRadius: 1, 
                       marginBottom: 5,
                     }}
@@ -142,7 +142,7 @@ export default function Scoreboard() {
                     borderRadius: 10,
                     padding: 4,
                     marginBottom: 5,
-                    borderColor: data.id === game.up_next[0] ? 'white' : 'transparent',
+                    borderColor: data.id === game.up_next[0] ? theme.scoreboardCurrentOutline : theme.scoreboardOutline,
                     borderWidth: 2,
                   }}
                 >
@@ -184,7 +184,7 @@ export default function Scoreboard() {
                         width: 45,
                         textAlign: 'center',
                         fontSize: 20,
-                        color: data.standing === 'eliminated' ? 'red' : 'black'
+                        color: data.standing === 'eliminated' ? theme.scoreboardEliminatedText : theme.text
                       }}
                     >
                       {data.num_misses}/{game.elimination_count}
@@ -195,7 +195,7 @@ export default function Scoreboard() {
                   <View 
                     style={{
                       height: 2,
-                      backgroundColor: 'white',
+                      backgroundColor: theme.canWinSeperator,
                       borderRadius: 1, 
                       marginBottom: 5,
                     }}

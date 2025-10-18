@@ -185,12 +185,12 @@ export default function PinMap() {
   };
 
   const getPinOutlineColor = (pinNumber: number): string => {
-    if (game.use_pin_value) return 'white';
+    if (game.use_pin_value) return theme.pinOutline;
 
     const id = game.up_next[0];
     const score = game.state[id].score;
     if (score === undefined || game.target_score - score > getMaxScore(game)) return 'white';
-    return pinNumber === game.target_score - score ? 'orange' : 'white';
+    return pinNumber === game.target_score - score ? theme.pinWinOutline : theme.pinOutline;
   };
 
   const rows = [
@@ -205,7 +205,7 @@ export default function PinMap() {
       style={{
         width: '90%',
         borderRadius: 20,
-        backgroundColor: "#e2d298ff",
+        backgroundColor: theme.paleComponent,
         padding: 20,
         height: 310,
         marginBottom: 5,
@@ -266,7 +266,7 @@ export default function PinMap() {
         <Feather 
           name="fast-forward" 
           size={24}
-          color="black"
+          color={theme.staticButton}
         />
       </TouchableOpacity>
       <Text
@@ -292,7 +292,7 @@ export default function PinMap() {
         <Ionicons
           name="checkmark-circle" 
           size={36} 
-          color={selectedPins.size > 0 ? "green": "black"} 
+          color={selectedPins.size > 0 ? theme.submit: theme.disabledButton} 
           disabled={selectedPins.size === 0}
           style={{alignSelf: 'flex-end'}}
         />
@@ -309,7 +309,7 @@ export default function PinMap() {
         <FontAwesome 
           name="remove" 
           size={28} 
-          color={selectedPins.size === 0 ? "red": "black"} 
+          color={selectedPins.size === 0 ? theme.missButton: theme.disabledButton} 
           disabled={selectedPins.size > 0}
         />
       </TouchableOpacity>

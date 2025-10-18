@@ -89,7 +89,7 @@ export default function ParticipantList() {
           <MaterialIcons
             name="edit-note"
             size={24}
-            color="black"
+            color={theme.staticButton}
             style={{marginTop: -6, padding: 2}}      
           />
         </TouchableOpacity>
@@ -129,7 +129,7 @@ export default function ParticipantList() {
               <Feather 
                 name="delete" 
                 size={24} 
-                color="black"
+                color={theme.staticButton}
                 onPress={() => removePlayer(id)} 
                 style={{
                   opacity: showEdit ? 1 : 0
@@ -162,7 +162,7 @@ export default function ParticipantList() {
               <Feather 
                   name="delete" 
                   size={24} 
-                  color="black"
+                  color={theme.staticButton}
                   onPress={() => removeTeam(id)} 
                   style={{
                     opacity: showEdit ? 1 : 0
@@ -188,10 +188,10 @@ export default function ParticipantList() {
                     <Ionicons 
                       name="remove-circle-outline"  
                       size={24} 
-                      color="white"
+                      // color="white"
                       onPress={() => removeMember(id, memberId)} 
                       style={{
-                        color: 'black',
+                        color: theme.staticButton,
                         marginRight: 30,
                         opacity: showEdit ? 1 : 0
                       }}

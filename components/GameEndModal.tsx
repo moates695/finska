@@ -114,7 +114,7 @@ export function GameEndModal() {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backgroundColor: theme.modalBackdrop,
         width: '100%',
       }}
     >

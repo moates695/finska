@@ -9,6 +9,7 @@ import { Game, gameAtom, initialParticipantState, isNameInputFocusedAtom, isPlay
 import Feather from '@expo/vector-icons/Feather';
 import * as Crypto from 'expo-crypto';
 import { Ionicons } from "@expo/vector-icons";
+import { Theme } from "@/styles/theme";
 
 type ParticipantType = 'player' | 'team';
 interface ParticipantOption {
@@ -27,6 +28,8 @@ export default function AddParticipantModal() {
   const [nameError, setNameError] = useAtom(newNameErrorAtom);
   const [memberNameError, setMemberNameError] = useAtom(newMemberNameErrorAtom);
   // const [isNameFocused, setIsNameFocused] = useAtom(isNameInputFocusedAtom);
+
+  const styles = createStyles(theme);
 
   const existingNames = useMemo(() => {
     const names = Object.values(game.players).concat(memberNames);
@@ -199,7 +202,7 @@ export default function AddParticipantModal() {
           style={{
             flexDirection: 'row',
             marginRight: 123,
-            borderColor: 'black',
+            borderColor: theme.border,
             borderRadius: 5,
             borderWidth: 1,
             marginBottom: 10,
@@ -238,7 +241,7 @@ export default function AddParticipantModal() {
             returnKeyType="done"
             placeholder={`${isPlayer ? 'player': 'team'} name`} //? remove if still laggy
             style={{
-              borderColor: 'black',
+              borderColor: theme.border,
               borderWidth: 1,
               borderRadius: 5,
               width: 250,
@@ -256,14 +259,14 @@ export default function AddParticipantModal() {
           >
             <Ionicons
               name="checkmark-circle" 
-              size={30} 
-              color={isSubmitDisabled() ? "black" : "green"} 
+              size={30}  
+              color={isSubmitDisabled() ? theme.disabledButton : theme.submit} 
             />
           </TouchableOpacity>
         </View>
         <Text 
           style={{
-            color: 'red',
+            color: theme.errorText,
             fontSize: 12,
             marginLeft: 4,
             opacity: nameError !== '' ? 1 : 0
@@ -287,7 +290,7 @@ export default function AddParticipantModal() {
                 returnKeyType="done"
                 placeholder="member name" 
                 style={{
-                  borderColor: 'black',
+                  borderColor: theme.border,
                   borderWidth: 1,
                   borderRadius: 5,
                   width: 250,
@@ -306,13 +309,13 @@ export default function AddParticipantModal() {
                 <Ionicons 
                   name="add-circle-outline" 
                   size={30} 
-                  color="black" 
+                  color={theme.staticButton}
                 />
               </TouchableOpacity>
             </View>
              <Text 
                 style={{
-                  color: 'red',
+                  color: theme.missButton,
                   fontSize: 12,
                   marginLeft: 4,
                   opacity: memberNameError !== '' ? 1 : 0
@@ -349,7 +352,7 @@ export default function AddParticipantModal() {
                   <Ionicons 
                     name="remove-circle-outline" 
                     size={24} 
-                    color="black"
+                    color={theme.staticButton}
                     onPress={() => handleRemoveMember(i)} 
                     style={{
                       padding: 2
@@ -365,7 +368,7 @@ export default function AddParticipantModal() {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: Theme) => StyleSheet.create({
   box: {
     padding: 6,
     paddingLeft: 10,
@@ -374,7 +377,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedBox: {
-    backgroundColor: 'white',
+    backgroundColor: theme.selectedBox,
     borderRadius: 5,
   }
 })
