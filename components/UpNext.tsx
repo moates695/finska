@@ -143,7 +143,13 @@ export default function UpNext() {
                             )
                           })}
                         </View>
-                        <Text>{game.teams[id].name}</Text>
+                        <Text
+                          style={{
+                            color: theme.text
+                          }}
+                        >
+                          {game.teams[id].name}
+                        </Text>
                       </View>
                     }
                 </View>
