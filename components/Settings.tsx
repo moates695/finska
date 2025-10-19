@@ -1,8 +1,8 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAtom } from "jotai";
-import { gameAtom, initialGame, screenAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
+import { gameAtom, initialGame, screenAtom, themeAtom } from "@/store/general";
 import { generalStyles } from "@/styles/general";
 
 // target score
@@ -17,7 +17,8 @@ import { generalStyles } from "@/styles/general";
 export default function Settings() {
   const [game, setGame] = useAtom(gameAtom);
   const [, setScreen] = useAtom(screenAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const [targetScore, setTargetScore] = useState<string>(game.target_score.toString());
   const [resetScore, setResetScore] = useState<string>(game.reset_score.toString());
   const [eliminationCount, setEliminationCount] = useState<string>(game.elimination_count.toString());
@@ -190,7 +191,7 @@ export default function Settings() {
         style={{
           width: '90%',
           justifyContent: 'center',
-          backgroundColor: '#e2d298ff',
+          backgroundColor: theme.paleComponent,
           padding: 20,
           borderRadius: 20,
         }}
@@ -204,7 +205,7 @@ export default function Settings() {
           <Ionicons 
             name="arrow-back" 
             size={24} 
-            color="black"
+            color={theme.staticButton}
           />
         </TouchableOpacity>
         <View
@@ -213,7 +214,11 @@ export default function Settings() {
           <View
             style={styles.inputContainer}
           >
-            <Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
               Target score:
             </Text>
             <TextInput
@@ -222,7 +227,7 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -230,13 +235,14 @@ export default function Settings() {
                 height: 40,
                 marginRight: 5,
                 textAlign: 'center',
+                color: theme.text
               }}
             >
             </TextInput>
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: targetScoreError !== null ? 1 : 0,
               }}
             >
@@ -246,7 +252,11 @@ export default function Settings() {
           <View
             style={styles.inputContainer}
           >
-            <Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
               Reset score:
             </Text>
             <TextInput
@@ -255,7 +265,7 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -263,13 +273,14 @@ export default function Settings() {
                 height: 40,
                 marginRight: 5,
                 textAlign: 'center',
+                color: theme.text
               }}
             >
             </TextInput>
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: resetScoreError !== null ? 1 : 0,
               }}
             >
@@ -283,7 +294,11 @@ export default function Settings() {
           <View
             style={styles.inputContainer}
           >
-            <Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
               Eliminate after:
             </Text>
             <TextInput
@@ -292,7 +307,7 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -300,13 +315,14 @@ export default function Settings() {
                 height: 40,
                 marginRight: 5,
                 textAlign: 'center',
+                color: theme.text
               }}
             >
             </TextInput>
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: eliminationCountError !== null ? 1 : 0,
               }}
             >
@@ -316,7 +332,11 @@ export default function Settings() {
           <View
             style={styles.inputContainer}
           >
-            <Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
               Eliminate reset:
             </Text>
             <TextInput
@@ -325,7 +345,7 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -333,13 +353,14 @@ export default function Settings() {
                 height: 40,
                 marginRight: 5,
                 textAlign: 'center',
+                color: theme.text
               }}
             >
             </TextInput>
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: eliminationScoreError !== null ? 1 : 0,
               }}
             >
@@ -358,7 +379,11 @@ export default function Settings() {
               }              
             ]}
           >
-            <Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
               Eliminate turns:
             </Text>
             <TextInput
@@ -367,8 +392,9 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               placeholder="never"
+              placeholderTextColor={theme.text}
               style={{
-                borderColor: 'black',
+                borderColor: theme.border,
                 borderWidth: 1,
                 borderRadius: 5,
                 width: 100,
@@ -376,13 +402,14 @@ export default function Settings() {
                 height: 40,
                 marginRight: 5,
                 textAlign: 'center',
+                color: theme.text
               }}
             >
             </TextInput>
             <Text
               style={{
                 fontSize: 12,
-                color: 'red',
+                color: theme.errorText,
                 opacity: eliminationTurnsError !== null ? 1 : 0,
               }}
             >
@@ -405,15 +432,19 @@ export default function Settings() {
               alignItems: 'center',
             }}
           >
-            <Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
               Skip counts as miss:
             </Text>
             <Switch
               value={skipIsMiss}
               onValueChange={() => setSkipIsMiss(!skipIsMiss)}
-              trackColor={{true: '#b4fcac', false: '#767577'}}
-              thumbColor={skipIsMiss ? '#1aff00' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
+              trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
+              thumbColor={skipIsMiss ? theme.switchThumbOn : theme.switchThumbOff}
+              ios_backgroundColor={theme.switchIosBackground}
             />
           </View>
           <View
@@ -422,15 +453,19 @@ export default function Settings() {
               alignItems: 'center',
             }}
           >
-            <Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
               Use pin value:
             </Text>
             <Switch
               value={usePinValue}
               onValueChange={() => setUsePinValue(!usePinValue)}
-              trackColor={{true: '#b4fcac', false: '#767577'}}
-              thumbColor={usePinValue ? '#1aff00' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
+              trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
+              thumbColor={usePinValue ? theme.switchThumbOn : theme.switchThumbOff}
+              ios_backgroundColor={theme.switchIosBackground}
             />
           </View>
         </View>
@@ -441,19 +476,33 @@ export default function Settings() {
             onPress={handleDefaults}
             style={[
               generalStyles.button,
-              generalStyles.bigButton
+              generalStyles.bigButton,
+              {
+                borderColor: theme.border
+              }
             ]}
           >
-            <Text>defaults</Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >defaults</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSave}
             style={[
               generalStyles.button,
-              generalStyles.bigButton
+              generalStyles.bigButton,
+              {
+                borderColor: theme.border
+              }
             ]}
           >
-            <Text>save</Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >save</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -1,3 +1,5 @@
+import { themeAtom } from "@/store/general";
+import { useAtomValue } from "jotai";
 import React from "react";
 import { View, Text } from "react-native";
 import { Dropdown as DropdownComponent } from 'react-native-element-dropdown';
@@ -16,6 +18,8 @@ export interface DropdownProps {
 }
 
 export default function Dropdown(props: DropdownProps) {
+  const theme = useAtomValue(themeAtom);
+
   const {
     options,
     selectedValue,
@@ -36,7 +40,7 @@ export default function Dropdown(props: DropdownProps) {
         borderRadius: 5,
         paddingLeft: 5,
         paddingRight: 5,
-        backgroundColor: '#ffffff',
+        backgroundColor: theme.dropdownBackground,
         width: width
       }}
       selectedTextStyle={{}}
@@ -49,7 +53,13 @@ export default function Dropdown(props: DropdownProps) {
             justifyContent: 'center',
           }}
         >
-          <Text style={{ color: selected ? 'green' : 'black' }}>{item.label}</Text>
+          <Text 
+            style={{ 
+              color: selected ? theme.dropdownSelectedText : theme.dropdownText 
+            }}
+          >
+            {item.label}
+          </Text>
         </View>
       )}
       disable={disabled}

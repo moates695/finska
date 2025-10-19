@@ -4,8 +4,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { completeStateAtom, gameAtom, gameIsValid, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom, showCompleteModalAtom } from "@/store/general";
-import { useAtom } from "jotai";
+import { completeStateAtom, gameAtom, gameIsValid, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
 
 // todo handle win, handle game invalidated (eliminations)
 export default function PinMap() {
@@ -13,7 +13,8 @@ export default function PinMap() {
   const [, setScreen] = useAtom(screenAtom);
   const [, setComplateState] = useAtom(completeStateAtom);
   const [, setShowCompleteModal] = useAtom(showCompleteModalAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const [selectedPins, setSelectedPins] = useState<Set<number>>(new Set());
 
   const pressPin = (number: number) => {
@@ -184,12 +185,12 @@ export default function PinMap() {
   };
 
   const getPinOutlineColor = (pinNumber: number): string => {
-    if (game.use_pin_value) return 'white';
+    if (game.use_pin_value) return theme.pinOutline;
 
     const id = game.up_next[0];
     const score = game.state[id].score;
     if (score === undefined || game.target_score - score > getMaxScore(game)) return 'white';
-    return pinNumber === game.target_score - score ? 'orange' : 'white';
+    return pinNumber === game.target_score - score ? theme.pinWinOutline : theme.pinOutline;
   };
 
   const rows = [
@@ -204,7 +205,7 @@ export default function PinMap() {
       style={{
         width: '90%',
         borderRadius: 20,
-        backgroundColor: "#e2d298ff",
+        backgroundColor: theme.paleComponent,
         padding: 20,
         height: 310,
         marginBottom: 5,
@@ -234,7 +235,7 @@ export default function PinMap() {
                   borderRadius: 30,
                   borderColor: getPinOutlineColor(num),
                   borderWidth: 2,
-                  backgroundColor: isPinSelected(num) ? '#3fec00ff' : '#ffedaaff',
+                  backgroundColor: isPinSelected(num) ? theme.pinSelected : theme.pinNotSelected,
                   justifyContent: 'center',
                   alignItems: 'center',
                   margin: 4
@@ -243,7 +244,8 @@ export default function PinMap() {
               >
                 <Text
                   style={{
-                    fontSize: 20
+                    fontSize: 20,
+                    color: theme.text
                   }}
                 >
                   {num}
@@ -265,7 +267,7 @@ export default function PinMap() {
         <Feather 
           name="fast-forward" 
           size={24}
-          color="black"
+          color={theme.staticButton}
         />
       </TouchableOpacity>
       <Text
@@ -275,6 +277,7 @@ export default function PinMap() {
           bottom: 65,
           right: 5,
           width: 90,
+          color: theme.text
         }}
       >
         count: {selectedPins.size === 0 ? 0 : countPins()}
@@ -291,7 +294,7 @@ export default function PinMap() {
         <Ionicons
           name="checkmark-circle" 
           size={36} 
-          color={selectedPins.size > 0 ? "green": "black"} 
+          color={selectedPins.size > 0 ? theme.submit : theme.disabledButton} 
           disabled={selectedPins.size === 0}
           style={{alignSelf: 'flex-end'}}
         />
@@ -308,7 +311,7 @@ export default function PinMap() {
         <FontAwesome 
           name="remove" 
           size={28} 
-          color={selectedPins.size === 0 ? "red": "black"} 
+          color={selectedPins.size === 0 ? theme.missButton: theme.disabledButton} 
           disabled={selectedPins.size > 0}
         />
       </TouchableOpacity>

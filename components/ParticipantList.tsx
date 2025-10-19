@@ -1,5 +1,5 @@
-import { gameAtom, getDistinctUpNext, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newNameAtom, newNameErrorAtom, Team } from "@/store/general";
-import { useAtom } from "jotai";
+import { gameAtom, getDistinctUpNext, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newNameAtom, newNameErrorAtom, Team, themeAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useMemo, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import Feather from '@expo/vector-icons/Feather';
@@ -15,6 +15,7 @@ export default function ParticipantList() {
   const [, setNewMemberNameError] = useAtom(newMemberNameErrorAtom);
   const [isNameInputFocused, ] = useAtom(isNameInputFocusedAtom);
   const [isPlayer,] = useAtom(isPlayerAtom); //? remember last choice? (global state, no load in)
+  const theme = useAtomValue(themeAtom);
   
   const [showEdit, setShowEdit] = useState<boolean>(false);
 
@@ -67,7 +68,7 @@ export default function ParticipantList() {
   return (
     <View
       style={{
-        backgroundColor: 'orange',
+        backgroundColor: theme.brightComponent,
         width: 350,
         borderRadius: 20,
         padding: 20,
@@ -80,7 +81,13 @@ export default function ParticipantList() {
           justifyContent: 'space-between',
         }}
       >
-        <Text>Player list</Text>
+        <Text
+          style={{
+            color: theme.text
+          }}
+        >
+          Player list
+        </Text>
         <TouchableOpacity
           onPress={() => setShowEdit(!showEdit)}
           disabled={game.up_next.length === 0}
@@ -88,7 +95,7 @@ export default function ParticipantList() {
           <MaterialIcons
             name="edit-note"
             size={24}
-            color="black"
+            color={theme.staticButton}
             style={{marginTop: -6, padding: 2}}      
           />
         </TouchableOpacity>
@@ -96,7 +103,8 @@ export default function ParticipantList() {
       {game.up_next.length === 0 &&
         <Text
           style={{
-            textAlign: 'center'
+            textAlign: 'center',
+            color: theme.text
           }}
         >
           add players/teams to get going!
@@ -115,7 +123,7 @@ export default function ParticipantList() {
               style={[
                 styles.row,
                 {
-                  backgroundColor: i % 2 ? 'transparent' : '#ffca7aff',
+                  backgroundColor: i % 2 ? 'transparent' : theme.participantListItem,
                   borderRadius: 10,
                   padding: 2,
                   paddingLeft: 10,
@@ -124,11 +132,17 @@ export default function ParticipantList() {
                 }
               ]}
             >
-              <Text>{game.players[id]}</Text>
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                {game.players[id]}
+              </Text>
               <Feather 
                 name="delete" 
                 size={24} 
-                color="black"
+                color={theme.staticButton}
                 onPress={() => removePlayer(id)} 
                 style={{
                   opacity: showEdit ? 1 : 0
@@ -145,7 +159,7 @@ export default function ParticipantList() {
             key={i}
             style={[
               {
-                backgroundColor: i % 2 ? 'transparent' : '#ffca7aff',
+                backgroundColor: i % 2 ? 'transparent' : theme.participantListItem,
                 borderRadius: 10,
                 padding: 2,
                 paddingLeft: 10,
@@ -161,7 +175,7 @@ export default function ParticipantList() {
               <Feather 
                   name="delete" 
                   size={24} 
-                  color="black"
+                  color={theme.staticButton}
                   onPress={() => removeTeam(id)} 
                   style={{
                     opacity: showEdit ? 1 : 0
@@ -187,10 +201,10 @@ export default function ParticipantList() {
                     <Ionicons 
                       name="remove-circle-outline"  
                       size={24} 
-                      color="white"
+                      // color="white"
                       onPress={() => removeMember(id, memberId)} 
                       style={{
-                        color: 'black',
+                        color: theme.staticButton,
                         marginRight: 30,
                         opacity: showEdit ? 1 : 0
                       }}

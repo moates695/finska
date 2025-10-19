@@ -1,4 +1,6 @@
+import { themeAtom } from "@/store/general";
 import { generalStyles } from "@/styles/general";
+import { useAtomValue } from "jotai";
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
@@ -29,7 +31,7 @@ export interface GameEndOptionsProps {
 export default function GameEndOptions(props: GameEndOptionsProps) {
   const [showConfirm, setShowConfirm] = useState<boolean>(false);
   const [side, setSide] = useState<Side | null>(null);  
-
+  const theme = useAtomValue(themeAtom);
 
   const handleButtonPress = (side: Side) => {
     const data = props.map[side];
@@ -60,6 +62,7 @@ export default function GameEndOptions(props: GameEndOptionsProps) {
               textAlign: 'center',
               fontSize: 18,
               paddingBottom: 10,
+              color: theme.text
             }}
           >
             {getConfirmMessage()}
@@ -74,19 +77,37 @@ export default function GameEndOptions(props: GameEndOptionsProps) {
               onPress={() => setShowConfirm(false)}
               style={[
                 generalStyles.button,
-                generalStyles.bigButton
+                generalStyles.bigButton,
+                {
+                  borderColor: theme.border
+                }
               ]}
             >
-              <Text>back</Text>
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                back
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={confirmPress}
               style={[
                 generalStyles.button,
-                generalStyles.bigButton
+                generalStyles.bigButton,
+                {
+                  borderColor: theme.border
+                }
               ]}
             >
-              <Text>yes</Text>
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                yes
+              </Text>
             </TouchableOpacity>
           </View>
         </>
@@ -97,6 +118,7 @@ export default function GameEndOptions(props: GameEndOptionsProps) {
               textAlign: 'center',
               fontSize: 20,
               paddingBottom: 10,
+              color: theme.text,
             }}
           >
             {props.message}
@@ -111,19 +133,37 @@ export default function GameEndOptions(props: GameEndOptionsProps) {
               onPress={() => handleButtonPress('left')}
               style={[
                 generalStyles.button,
-                generalStyles.bigButton
+                generalStyles.bigButton,
+                {
+                  borderColor: theme.border
+                }
               ]}
             >
-              <Text>{props.map.left.buttonText}</Text>
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                {props.map.left.buttonText}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleButtonPress('right')}
               style={[
                 generalStyles.button,
-                generalStyles.bigButton
+                generalStyles.bigButton,
+                {
+                  borderColor: theme.border
+                }
               ]}
             >
-              <Text>{props.map.right.buttonText}</Text>
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                {props.map.right.buttonText}
+              </Text>
             </TouchableOpacity>
           </View>
         </>

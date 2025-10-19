@@ -1,12 +1,13 @@
-import { gameAtom, getMaxScore, getRemainingScore } from "@/store/general";
-import { useAtom } from "jotai";
+import { gameAtom, getMaxScore, getRemainingScore, themeAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useMemo } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { Col, Row, Grid } from "react-native-easy-grid";
 
 export default function Scoreboard() {
   const [game, setGame] = useAtom(gameAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const getName = (id: string): string => {
     if (id in game.players) {
       return game.players[id];
@@ -70,7 +71,7 @@ export default function Scoreboard() {
     >
       <View
         style={{
-          backgroundColor: '#e2d298ff',
+          backgroundColor: theme.paleComponent,
           padding: 10,
           borderRadius: 10,
           paddingBottom: 20,
@@ -95,6 +96,7 @@ export default function Scoreboard() {
               style={{
                 width: 45,
                 textAlign: 'center',
+                color: theme.text,
               }}
             >
               score
@@ -103,6 +105,7 @@ export default function Scoreboard() {
               style={{
                 width: 45,
                 textAlign: 'center',
+                color: theme.text,
               }}
             >
               to win
@@ -111,6 +114,7 @@ export default function Scoreboard() {
               style={{
                 width: 45,
                 textAlign: 'center',
+                color: theme.text,
               }}
             >
               misses
@@ -125,7 +129,7 @@ export default function Scoreboard() {
                   <View 
                     style={{
                       height: 2,
-                      backgroundColor: 'red',
+                      backgroundColor: theme.eliminatedSeperator,
                       borderRadius: 1, 
                       marginBottom: 5,
                     }}
@@ -137,11 +141,11 @@ export default function Scoreboard() {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     height: 40,
-                    backgroundColor: i % 2 ? '#9afaff7a' : '#9affbf7a',
+                    backgroundColor: i % 2 ? theme.listColorA : theme.listColorB,
                     borderRadius: 10,
                     padding: 4,
                     marginBottom: 5,
-                    borderColor: data.id === game.up_next[0] ? 'white' : 'transparent',
+                    borderColor: data.id === game.up_next[0] ? theme.scoreboardCurrentOutline : theme.scoreboardOutline,
                     borderWidth: 2,
                   }}
                 >
@@ -150,6 +154,7 @@ export default function Scoreboard() {
                       style={{
                         fontSize: 20,
                         paddingLeft: 5,
+                        color: theme.text,
                       }}
                     >
                       {getName(data.id)}
@@ -165,6 +170,7 @@ export default function Scoreboard() {
                         width: 45,
                         textAlign: 'center',
                         fontSize: 20,
+                        color: theme.text,
                       }}
                     >
                       {data.score}
@@ -174,6 +180,7 @@ export default function Scoreboard() {
                         width: 45,
                         textAlign: 'center',
                         fontSize: 20,
+                        color: theme.text,
                       }}
                     >
                       {getRemainingScore(game, data.score)}
@@ -183,7 +190,7 @@ export default function Scoreboard() {
                         width: 45,
                         textAlign: 'center',
                         fontSize: 20,
-                        color: data.standing === 'eliminated' ? 'red' : 'black'
+                        color: data.standing === 'eliminated' ? theme.scoreboardEliminatedText : theme.text
                       }}
                     >
                       {data.num_misses}/{game.elimination_count}
@@ -194,7 +201,7 @@ export default function Scoreboard() {
                   <View 
                     style={{
                       height: 2,
-                      backgroundColor: 'white',
+                      backgroundColor: theme.canWinSeperator,
                       borderRadius: 1, 
                       marginBottom: 5,
                     }}

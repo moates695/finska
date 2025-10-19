@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { BlurView } from 'expo-blur';
 import { generalStyles } from "@/styles/general";
 import { useAtom, useAtomValue } from "jotai";
-import { CompleteState, completeStateAtom, gameAtom, initialGame, screenAtom, showCompleteModalAtom } from "@/store/general";
+import { CompleteState, completeStateAtom, gameAtom, initialGame, screenAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
 import GameEndOptions, { GameEndOptionsProps } from "./GameEndOptions";
 
 export function GameEndModal() {
@@ -11,7 +11,8 @@ export function GameEndModal() {
   const [, setScreen] = useAtom(screenAtom);
   const [, setShowCompleteModal] = useAtom(showCompleteModalAtom);
   const completeState = useAtomValue(completeStateAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const winContinue = () => {
     const tempState = {...game.state};
     for (const [id, state] of Object.entries(tempState)) {
@@ -113,13 +114,13 @@ export function GameEndModal() {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backgroundColor: theme.modalBackdrop,
         width: '100%',
       }}
     >
       <View
         style={{
-          backgroundColor: '#ffedaaff',
+          backgroundColor: theme.primaryBackground,
           width: 350,
           padding: 20,
           justifyContent: 'center',

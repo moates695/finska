@@ -1,9 +1,10 @@
 import { atom, useAtom } from 'jotai'
 import { atomWithStorage, createJSONStorage, loadable, unwrap } from 'jotai/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Theme, themes } from '@/styles/theme';
 
 const storage = createJSONStorage(() => AsyncStorage) as any;
-// AsyncStorage.clear(); //!!!
+// AsyncStorage.clear(); //!!! 
 
 export type Players = Record<string, string>;
 
@@ -49,7 +50,6 @@ export interface Game {
   skip_is_miss: boolean
   has_game_started: boolean
 }
-
 
 // export let initialGame: Game = {
 //   players: {
@@ -104,12 +104,12 @@ export let initialGame: Game = {
   has_game_started: false
 };
 
-// for (let i = 10; i < 40; i++) {
-//   const id = i.toString();
-//   initialGame.players[id] = `Player ${i}`
-//   initialGame.state[id] = {...initialParticipantState};
-//   initialGame.up_next.push(id);
-// }
+for (let i = 10; i < 13; i++) {
+  const id = i.toString();
+  initialGame.players[id] = `Player ${i}`
+  initialGame.state[id] = {...initialParticipantState};
+  initialGame.up_next.push(id);
+}
 
 export const gameAtom = atomWithStorage<Game>('gameAtom', {...initialGame}, storage, { getOnInit: true });
 export const loadableGameAtom = loadable(gameAtom);
@@ -134,6 +134,12 @@ export const showCompleteModalAtom = atom<boolean>(false);
 export type CompleteState = 'win' | 'finish' | 'default';
 
 export const completeStateAtom = atom<CompleteState>('win');
+
+export const themeAtom = atomWithStorage<Theme>('themeAtom', themes.dark, storage, { getOnInit: true })
+export const loadableThemeAtom = loadable(themeAtom);
+
+export const useDeviceThemeAtom = atomWithStorage<boolean>('useDeviceThemeAtom', false, storage, { getOnInit: true })
+export const loadableUseDeviceThemeAtom = loadable(useDeviceThemeAtom);
 
 //######################################################
 // HELPERS

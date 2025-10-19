@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, TouchableOpacity, Switch, Platform, KeyboardAvoidingView } from "react-native";
-import AddParticipantButton from "./AddParticipantButton";
-import AddParticipant from "./AddParticipant";
-import { useAtom } from "jotai";
-import { gameAtom, getDistinctUpNext, screenAtom, showNewParticipantModalAtom } from "@/store/general";
+import { useAtom, useAtomValue } from "jotai";
+import { gameAtom, getDistinctUpNext, screenAtom, showNewParticipantModalAtom, themeAtom } from "@/store/general";
 import ParticipantList from "./ParticipantList";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AddParticipantModal from "./AddParticipantModal";
@@ -12,7 +10,8 @@ export default function GameSetup() {
   const [game, setGame] = useAtom(gameAtom);
   const [showNewParticipantModal, setShowNewParticipantModal] = useAtom(showNewParticipantModalAtom);
   const [, setScreen] = useAtom(screenAtom);
-    
+  const theme = useAtomValue(themeAtom);
+  
   const [shuffleOrder, setShuffleOrder] = useState<boolean>(true);
 
   const distinctUpNext = useMemo(() => {
@@ -84,6 +83,7 @@ export default function GameSetup() {
           style={{
             fontSize: 24,
             fontWeight: '500',
+            color: theme.text
           }}
         >
           Setup your game
@@ -103,6 +103,7 @@ export default function GameSetup() {
                 style={{
                   fontSize: 20,
                   fontWeight: '400',
+                  color: theme.text,
                 }}
               >
                 continue
@@ -110,7 +111,7 @@ export default function GameSetup() {
               <Ionicons 
                 name="chevron-forward" 
                 size={16} 
-                color="black"
+                color={theme.staticButton}
                 style={{
                   marginBottom: 2,
                 }} 
@@ -118,7 +119,7 @@ export default function GameSetup() {
               <Ionicons 
                 name="chevron-forward" 
                 size={16} 
-                color="black"
+                color={theme.staticButton}
                 style={{
                   marginBottom: 2,
                   marginLeft: -8,
@@ -154,15 +155,19 @@ export default function GameSetup() {
               alignItems: 'center',
             }}
           >
-            <Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
               Shuffle order:
             </Text>
             <Switch
               value={shuffleOrder}
               onValueChange={() => setShuffleOrder(!shuffleOrder)}
-              trackColor={{true: '#b4fcac', false: '#767577'}}
-              thumbColor={shuffleOrder ? '#1aff00' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
+              trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
+              thumbColor={shuffleOrder ? theme.switchThumbOn : theme.switchThumbOff}
+              ios_backgroundColor={theme.switchIosBackground}
             />
           </View>
       </View>

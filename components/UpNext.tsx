@@ -1,6 +1,6 @@
-import { gameAtom, getDistinctUpNext, getRemainingScore, ParticipantType } from "@/store/general";
+import { gameAtom, getDistinctUpNext, getRemainingScore, ParticipantType, themeAtom } from "@/store/general";
 import { get } from "http";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Col, Row, Grid } from "react-native-easy-grid";
@@ -16,7 +16,8 @@ interface ParticipantData {
 
 export default function UpNext() {
   const [game, setGame] = useAtom(gameAtom);
-
+  const theme = useAtomValue(themeAtom);
+  
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const scrollViewRef = useRef<ScrollView>(null);
   
@@ -86,7 +87,7 @@ export default function UpNext() {
             position: 'absolute',
             bottom: 80,
             left: 0,
-            backgroundColor: 'orange', 
+            backgroundColor: theme.brightComponent, 
             paddingBottom: 10,
             paddingTop: 10,
             borderRadius: 10,
@@ -106,7 +107,7 @@ export default function UpNext() {
                 <View
                   key={id}
                   style={{
-                    backgroundColor: i % 2 ? '#ffca7aff' : 'transparent',
+                    backgroundColor: i % 2 ? theme.paleComponent : 'transparent',
                     padding: 4,
                     paddingLeft: 10,
                     paddingRight: 10,
@@ -114,7 +115,13 @@ export default function UpNext() {
                   }}
                 >
                     {id in game.players ?
-                      <Text>{game.players[id]}</Text>
+                      <Text
+                        style={{
+                          color: theme.text
+                        }}
+                      >
+                        {game.players[id]}
+                      </Text>
                     :
                       <View>
                         <View
@@ -125,7 +132,13 @@ export default function UpNext() {
                           {[...game.up_next_members[id]].reverse().map((memberId) => {
                             return (
                               <View key={memberId}>
-                                <Text>{'\u2022'} {game.teams[id].members[memberId]}</Text>
+                                <Text
+                                  style={{
+                                    color: theme.text
+                                  }}  
+                                >
+                                  {'\u2022'} {game.teams[id].members[memberId]}
+                                </Text>
                               </View>
                             )
                           })}
@@ -142,7 +155,7 @@ export default function UpNext() {
       <TouchableOpacity
         onPress={() => setIsExpanded(!isExpanded)}
         style={{
-          backgroundColor: 'orange',
+          backgroundColor: theme.brightComponent,
           width: '100%',
           margin: 10,
           padding: 10,
@@ -163,6 +176,7 @@ export default function UpNext() {
               <Text
                 style={{
                   fontSize: 14,
+                  color: theme.text
                 }}
               >
                 Up next: {displayName(upNext)}
@@ -171,14 +185,14 @@ export default function UpNext() {
                 <MaterialIcons 
                   name="expand-more" 
                   size={16}
-                  color="black"
+                  color={theme.staticButton}
                   style={{marginLeft: 5}}
                 />
               :
                 <MaterialIcons 
                   name="expand-less" 
                   size={16}
-                  color="black"
+                  color={theme.staticButton}
                   style={{marginLeft: 5}}
                 />
               }
@@ -188,6 +202,7 @@ export default function UpNext() {
             <Col style={{alignItems: 'center'}}>
               <Text
                 style={{
+                  color: theme.text
                 }}
               >
                 score
@@ -196,6 +211,7 @@ export default function UpNext() {
             <Col style={{alignItems: 'center'}}>
               <Text
                 style={{
+                  color: theme.text
                 }}
               >
                 to win
@@ -204,6 +220,7 @@ export default function UpNext() {
             <Col style={{alignItems: 'center'}}>
               <Text
                 style={{
+                  color: theme.text
                 }}
               >
                 misses
@@ -215,6 +232,7 @@ export default function UpNext() {
               <Text
                 style={{
                   fontSize: 20,
+                  color: theme.text
                 }}
               >Now: {displayName(upNow)}</Text>
             </Col>
@@ -222,6 +240,7 @@ export default function UpNext() {
               <Text
                 style={{
                   fontSize: 20,
+                  color: theme.text
                 }}
               >
                 {upNow.score}
@@ -231,6 +250,7 @@ export default function UpNext() {
               <Text
                 style={{
                   fontSize: 20,
+                  color: theme.text
                 }}
               >
                 {getRemainingScore(game, upNow.score)}
@@ -240,6 +260,7 @@ export default function UpNext() {
               <Text
                 style={{
                   fontSize: 20,
+                  color: theme.text
                 }}
               >
                 {upNow.misses}/{game.elimination_count}

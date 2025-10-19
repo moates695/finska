@@ -1,14 +1,16 @@
-import { gameAtom, initialGame, screenAtom, showNewParticipantModalAtom } from "@/store/general";
+import { gameAtom, initialGame, screenAtom, showNewParticipantModalAtom, themeAtom } from "@/store/general";
 import { generalStyles } from "@/styles/general";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useState } from "react";
 import { TouchableOpacity, Text, View, StyleSheet} from "react-native";
 import Scoreboard from "./Scoreboard";
+import { themes } from "@/styles/theme";
 
 export default function StartOptions() {
   const [, setGame] = useAtom(gameAtom);
   const [, setScreen] = useAtom(screenAtom);
   const [, setShowNewParticipantModal] = useAtom(showNewParticipantModalAtom);
+  const theme = useAtomValue(themeAtom);
 
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
 
@@ -77,20 +79,36 @@ export default function StartOptions() {
               generalStyles.bigButton,
               {
                 marginBottom: 10,
+                borderColor: theme.border
               }
             ]}
             onPress={handleConfirmStartNewGame}
           >
-            <Text>yes</Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
+              yes
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               generalStyles.button,
-              generalStyles.bigButton
+              generalStyles.bigButton,
+              {
+                borderColor: theme.border
+              }
             ]}
             onPress={handleCancelConfirm}
           >
-            <Text>back</Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
+              back
+            </Text>
           </TouchableOpacity>
         </>
       :
@@ -101,20 +119,36 @@ export default function StartOptions() {
               generalStyles.bigButton,
               {
                 marginBottom: 10,
+                borderColor: theme.border
               }
             ]}
             onPress={handleContinueGame}
           >
-            <Text>continue game</Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
+              continue game
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               generalStyles.button,
-              generalStyles.bigButton
+              generalStyles.bigButton,
+              {
+                borderColor: theme.border
+              }
             ]}
             onPress={handlePressStartNewGame}
           >
-            <Text>start new game</Text>
+            <Text
+              style={{
+                color: theme.text
+              }}
+            >
+              start new game
+            </Text>
           </TouchableOpacity>
         </>
         

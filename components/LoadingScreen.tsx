@@ -1,3 +1,5 @@
+import { themeAtom } from "@/store/general";
+import { useAtomValue } from "jotai";
 import React, { useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 
@@ -7,6 +9,7 @@ interface LoadingScreenProps {
 
 export default function LoadingScreen(props: LoadingScreenProps) {
   const { delay } = props;
+  const theme = useAtomValue(themeAtom);
 
   const [show, setShow] = useState<boolean>(delay === undefined);
 
@@ -22,13 +25,19 @@ export default function LoadingScreen(props: LoadingScreenProps) {
         flex: 1, 
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#ffedaaff"
+        backgroundColor: theme.primaryBackground
       }}
     >
       {show &&
         <>
           <ActivityIndicator size="large" />
-          <Text>Loading...</Text>
+          <Text
+            style={{
+              color: theme.text
+            }}
+          >
+            Loading...
+          </Text>
         </>
       }  
     </View>
