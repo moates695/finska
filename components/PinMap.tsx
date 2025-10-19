@@ -4,8 +4,9 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { completeStateAtom, gameAtom, gameIsValid, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
+import { completeStateAtom, gameAtom, gameIsValid, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom, showAddParticipantAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
 import { useAtom, useAtomValue } from "jotai";
+import AddParticipantModal from "./AddParticipantModal";
 
 // todo handle win, handle game invalidated (eliminations)
 export default function PinMap() {
@@ -14,6 +15,8 @@ export default function PinMap() {
   const [, setComplateState] = useAtom(completeStateAtom);
   const [, setShowCompleteModal] = useAtom(showCompleteModalAtom);
   const theme = useAtomValue(themeAtom);
+  const [showAddParticipant, setShowAddParticipant] = useAtom(showAddParticipantAtom);
+  
   
   const [selectedPins, setSelectedPins] = useState<Set<number>>(new Set());
 
@@ -202,119 +205,129 @@ export default function PinMap() {
 
   return (
     <View
+      pointerEvents="box-none"
       style={{
         width: '90%',
         borderRadius: 20,
         backgroundColor: theme.paleComponent,
         padding: 20,
-        height: 310,
+        // height: 310,
+        minHeight: 315,
         marginBottom: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
-      <View
-        style={{
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        {rows.map((row, i) => { return (
+      {showAddParticipant ? 
+        <AddParticipantModal />
+      : 
+        <>
           <View
-            key={i}
             style={{
-              flexDirection: 'row'
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
-            {row.map((num, j) => { return (
-              <TouchableOpacity
-                key={j}
-                onPress={() => pressPin(num)}
+            {rows.map((row, i) => { return (
+              <View
+                key={i}
                 style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 30,
-                  borderColor: getPinOutlineColor(num),
-                  borderWidth: 2,
-                  backgroundColor: isPinSelected(num) ? theme.pinSelected : theme.pinNotSelected,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  margin: 4
+                  flexDirection: 'row'
                 }}
-                disabled={!gameIsValid(game.state)}
               >
-                <Text
-                  style={{
-                    fontSize: 20,
-                    color: theme.text
-                  }}
-                >
-                  {num}
-                </Text>
-              </TouchableOpacity>
+                {row.map((num, j) => { return (
+                  <TouchableOpacity
+                    key={j}
+                    onPress={() => pressPin(num)}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 30,
+                      borderColor: getPinOutlineColor(num),
+                      borderWidth: 2,
+                      backgroundColor: isPinSelected(num) ? theme.pinSelected : theme.pinNotSelected,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      margin: 4
+                    }}
+                    disabled={!gameIsValid(game.state)}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        color: theme.text
+                      }}
+                    >
+                      {num}
+                    </Text>
+                  </TouchableOpacity>
+                )})}
+              </View>
             )})}
           </View>
-        )})}
-      </View>
-      <TouchableOpacity
-        onPress={handleSkip}
-        style={{
-          position: 'absolute',
-          top: 20,
-          right: 20,
-        }}
-        disabled={!gameIsValid(game.state)}
-      >
-        <Feather 
-          name="fast-forward" 
-          size={24}
-          color={theme.staticButton}
-        />
-      </TouchableOpacity>
-      <Text
-        style={{
-          fontSize: 18,
-          position: 'absolute',
-          bottom: 65,
-          right: 5,
-          width: 90,
-          color: theme.text
-        }}
-      >
-        count: {selectedPins.size === 0 ? 0 : countPins()}
-      </Text>
-      <TouchableOpacity
-        onPress={handleSubmit}
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          right: 20,
-        }}
-        disabled={selectedPins.size === 0}
-      > 
-        <Ionicons
-          name="checkmark-circle" 
-          size={36} 
-          color={selectedPins.size > 0 ? theme.submit : theme.disabledButton} 
-          disabled={selectedPins.size === 0}
-          style={{alignSelf: 'flex-end'}}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={handleMiss}
-        style={{
-          position: 'absolute',
-          top: 20,
-          left: 20,
-        }}
-        disabled={selectedPins.size > 0 || !gameIsValid(game.state)}
-      >
-        <FontAwesome 
-          name="remove" 
-          size={28} 
-          color={selectedPins.size === 0 ? theme.missButton: theme.disabledButton} 
-          disabled={selectedPins.size > 0}
-        />
-      </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSkip}
+            style={{
+              position: 'absolute',
+              top: 20,
+              right: 20,
+            }}
+            disabled={!gameIsValid(game.state)}
+          >
+            <Feather 
+              name="fast-forward" 
+              size={24}
+              color={theme.staticButton}
+            />
+          </TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 18,
+              position: 'absolute',
+              bottom: 65,
+              right: 5,
+              width: 90,
+              color: theme.text
+            }}
+          >
+            count: {selectedPins.size === 0 ? 0 : countPins()}
+          </Text>
+          <TouchableOpacity
+            onPress={handleSubmit}
+            style={{
+              position: 'absolute',
+              bottom: 20,
+              right: 20,
+            }}
+            disabled={selectedPins.size === 0}
+          > 
+            <Ionicons
+              name="checkmark-circle" 
+              size={36} 
+              color={selectedPins.size > 0 ? theme.submit : theme.disabledButton} 
+              disabled={selectedPins.size === 0}
+              style={{alignSelf: 'flex-end'}}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleMiss}
+            style={{
+              position: 'absolute',
+              top: 20,
+              left: 20,
+            }}
+            disabled={selectedPins.size > 0 || !gameIsValid(game.state)}
+          >
+            <FontAwesome 
+              name="remove" 
+              size={28} 
+              color={selectedPins.size === 0 ? theme.missButton: theme.disabledButton} 
+              disabled={selectedPins.size > 0}
+            />
+          </TouchableOpacity>
+        </>
+      }
     </View>
   )
 }

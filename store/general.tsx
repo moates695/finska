@@ -141,6 +141,8 @@ export const loadableThemeAtom = loadable(themeAtom);
 export const useDeviceThemeAtom = atomWithStorage<boolean>('useDeviceThemeAtom', false, storage, { getOnInit: true })
 export const loadableUseDeviceThemeAtom = loadable(useDeviceThemeAtom);
 
+export const showAddParticipantAtom = atom<boolean>(false);
+
 //######################################################
 // HELPERS
 

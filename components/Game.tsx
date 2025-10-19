@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Modal, TouchableOpacity } from "react-native";
 import PinMap from "./PinMap";
 import { useAtom, useAtomValue } from "jotai";
-import { completeStateAtom, gameAtom, screenAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
+import { completeStateAtom, gameAtom, screenAtom, showAddParticipantAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
 import UpNext from "./UpNext";
 import Scoreboard from "./Scoreboard";
 import { Col, Row, Grid } from "react-native-easy-grid";
@@ -17,7 +17,7 @@ export default function Game() {
   const [, setShowCompleteModal] = useAtom(showCompleteModalAtom);
   const theme = useAtomValue(themeAtom);
 
-  const [showAddParticipant, setShowAddParticipant] = useState<boolean>(false);
+  const [showAddParticipant, setShowAddParticipant] = useAtom(showAddParticipantAtom);
 
   const handlePressSave = () => {
     setComplateState('finish');
@@ -35,7 +35,7 @@ export default function Game() {
       <Scoreboard />
       <UpNext />
       <PinMap />
-      {showAddParticipant && <AddParticipantModal /> }
+      {/* {showAddParticipant && <AddParticipantModal /> } */}
       <View
         style={{
           flexDirection: 'row',

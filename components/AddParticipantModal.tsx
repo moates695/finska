@@ -5,7 +5,7 @@ import { generalStyles } from "@/styles/general";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Constants from 'expo-constants';
 import { useAtom, useAtomValue } from "jotai";
-import { Game, gameAtom, initialParticipantState, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newMemberNamesAtom, newNameAtom, newNameErrorAtom, showNewParticipantModalAtom, Team, themeAtom } from "@/store/general";
+import { Game, gameAtom, initialParticipantState, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newMemberNamesAtom, newNameAtom, newNameErrorAtom, screenAtom, showNewParticipantModalAtom, Team, themeAtom } from "@/store/general";
 import Feather from '@expo/vector-icons/Feather';
 import * as Crypto from 'expo-crypto';
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +20,8 @@ interface ParticipantOption {
 export default function AddParticipantModal() {
   const [game, setGame] = useAtom(gameAtom);
   const theme = useAtomValue(themeAtom);
+  const screen = useAtomValue(screenAtom);
+  
   
   const [isPlayer, setIsPlayer] = useAtom(isPlayerAtom); //? remember last choice? (global state, no load in)
   const [name, setName] = useAtom(newNameAtom);
@@ -263,7 +265,7 @@ export default function AddParticipantModal() {
               textAlign: 'center',
               color: theme.text,
             }}
-            placeholderTextColor={theme.text}
+            placeholderTextColor={theme.placeHolderText}
           />
           <TouchableOpacity
             onPress={() => handleAddParticipant()}
@@ -289,7 +291,7 @@ export default function AddParticipantModal() {
       </View>
       {!isPlayer &&
         <>
-          <View>
+          <View pointerEvents="box-none">
             <View
               style={{
                 flexDirection: 'row',
@@ -301,7 +303,7 @@ export default function AddParticipantModal() {
                 onChangeText={(text) => handleChangeMemberName(text)}
                 returnKeyType="done"
                 placeholder="member name" 
-                placeholderTextColor={theme.text}
+                placeholderTextColor={theme.placeHolderText}
                 style={{
                   borderColor: theme.border,
                   borderWidth: 1,
@@ -336,7 +338,7 @@ export default function AddParticipantModal() {
                 {memberNameError}
               </Text>
           </View>
-          {memberNames.length === 0 &&
+          {/* {memberNames.length === 0 &&
             <Text
               style={{
                 color: theme.text
@@ -344,11 +346,11 @@ export default function AddParticipantModal() {
             >
               add some team mates!
             </Text>
-          }
+          } */}
           <ScrollView
-            style={{
-              maxHeight: 130
-            }}
+            style={[screen !== 'game' && {maxHeight: 130}]}
+            keyboardShouldPersistTaps="handled"
+            scrollEnabled={true}
           >
             {memberNames.map((name, i) => {
               return (
@@ -385,7 +387,7 @@ export default function AddParticipantModal() {
           </ScrollView>
         </>
       }
-  </View>
+    </View>
   )
 }
 

@@ -33,6 +33,7 @@ export interface Theme {
   scoreboardCurrentOutline: Color
   scoreboardOutline: Color
   scoreboardEliminatedText: Color
+  placeHolderText: Color
 }
 
 export type ThemeType = 'light' | 'dark' | 'sand';
@@ -75,12 +76,13 @@ export const themes: Record<ThemeType, Theme> = {
     scoreboardCurrentOutline: '#ffffff',
     scoreboardOutline: 'transparent',
     scoreboardEliminatedText: '#ff0000ff',
+    placeHolderText: '#2c2c2cff',
   },
   dark: {
     primaryBackground: '#181818ff',
     paleComponent: '#2a2a2aff',
     brightComponent: '#5d5d5dff',
-    listColorA: '#ff4343bc',
+    listColorA: '#4398ffbc',
     listColorB: '#fea035b8',
     participantListItem: '#2a2a2aff',
     pinSelected: '#ffa600ff',
@@ -109,6 +111,7 @@ export const themes: Record<ThemeType, Theme> = {
     scoreboardCurrentOutline: '#ffffff',
     scoreboardOutline: 'transparent',
     scoreboardEliminatedText: '#ff0000ff',
+    placeHolderText: '#6f6f6fff',
   },
   sand: {
     primaryBackground: '#ffedaaff',
@@ -143,5 +146,6 @@ export const themes: Record<ThemeType, Theme> = {
     scoreboardCurrentOutline: '#ffffff',
     scoreboardOutline: 'transparent',
     scoreboardEliminatedText: '#ff0000ff',
+    placeHolderText: '#2c2c2cff',
   }
 }

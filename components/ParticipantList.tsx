@@ -171,7 +171,13 @@ export default function ParticipantList() {
             <View
               style={styles.row}
             >
-              <Text>{team.name}</Text>
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                {team.name}
+              </Text>
               <Feather 
                   name="delete" 
                   size={24} 
@@ -193,7 +199,8 @@ export default function ParticipantList() {
                     <Text 
                       key={j}
                       style={{
-                        paddingLeft: 20
+                        paddingLeft: 20,
+                        color: theme.text
                       }}
                     >
                       {team.members[memberId]}

@@ -392,7 +392,7 @@ export default function Settings() {
               returnKeyType="done"
               keyboardType="number-pad"
               placeholder="never"
-              placeholderTextColor={theme.text}
+              placeholderTextColor={theme.placeHolderText}
               style={{
                 borderColor: theme.border,
                 borderWidth: 1,
