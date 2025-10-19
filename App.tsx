@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useAtom, useAtomValue } from 'jotai';
-import React, { useEffect, useState } from 'react';
+import React, { JSX, useEffect, useState } from 'react';
 import { Keyboard, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { gameAtom, initialGame, initialLoadAtom, loadableGameAtom, loadableThemeAtom, loadableUseDeviceThemeAtom, screenAtom, ScreenType, showNewParticipantModalAtom, themeAtom, useDeviceThemeAtom } from './store/general';
 import LoadingScreen from './components/LoadingScreen';

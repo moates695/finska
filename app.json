@@ -13,7 +13,8 @@
       "backgroundColor": "#ffedaaff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.moates.finska"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +22,8 @@
         "backgroundColor": "#ffedaaff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.moates.finska"
     },
     "web": {
       "favicon": "./assets/favicon.png"

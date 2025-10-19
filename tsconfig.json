@@ -9,7 +9,9 @@
       ]
     },
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "lib": ["ES2015", "DOM"],
+    "target": "ES2015"
   },
   "include": [
     "**/*.ts",

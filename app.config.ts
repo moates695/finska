@@ -24,7 +24,11 @@ export default ({ config }: any) => {
           "projectId": "17b301fd-3c8d-46a2-a0cc-90f945dd0f62"
         }
       },
-      owner: "moates"
+      owner: "moates",
+      plugins: [
+        "expo-asset",
+        "expo-font"
+      ]
     },
   }
 };

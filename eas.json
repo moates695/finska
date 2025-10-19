@@ -8,11 +8,10 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "image": "latest",
-        "gradleCommand": ":app:assembleRelease -x lint"
+        "image": "latest"
       },
       "env": {
-        
+        "maxNameLength": "18"
       }
     },
     "testing": {
@@ -20,8 +19,7 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "image": "latest",
-        "gradleCommand": ":app:assembleRelease -x lint"
+        "image": "latest"
       },
       "env": {
         
