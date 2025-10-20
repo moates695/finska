@@ -104,12 +104,12 @@ export let initialGame: Game = {
   has_game_started: false
 };
 
-for (let i = 10; i < 13; i++) {
-  const id = i.toString();
-  initialGame.players[id] = `Player ${i}`
-  initialGame.state[id] = {...initialParticipantState};
-  initialGame.up_next.push(id);
-}
+// for (let i = 10; i < 13; i++) {
+//   const id = i.toString();
+//   initialGame.players[id] = `Player ${i}`
+//   initialGame.state[id] = {...initialParticipantState};
+//   initialGame.up_next.push(id);
+// }
 
 export const gameAtom = atomWithStorage<Game>('gameAtom', {...initialGame}, storage, { getOnInit: true });
 export const loadableGameAtom = loadable(gameAtom);
