@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { JSX, useEffect, useState } from 'react';
-import { Keyboard, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { gameAtom, initialGame, initialLoadAtom, loadableGameAtom, loadableThemeAtom, loadableUseDeviceThemeAtom, screenAtom, ScreenType, showNewParticipantModalAtom, themeAtom, useDeviceThemeAtom } from './store/general';
 import LoadingScreen from './components/LoadingScreen';
 import { generalStyles } from './styles/general';
@@ -16,6 +16,11 @@ import Settings from './components/Settings';
 import { useColorScheme } from 'react-native';
 // import { useTheme } from './styles/useTheme';
 import { Theme, themes } from './styles/theme';
+import { KeyboardAvoidingView, TextInput } from 'react-native';
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+// import { KeyboardProvider, KeyboardAwareScrollView  } from 'react-native-keyboard-controller';
+import { KeyboardEvent } from 'react-native';
 
 export default function App() {
   const loadableGame = useAtomValue(loadableGameAtom);
@@ -27,8 +32,7 @@ export default function App() {
   const [theme, setTheme] = useAtom(themeAtom);
 
   const loadableUseDeviceTheme = useAtomValue(loadableUseDeviceThemeAtom);
-  const [useDeviceTheme, ] = useAtom(useDeviceThemeAtom);
-
+  
   const [loadingFonts, setLoadingFonts] = useState<boolean>(false);
   const [loadedTheme, setLoadedTheme] = useState<boolean>(false);
 
@@ -36,9 +40,19 @@ export default function App() {
 
   const styles = createStyles(theme);
 
-  // const theme = useTheme();
-  // const styles = createStyles(theme);
+  // const insets = useSafeAreaInsets();
 
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', (e: KeyboardEvent) => setKeyboardHeight(e.endCoordinates.height + 10));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+   
   const loadFonts = async () => {
     setLoadingFonts(true);
     await Font.loadAsync({
@@ -61,9 +75,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (loadedTheme) return;
-    else if (loadableTheme.state === 'loading' || loadableUseDeviceTheme.state === 'loading') return;
-    
+    if (loadedTheme || loadableTheme.state === 'loading' || loadableUseDeviceTheme.state === 'loading') return;
+
     if (loadableUseDeviceTheme.state === 'hasError' && loadableTheme.state === 'hasError') {
       setTheme(themes.sand);
     } else if (loadableUseDeviceTheme.state === 'hasData' && loadableUseDeviceTheme.data) {
@@ -101,16 +114,31 @@ export default function App() {
     'settings': <Settings />,
   }
 
+  
+
   return (
-    <TouchableWithoutFeedback 
-      onPress={Keyboard.dismiss} 
-      accessible={false}
-    >
-      <View style={styles.container}>
-        <StatusBar style="auto" />
-        {screenMap[screen]}
-      </View>
-    </TouchableWithoutFeedback>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container} edges={[]}>
+        <TouchableWithoutFeedback 
+          onPress={Keyboard.dismiss} 
+          accessible={false}
+        >
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            keyboardVerticalOffset={300}
+            style={{flex: 1, width: '100%'}}
+            contentContainerStyle={styles.container}
+          >
+            <StatusBar 
+              style={theme.type === 'dark' ? 'light' : 'dark'}
+              backgroundColor={theme.primaryBackground} 
+            /> 
+            {screenMap[screen]}
+            <View style={{ height: keyboardHeight }} />
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -123,5 +151,6 @@ const createStyles = (theme: Theme) => StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
     paddingTop: 50,
+    paddingBottom: 20,
   },
 });

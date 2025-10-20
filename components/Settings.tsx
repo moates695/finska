@@ -1,37 +1,62 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet, useColorScheme } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAtom, useAtomValue } from "jotai";
-import { gameAtom, initialGame, screenAtom, themeAtom } from "@/store/general";
+import { gameAtom, initialGame, screenAtom, themeAtom, useDeviceThemeAtom } from "@/store/general";
 import { generalStyles } from "@/styles/general";
+import { Theme, themes, ThemeType } from "@/styles/theme";
+import Dropdown, { DropdownOption } from "./Dropdown";
 
-// target score
-// reset score
-// elimination count
-// elimination reset score
-// elimination reset turns
-// skip is miss
-// use pin value
-
+interface ThemeOption {
+  label: string
+  value: ThemeType
+}
 
 export default function Settings() {
   const [game, setGame] = useAtom(gameAtom);
   const [, setScreen] = useAtom(screenAtom);
-  const theme = useAtomValue(themeAtom);
-  
+  const [theme, setTheme] = useAtom(themeAtom);
+
+  const [useDeviceTheme, setUseDeviceTheme] = useAtom(useDeviceThemeAtom);
+
   const [targetScore, setTargetScore] = useState<string>(game.target_score.toString());
   const [resetScore, setResetScore] = useState<string>(game.reset_score.toString());
-  const [eliminationCount, setEliminationCount] = useState<string>(game.elimination_count.toString());
-  const [eliminationScore, setEliminationScore] = useState<string>(game.elimination_reset_score.toString());
+  const [eliminationMissCount, setEliminationMissCount] = useState<string>(game.elimination_count.toString());
+  const [eliminationResetScore, setEliminationResetScore] = useState<string>(game.elimination_reset_score.toString());
   const [eliminationTurns, setEliminationTurns] = useState<string>((game.elimination_reset_turns ?? '').toString());
   const [skipIsMiss, setSkipIsMiss] = useState<boolean>(game.skip_is_miss);
   const [usePinValue, setUsePinValue] = useState<boolean>(game.use_pin_value);
 
   const [targetScoreError, setTargetScoreError] = useState<string | null>(null);
   const [resetScoreError, setResetScoreError] = useState<string | null>(null);
-  const [eliminationCountError, setEliminationCountError] = useState<string | null>(null);
-  const [eliminationScoreError, setEliminationScoreError] = useState<string | null>(null);
+  const [eliminationMissCountError, setEliminationMissCountError] = useState<string | null>(null);
+  const [eliminationResetScoreError, setEliminationRestScoreError] = useState<string | null>(null);
   const [eliminationTurnsError, setEliminationTurnsError] = useState<string | null>(null);
+
+  const styles = createStyles(theme);
+  const colorScheme = useColorScheme();
+  
+  const handleUseDeviceTheme = () => {
+    if (!useDeviceTheme) {
+      const themeName = colorScheme ?? 'sand';
+      const tempTheme = themes[themeName];
+      setTheme(tempTheme);
+      setThemeValue(themeName)
+    }
+    setUseDeviceTheme(!useDeviceTheme);
+  };
+
+  const themeOptions: ThemeOption[] = [
+    { label: 'light', value: 'light'},
+    { label: 'dark', value: 'dark'},
+    { label: 'sand', value: 'sand'},
+  ]
+  const [themeValue, setThemeValue] = useState<ThemeType>(theme.type);
+
+  const handleSelectTheme = (value: any) => {
+    setThemeValue(value);
+    setTheme(themes[value as ThemeType]);
+  };
 
   const handleChangeScore = (
     text: string,
@@ -90,18 +115,30 @@ export default function Settings() {
   const handleDefaults = () => {
     setTargetScore(initialGame.target_score.toString());
     setResetScore(initialGame.reset_score.toString());
-    setEliminationCount(initialGame.elimination_count.toString());
-    setEliminationScore(initialGame.elimination_reset_score.toString());
+    setEliminationMissCount(initialGame.elimination_count.toString());
+    setEliminationResetScore(initialGame.elimination_reset_score.toString());
     setEliminationTurns((initialGame.elimination_reset_turns ?? '').toString());
   };
 
+  const convertString = (text: string, base: number, allowNegative: boolean): number => {
+    const tempNum = parseInt(text);
+    if (Number.isNaN(tempNum)) return base;
+    else if (!allowNegative && tempNum < 0) return base;
+    return tempNum;
+  };
+
+  const disableSave = (): boolean => {
+    return targetScoreError !== null || resetScoreError !== null || eliminationMissCountError !== null || eliminationResetScoreError !== null || eliminationTurnsError !== null;
+  };
+
+  // todo if game state is going to be altered, ask to confirm?
   const handleSave = () => {
-    const tempTarget = parseInt(targetScore) ?? game.target_score;
-    const tempReset = parseInt(resetScore) ?? game.reset_score;
-    const tempElimCount = parseInt(eliminationCount) ?? game.elimination_count;
-    const tempElimReset = parseInt(eliminationScore) ?? game.elimination_reset_score;
-    
-    if (tempReset >= tempTarget || tempElimReset >= tempTarget) return;
+    const tempTarget = convertString(targetScore, game.target_score, false);
+    const tempReset = convertString(resetScore, game.reset_score, true);
+    const tempElimMissCount = convertString(eliminationMissCount, game.elimination_count, false);
+    const tempElimResetScore = convertString(eliminationResetScore, game.elimination_reset_score, true);
+
+    if (tempReset >= tempTarget || tempElimResetScore >= tempTarget) return;
     
     let tempElimTurns: number | null = game.elimination_reset_turns;
     if (eliminationTurns === '') {
@@ -110,6 +147,7 @@ export default function Settings() {
       try {
         const num = parseInt(eliminationTurns);
         if (Number.isNaN(num)) throw Error('could not convert turns to int');
+        else if (num <= 0) throw Error('invalid elimination turns');
         tempElimTurns = num;
       } catch (error) {
         console.log(error);
@@ -119,25 +157,24 @@ export default function Settings() {
     const tempGame = {...game}
     for (const [id, currState] of Object.entries(game.state)) {
       const tempState = tempGame.state[id];
-      
-      if (currState.standing !== 'eliminated' && currState.score >= tempTarget) {
+
+      if (currState.score >= tempTarget) {
         tempState.score = tempReset;
       }
-      
-      if (currState.standing === 'eliminated') {
-        const cond1 = currState.num_misses < tempElimCount;
-        const cond2 = tempElimTurns !== null && currState.eliminated_turns >= tempElimTurns;
-        if (cond1 || cond2) {
-          tempState.score = tempElimReset;
-          tempState.standing = 'playing';
-          tempState.eliminated_turns = 0;
-          tempState.num_misses = 0;
-          continue;
-        }
+
+      if (currState.standing === 'paused') {
+        continue;
+      } else if (currState.standing === 'playing') {
+        if (currState.num_misses < tempElimMissCount) continue;
+        tempState.standing = 'eliminated';
+        tempState.eliminated_turns = 0;
+        tempState.num_misses = tempElimMissCount;
       } else {
-        if (currState.num_misses >= tempElimCount) {
-          tempState.standing = 'eliminated';
-        }
+        if (currState.num_misses >= tempElimMissCount) continue;
+        tempState.standing = 'playing';
+        tempState.score = tempReset;
+        tempState.eliminated_turns = 0;
+        tempState.num_misses = 0;
       }
     }
 
@@ -145,8 +182,8 @@ export default function Settings() {
       ...tempGame,
       target_score: tempTarget,
       reset_score: tempReset,
-      elimination_count: tempElimCount,
-      elimination_reset_score: tempElimReset,
+      elimination_count: tempElimMissCount,
+      elimination_reset_score: tempElimResetScore,
       elimination_reset_turns: tempElimTurns,
       skip_is_miss: skipIsMiss,
       use_pin_value: usePinValue
@@ -168,13 +205,13 @@ export default function Settings() {
 
   useEffect(() => {
     const tempTarget = parseInt(targetScore) ?? game.target_score;
-    const tempElimReset = parseInt(eliminationScore) ?? game.elimination_reset_score;
+    const tempElimReset = parseInt(eliminationResetScore) ?? game.elimination_reset_score;
 
     if (tempTarget <= tempElimReset) {
-      setEliminationScoreError(tooBigError);
+      setEliminationRestScoreError(tooBigError);
       return;
-    } else if (eliminationScoreError === tooBigError) {
-      setEliminationScoreError(null);
+    } else if (eliminationResetScoreError === tooBigError) {
+      setEliminationRestScoreError(null);
     }
   }, [targetScore]);
 
@@ -191,9 +228,7 @@ export default function Settings() {
         style={{
           width: '90%',
           justifyContent: 'center',
-          backgroundColor: theme.paleComponent,
-          padding: 20,
-          borderRadius: 20,
+          
         }}
       >
         <TouchableOpacity
@@ -209,223 +244,16 @@ export default function Settings() {
           />
         </TouchableOpacity>
         <View
-          style={styles.inputRow}
+          style={[styles.settingsContainer, {marginBottom: 10}]}
         >
-          <View
-            style={styles.inputContainer}
+          <Text
+            style={{
+              fontSize: 18,
+              color: theme.text,
+            }}
           >
-            <Text
-              style={{
-                color: theme.text
-              }}
-            >
-              Target score:
-            </Text>
-            <TextInput
-              value={targetScore}
-              onChangeText={(text) => handleChangeScore(text, setTargetScore, setTargetScoreError)}
-              returnKeyType="done"
-              keyboardType="number-pad"
-              style={{
-                borderColor: theme.border,
-                borderWidth: 1,
-                borderRadius: 5,
-                width: 100,
-                padding: 4,
-                height: 40,
-                marginRight: 5,
-                textAlign: 'center',
-                color: theme.text
-              }}
-            >
-            </TextInput>
-            <Text
-              style={{
-                fontSize: 12,
-                color: theme.errorText,
-                opacity: targetScoreError !== null ? 1 : 0,
-              }}
-            >
-              {targetScoreError}
-            </Text>
-          </View>
-          <View
-            style={styles.inputContainer}
-          >
-            <Text
-              style={{
-                color: theme.text
-              }}
-            >
-              Reset score:
-            </Text>
-            <TextInput
-              value={resetScore}
-              onChangeText={(text) => handleChangeReset(text, setResetScore, setResetScoreError)}
-              returnKeyType="done"
-              keyboardType="number-pad"
-              style={{
-                borderColor: theme.border,
-                borderWidth: 1,
-                borderRadius: 5,
-                width: 100,
-                padding: 4,
-                height: 40,
-                marginRight: 5,
-                textAlign: 'center',
-                color: theme.text
-              }}
-            >
-            </TextInput>
-            <Text
-              style={{
-                fontSize: 12,
-                color: theme.errorText,
-                opacity: resetScoreError !== null ? 1 : 0,
-              }}
-            >
-              {resetScoreError}
-            </Text>
-          </View>
-        </View>
-        <View
-          style={styles.inputRow}
-        >
-          <View
-            style={styles.inputContainer}
-          >
-            <Text
-              style={{
-                color: theme.text
-              }}
-            >
-              Eliminate after:
-            </Text>
-            <TextInput
-              value={eliminationCount}
-              onChangeText={(text) => handleChangeScore(text, setEliminationCount, setEliminationCountError)}
-              returnKeyType="done"
-              keyboardType="number-pad"
-              style={{
-                borderColor: theme.border,
-                borderWidth: 1,
-                borderRadius: 5,
-                width: 100,
-                padding: 4,
-                height: 40,
-                marginRight: 5,
-                textAlign: 'center',
-                color: theme.text
-              }}
-            >
-            </TextInput>
-            <Text
-              style={{
-                fontSize: 12,
-                color: theme.errorText,
-                opacity: eliminationCountError !== null ? 1 : 0,
-              }}
-            >
-              {eliminationCountError}  
-            </Text>
-          </View>
-          <View
-            style={styles.inputContainer}
-          >
-            <Text
-              style={{
-                color: theme.text
-              }}
-            >
-              Eliminate reset:
-            </Text>
-            <TextInput
-              value={eliminationScore}
-              onChangeText={(text) => handleChangeReset(text, setEliminationScore, setEliminationScoreError)}
-              returnKeyType="done"
-              keyboardType="number-pad"
-              style={{
-                borderColor: theme.border,
-                borderWidth: 1,
-                borderRadius: 5,
-                width: 100,
-                padding: 4,
-                height: 40,
-                marginRight: 5,
-                textAlign: 'center',
-                color: theme.text
-              }}
-            >
-            </TextInput>
-            <Text
-              style={{
-                fontSize: 12,
-                color: theme.errorText,
-                opacity: eliminationScoreError !== null ? 1 : 0,
-              }}
-            >
-              {eliminationScoreError}
-            </Text>
-          </View>
-        </View>
-        <View
-          style={styles.inputRow}
-        >
-          <View
-            style={[
-              styles.inputContainer,
-              {
-                marginBottom: -10,
-              }              
-            ]}
-          >
-            <Text
-              style={{
-                color: theme.text
-              }}
-            >
-              Eliminate turns:
-            </Text>
-            <TextInput
-              value={eliminationTurns}
-              onChangeText={(text) => handleChangeScore(text, setEliminationTurns, setEliminationTurnsError, true)}
-              returnKeyType="done"
-              keyboardType="number-pad"
-              placeholder="never"
-              placeholderTextColor={theme.placeHolderText}
-              style={{
-                borderColor: theme.border,
-                borderWidth: 1,
-                borderRadius: 5,
-                width: 100,
-                padding: 4,
-                height: 40,
-                marginRight: 5,
-                textAlign: 'center',
-                color: theme.text
-              }}
-            >
-            </TextInput>
-            <Text
-              style={{
-                fontSize: 12,
-                color: theme.errorText,
-                opacity: eliminationTurnsError !== null ? 1 : 0,
-              }}
-            >
-              {eliminationTurnsError}
-            </Text>
-          </View>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            width: '100%',
-            justifyContent: 'space-around',
-            marginBottom: 10,
-          }}
-        >
+            App settings:
+          </Text>
           <View
             style={{
               flexDirection: 'row',
@@ -437,80 +265,358 @@ export default function Settings() {
                 color: theme.text
               }}
             >
-              Skip counts as miss:
+              Use device theme:
             </Text>
             <Switch
-              value={skipIsMiss}
-              onValueChange={() => setSkipIsMiss(!skipIsMiss)}
+              value={useDeviceTheme}
+              onValueChange={handleUseDeviceTheme}
               trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
-              thumbColor={skipIsMiss ? theme.switchThumbOn : theme.switchThumbOff}
+              thumbColor={useDeviceTheme ? theme.switchThumbOn : theme.switchThumbOff}
               ios_backgroundColor={theme.switchIosBackground}
             />
           </View>
           <View
             style={{
               flexDirection: 'row',
-              alignItems: 'center',
+              alignItems: 'center'
             }}
           >
             <Text
               style={{
-                color: theme.text
+                marginRight: 10,
+                color: theme.text,
               }}
             >
-              Use pin value:
+              Choose a theme:
             </Text>
-            <Switch
-              value={usePinValue}
-              onValueChange={() => setUsePinValue(!usePinValue)}
-              trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
-              thumbColor={usePinValue ? theme.switchThumbOn : theme.switchThumbOff}
-              ios_backgroundColor={theme.switchIosBackground}
+            <Dropdown 
+              options={themeOptions} 
+              selectedValue={themeValue} 
+              setSelectedValue={handleSelectTheme} 
             />
           </View>
         </View>
         <View
-          style={styles.inputRow}
+          style={styles.settingsContainer}
         >
-          <TouchableOpacity
-            onPress={handleDefaults}
-            style={[
-              generalStyles.button,
-              generalStyles.bigButton,
-              {
-                borderColor: theme.border
-              }
-            ]}
+          <Text
+            style={{
+              fontSize: 18,
+              paddingBottom: 10,
+              color: theme.text,
+            }}
           >
-            <Text
-              style={{
-                color: theme.text
-              }}
-            >defaults</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleSave}
-            style={[
-              generalStyles.button,
-              generalStyles.bigButton,
-              {
-                borderColor: theme.border
-              }
-            ]}
+            Game rules:
+          </Text>
+          <View
+            style={styles.inputRow}
           >
-            <Text
+            <View
+              style={styles.inputContainer}
+            >
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                Target score:
+              </Text>
+              <TextInput
+                value={targetScore}
+                onChangeText={(text) => handleChangeScore(text, setTargetScore, setTargetScoreError)}
+                returnKeyType="done"
+                keyboardType="number-pad"
+                style={{
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  width: 100,
+                  padding: 4,
+                  height: 40,
+                  marginRight: 5,
+                  textAlign: 'center',
+                  color: theme.text
+                }}
+              >
+              </TextInput>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: theme.errorText,
+                  opacity: targetScoreError !== null ? 1 : 0,
+                }}
+              >
+                {targetScoreError}
+              </Text>
+            </View>
+            <View
+              style={styles.inputContainer}
+            >
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                Reset score:
+              </Text>
+              <TextInput
+                value={resetScore}
+                onChangeText={(text) => handleChangeReset(text, setResetScore, setResetScoreError)}
+                returnKeyType="done"
+                keyboardType="number-pad"
+                style={{
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  width: 100,
+                  padding: 4,
+                  height: 40,
+                  marginRight: 5,
+                  textAlign: 'center',
+                  color: theme.text
+                }}
+              >
+              </TextInput>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: theme.errorText,
+                  opacity: resetScoreError !== null ? 1 : 0,
+                }}
+              >
+                {resetScoreError}
+              </Text>
+            </View>
+          </View>
+          <View
+            style={styles.inputRow}
+          >
+            <View
+              style={styles.inputContainer}
+            >
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                Eliminate after:
+              </Text>
+              <TextInput
+                value={eliminationMissCount}
+                onChangeText={(text) => handleChangeScore(text, setEliminationMissCount, setEliminationMissCountError)}
+                returnKeyType="done"
+                keyboardType="number-pad"
+                style={{
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  width: 100,
+                  padding: 4,
+                  height: 40,
+                  marginRight: 5,
+                  textAlign: 'center',
+                  color: theme.text
+                }}
+              >
+              </TextInput>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: theme.errorText,
+                  opacity: eliminationMissCountError !== null ? 1 : 0,
+                }}
+              >
+                {eliminationMissCountError}  
+              </Text>
+            </View>
+            <View
+              style={styles.inputContainer}
+            >
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                Eliminate reset:
+              </Text>
+              <TextInput
+                value={eliminationResetScore}
+                onChangeText={(text) => handleChangeReset(text, setEliminationResetScore, setEliminationRestScoreError)}
+                returnKeyType="done"
+                keyboardType="number-pad"
+                style={{
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  width: 100,
+                  padding: 4,
+                  height: 40,
+                  marginRight: 5,
+                  textAlign: 'center',
+                  color: theme.text
+                }}
+              >
+              </TextInput>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: theme.errorText,
+                  opacity: eliminationResetScoreError !== null ? 1 : 0,
+                }}
+              >
+                {eliminationResetScoreError}
+              </Text>
+            </View>
+          </View>
+          <View
+            style={styles.inputRow}
+          >
+            <View
+              style={[
+                styles.inputContainer,
+                {
+                  marginBottom: -10,
+                }              
+              ]}
+            >
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                Eliminate turns:
+              </Text>
+              <TextInput
+                value={eliminationTurns}
+                onChangeText={(text) => handleChangeScore(text, setEliminationTurns, setEliminationTurnsError, true)}
+                returnKeyType="done"
+                keyboardType="number-pad"
+                placeholder="never"
+                placeholderTextColor={theme.placeHolderText}
+                style={{
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  width: 100,
+                  padding: 4,
+                  height: 40,
+                  marginRight: 5,
+                  textAlign: 'center',
+                  color: theme.text
+                }}
+              >
+              </TextInput>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: theme.errorText,
+                  opacity: eliminationTurnsError !== null ? 1 : 0,
+                }}
+              >
+                {eliminationTurnsError}
+              </Text>
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: '100%',
+              justifyContent: 'space-around',
+              marginBottom: 10,
+            }}
+          >
+            <View
               style={{
-                color: theme.text
+                flexDirection: 'row',
+                alignItems: 'center',
               }}
-            >save</Text>
-          </TouchableOpacity>
+            >
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                Skip counts as miss:
+              </Text>
+              <Switch
+                value={skipIsMiss}
+                onValueChange={() => setSkipIsMiss(!skipIsMiss)}
+                trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
+                thumbColor={skipIsMiss ? theme.switchThumbOn : theme.switchThumbOff}
+                ios_backgroundColor={theme.switchIosBackground}
+              />
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                Use pin value:
+              </Text>
+              <Switch
+                value={usePinValue}
+                onValueChange={() => setUsePinValue(!usePinValue)}
+                trackColor={{true: theme.switchTrackOn, false: theme.switchTrackOff}}
+                thumbColor={usePinValue ? theme.switchThumbOn : theme.switchThumbOff}
+                ios_backgroundColor={theme.switchIosBackground}
+              />
+            </View>
+          </View>
+          <View
+            style={styles.inputRow}
+          >
+            <TouchableOpacity
+              onPress={handleDefaults}
+              style={[
+                generalStyles.button,
+                generalStyles.bigButton,
+                {
+                  borderColor: theme.border
+                }
+              ]}
+            >
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                defaults
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleSave}
+              style={[
+                generalStyles.button,
+                generalStyles.bigButton,
+                {
+                  borderColor: theme.border
+                }
+              ]}
+              disabled={disableSave()}
+            >
+              <Text
+                style={{
+                  color: theme.text
+                }}
+              >
+                save
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: Theme) => StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -518,5 +624,10 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'column'
+  },
+  settingsContainer: {
+    backgroundColor: theme.paleComponent,
+    padding: 20,
+    borderRadius: 20,
   }
 })

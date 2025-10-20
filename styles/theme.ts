@@ -1,6 +1,9 @@
 type Color = `#${string}` | 'transparent'
 
+export type ThemeType = 'light' | 'dark' | 'sand';
+
 export interface Theme {
+  type: ThemeType
   primaryBackground: Color,
   paleComponent: Color,
   brightComponent: Color,
@@ -36,7 +39,6 @@ export interface Theme {
   placeHolderText: Color
 }
 
-export type ThemeType = 'light' | 'dark' | 'sand';
 
 // todo go through each component and add all necessary color types above
 // todo then make each color way
@@ -44,6 +46,7 @@ export type ThemeType = 'light' | 'dark' | 'sand';
 
 export const themes: Record<ThemeType, Theme> = {
   light: {
+    type: 'light',
     primaryBackground: '#ffffff',
     paleComponent: '#afd2d5ff',
     brightComponent: '#b5ffffff',
@@ -61,7 +64,7 @@ export const themes: Record<ThemeType, Theme> = {
     missButton: '#ff0000ff',
     selectedBox: '#ffffff',
     dropdownBackground: '#ffffff',
-    dropdownSelectedText: '#3fec00ff',
+    dropdownSelectedText: '#000000',
     dropdownText: '#000000',
     modalBackdrop: '#00000099',
     switchTrackOn: '#b4fcac',
@@ -79,6 +82,7 @@ export const themes: Record<ThemeType, Theme> = {
     placeHolderText: '#2c2c2cff',
   },
   dark: {
+    type: 'dark',
     primaryBackground: '#181818ff',
     paleComponent: '#2a2a2aff',
     brightComponent: '#5d5d5dff',
@@ -95,8 +99,8 @@ export const themes: Record<ThemeType, Theme> = {
     staticButton: '#ddddddff',
     missButton: '#ff0000ff',
     selectedBox: '#dfdfdfff',
-    dropdownBackground: '#ffffff',
-    dropdownSelectedText: '#3fec00ff',
+    dropdownBackground: '#181818ff',
+    dropdownSelectedText: '#dfdfdfff',
     dropdownText: '#ffffff',
     modalBackdrop: '#00000099',
     switchTrackOn: '#b4fcac',
@@ -114,6 +118,7 @@ export const themes: Record<ThemeType, Theme> = {
     placeHolderText: '#6f6f6fff',
   },
   sand: {
+    type: 'sand',
     primaryBackground: '#ffedaaff',
     paleComponent: '#e2d298ff',
     brightComponent: '#ffa500',
@@ -130,8 +135,8 @@ export const themes: Record<ThemeType, Theme> = {
     staticButton: '#000000',
     missButton: '#ff0000ff',
     selectedBox: '#ffffff',
-    dropdownBackground: '#ffffff',
-    dropdownSelectedText: '#3fec00ff',
+    dropdownBackground: '#ffedaaff',
+    dropdownSelectedText: '#000000',
     dropdownText: '#000000',
     modalBackdrop: '#00000099',
     switchTrackOn: '#b4fcac',

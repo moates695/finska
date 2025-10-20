@@ -13,10 +13,11 @@ export default ({ config }: any) => {
       slug: "finska",
       version: "1.0.0",
       orientation: "portrait",
+      userInterfaceStyle: "automatic",
       android: {
         compileSdkVersion: 34,
         targetSdkVersion: 34,
-        package: "com.moates.finska"
+        package: "com.moates.finska",
       },
       extra: {
         maxNameLength: process.env.MAX_NAME_LENGTH,

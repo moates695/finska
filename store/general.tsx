@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Theme, themes } from '@/styles/theme';
 
 const storage = createJSONStorage(() => AsyncStorage) as any;
-AsyncStorage.clear(); //!!! 
+// AsyncStorage.clear(); //!!! 
 
 export type Players = Record<string, string>;
 

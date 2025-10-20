@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleSheet, Switch, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, StyleSheet, Switch, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import Dropdown, { DropdownOption } from "./Dropdown";
 import { generalStyles } from "@/styles/general";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -21,7 +21,6 @@ export default function AddParticipantModal() {
   const [game, setGame] = useAtom(gameAtom);
   const theme = useAtomValue(themeAtom);
   const screen = useAtomValue(screenAtom);
-  
   
   const [isPlayer, setIsPlayer] = useAtom(isPlayerAtom); //? remember last choice? (global state, no load in)
   const [name, setName] = useAtom(newNameAtom);
@@ -338,15 +337,6 @@ export default function AddParticipantModal() {
                 {memberNameError}
               </Text>
           </View>
-          {/* {memberNames.length === 0 &&
-            <Text
-              style={{
-                color: theme.text
-              }}
-            >
-              add some team mates!
-            </Text>
-          } */}
           <ScrollView
             style={[screen !== 'game' && {maxHeight: 130}]}
             keyboardShouldPersistTaps="handled"

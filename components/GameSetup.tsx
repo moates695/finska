@@ -62,6 +62,14 @@ export default function GameSetup() {
   };
 
   return (
+    // <KeyboardAvoidingView 
+    //       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    //       keyboardVerticalOffset={Platform.OS === 'android' ? 10 : 10} 
+    //       style={{
+    //     flex: 1,
+    //     width: '100%',
+    //   }}
+    //     >
     <View
       style={{
         flex: 1,
@@ -172,5 +180,6 @@ export default function GameSetup() {
           </View>
       </View>
     </View>
+    
   )
 }

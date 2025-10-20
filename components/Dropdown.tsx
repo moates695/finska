@@ -43,7 +43,9 @@ export default function Dropdown(props: DropdownProps) {
         backgroundColor: theme.dropdownBackground,
         width: width
       }}
-      selectedTextStyle={{}}
+      selectedTextStyle={{
+        color: theme.text
+      }}
       renderItem={(item, selected) => (
         <View
           style={{
@@ -51,6 +53,7 @@ export default function Dropdown(props: DropdownProps) {
             paddingLeft: 5,
             paddingRight: 5,
             justifyContent: 'center',
+            backgroundColor: selected ? theme.brightComponent : theme.dropdownBackground
           }}
         >
           <Text 
