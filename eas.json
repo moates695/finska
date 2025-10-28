@@ -14,7 +14,7 @@
         "maxNameLength": "18"
       }
     },
-    "testing": {
+    "preview": {
       "developmentClient": false, 
       "distribution": "internal",
       "android": {
@@ -22,7 +22,7 @@
         "image": "latest"
       },
       "env": {
-        
+        "maxNameLength": "18"
       }
     }
   }

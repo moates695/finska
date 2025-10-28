@@ -71,7 +71,7 @@ export default function PinMap() {
       } else if (game.state[id].standing === 'eliminated') {
         tempState[id].eliminated_turns++;
         if (game.elimination_reset_turns && tempState[id].eliminated_turns >= game.elimination_reset_turns) {
-          tempState[id].score = game.reset_score;
+          tempState[id].score = game.elimination_reset_score;
           tempState[id].standing = 'playing';
           tempState[id].num_misses = 0;
           tempState[id].eliminated_turns = 0;
@@ -111,6 +111,7 @@ export default function PinMap() {
       } else if (game.state[id].standing === 'eliminated') {
         tempState[id].eliminated_turns++;
         if (game.elimination_reset_turns && tempState[id].eliminated_turns >= game.elimination_reset_turns) {
+          tempState[id].score = game.elimination_reset_score;
           tempState[id].standing = 'playing';
           tempState[id].num_misses = 0;
           tempState[id].eliminated_turns = 0;
@@ -160,6 +161,7 @@ export default function PinMap() {
       } else if (game.state[id].standing === 'eliminated') {
         tempState[id].eliminated_turns++;
         if (game.elimination_reset_turns && tempState[id].eliminated_turns >= game.elimination_reset_turns) {
+          tempState[id].score = game.elimination_reset_score;
           tempState[id].standing = 'playing';
           tempState[id].num_misses = 0;
           tempState[id].eliminated_turns = 0;

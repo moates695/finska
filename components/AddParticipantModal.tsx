@@ -168,6 +168,7 @@ export default function AddParticipantModal() {
 
   const isSubmitDisabled = (): boolean => {
     if (name.trim() === '') return true;
+    if (isNameTaken(name)) return true;
     if (isPlayer) return false;
     if (memberName.trim() === '' && memberNames.length === 0) return true;
     if (memberName.trim() !== '' && (isNameTaken(memberName) || namesAreSame(name, memberName))) return true;

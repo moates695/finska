@@ -41,7 +41,7 @@ export default function Settings() {
       const themeName = colorScheme ?? 'sand';
       const tempTheme = themes[themeName];
       setTheme(tempTheme);
-      setThemeValue(themeName)
+      setThemeValue(themeName);
     }
     setUseDeviceTheme(!useDeviceTheme);
   };
@@ -54,6 +54,7 @@ export default function Settings() {
   const [themeValue, setThemeValue] = useState<ThemeType>(theme.type);
 
   const handleSelectTheme = (value: any) => {
+    setUseDeviceTheme(false);
     setThemeValue(value);
     setTheme(themes[value as ThemeType]);
   };

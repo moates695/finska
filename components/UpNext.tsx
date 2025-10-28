@@ -71,7 +71,7 @@ export default function UpNext() {
     if (!isExpanded) return;
     scrollViewRef.current?.scrollToEnd({ animated: false });
   }, [isExpanded]);
-  
+
   return (
     <View
       style={{
@@ -107,7 +107,7 @@ export default function UpNext() {
                 <View
                   key={id}
                   style={{
-                    backgroundColor: i % 2 ? theme.paleComponent : 'transparent',
+                    backgroundColor: i % 2 ? theme.brightComponentSeperate : 'transparent',
                     padding: 4,
                     paddingLeft: 10,
                     paddingRight: 10,
@@ -187,22 +187,25 @@ export default function UpNext() {
               >
                 Up next: {displayName(upNext)}
               </Text>
-              {isExpanded ?
-                <MaterialIcons 
-                  name="expand-more" 
-                  size={16}
-                  color={theme.staticButton}
-                  style={{marginLeft: 5}}
-                />
-              :
-                <MaterialIcons 
-                  name="expand-less" 
-                  size={16}
-                  color={theme.staticButton}
-                  style={{marginLeft: 5}}
-                />
+              {game.up_next.length > 2 &&
+                <>
+                  {isExpanded ?
+                    <MaterialIcons 
+                      name="expand-more" 
+                      size={16}
+                      color={theme.staticButton}
+                      style={{marginLeft: 5}}
+                    />
+                  :
+                    <MaterialIcons 
+                      name="expand-less" 
+                      size={16}
+                      color={theme.staticButton}
+                      style={{marginLeft: 5}}
+                    />
+                  }
+                </>
               }
-              
               </View>
             </Col>
             <Col style={{alignItems: 'center'}}>
