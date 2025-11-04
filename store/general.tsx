@@ -6,7 +6,7 @@ import { Theme, themes } from '@/styles/theme';
 const storage = createJSONStorage(() => AsyncStorage) as any;
 // AsyncStorage.clear(); //!!! 
 
-export type Players = Record<string, string>;
+export type Players = Record<string, string>; //? id: name
 
 export interface Team {
   name: string
