@@ -1,7 +1,7 @@
 import { getDefaultStore } from 'jotai'
 // import { addPlayer } from '../store/actions'
 import { gameAtom, initialGame } from '@/store/general'
-import { addPlayer } from '@/store/actions';
+import { addPlayerAtom } from '@/store/actions';
 
 describe('addPlayer', () => {
   it('updates for valid player', async () => {
@@ -13,7 +13,7 @@ describe('addPlayer', () => {
     const setGame = (update: any) => store.set(gameAtom, update);
     
     const newName = "new_player";
-    const newId = await store.set(addPlayer, newName);
+    const newId = await store.set(addPlayerAtom);
 
     const updatedGame = await store.get(gameAtom);
     const newLength = Object.keys(updatedGame.players).length;

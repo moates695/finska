@@ -4,12 +4,13 @@ import Dropdown, { DropdownOption } from "./Dropdown";
 import { generalStyles } from "@/styles/general";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Constants from 'expo-constants';
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Game, gameAtom, initialParticipantState, isNameInputFocusedAtom, isPlayerAtom, newMemberNameAtom, newMemberNameErrorAtom, newMemberNamesAtom, newNameAtom, newNameErrorAtom, screenAtom, showNewParticipantModalAtom, Team, themeAtom } from "@/store/general";
 import Feather from '@expo/vector-icons/Feather';
 import * as Crypto from 'expo-crypto';
 import { Ionicons } from "@expo/vector-icons";
 import { Theme } from "@/styles/theme";
+import { addPlayerAtom } from "@/store/actions";
 
 type ParticipantType = 'player' | 'team';
 interface ParticipantOption {
@@ -29,6 +30,8 @@ export default function AddParticipantModal() {
   const [nameError, setNameError] = useAtom(newNameErrorAtom);
   const [memberNameError, setMemberNameError] = useAtom(newMemberNameErrorAtom);
   // const [isNameFocused, setIsNameFocused] = useAtom(isNameInputFocusedAtom);
+
+  const addPlayer = useSetAtom(addPlayerAtom);
 
   const styles = createStyles(theme);
 
@@ -101,24 +104,26 @@ export default function AddParticipantModal() {
     setMemberNames(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleAddParticipant = () => {
+  const handleAddParticipant = async () => {
     const newName = name.trim();
     if (isNameTaken(newName)) return;
 
-    const id = Crypto.randomUUID();
+    let id = Crypto.randomUUID();
     if (isPlayer) {
-      setGame({
-        ...game,
-        players: {
-          ...game.players,
-          [id]: newName
-        },
-        state: {
-          ...game.state,
-          [id]: {...initialParticipantState}
-        },
-        up_next: [...game.up_next, id]
-      })
+      id = await addPlayer();
+      // setGame({
+      //   ...game,
+      //   players: {
+      //     ...game.players,
+      //     [id]: newName
+      //   },
+      //   state: {
+      //     ...game.state,
+      //     [id]: {...initialParticipantState}
+      //   },
+      //   up_next: [...game.up_next, id]
+      // })
+
     } else {
       const tempMembers = [...memberNames];
       if (!isNameTaken(memberName) && !namesAreSame(name, memberName)) {
