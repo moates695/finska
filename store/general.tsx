@@ -3,7 +3,7 @@ import { atomWithStorage, createJSONStorage, loadable, unwrap } from 'jotai/util
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Theme, themes } from '@/styles/theme';
 
-const storage = createJSONStorage(() => AsyncStorage) as any;
+export const storage = createJSONStorage(() => AsyncStorage) as any;
 // AsyncStorage.clear(); //!!! 
 
 export type Players = Record<string, string>; //? id: name
@@ -33,7 +33,6 @@ export const initialParticipantState: ParticipantState = {
 }
 
 export type GameState = Record<string, ParticipantState>
-
 
 export interface Game {
   players: Players //? player_id: name
