@@ -13,7 +13,7 @@
     "lib": ["ES2015", "DOM"],
     "target": "ES2015",
     "skipLibCheck": true,
-    "isolatedModules": false
+    "isolatedModules": true
   },
   "include": [
     "**/*.ts",

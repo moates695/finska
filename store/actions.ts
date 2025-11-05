@@ -1,18 +1,50 @@
 import { PrimitiveAtom, useSetAtom } from "jotai";
-import { Game, gameAtom, initialParticipantState, isPlayerAtom, newMemberNameAtom, newMemberNamesAtom, newNameAtom } from "./general";
-import * as Crypto from 'expo-crypto';
+import { Game, gameAtom, initialParticipantState, isPlayerAtom, newMemberNameAtom, newMemberNamesAtom, newNameAtom, Team } from "./general";
+import 'react-native-get-random-values';
 import { atom } from 'jotai';
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+
+export const isPlayerNameTakenAtom = atom(async (get): Promise<boolean> => {
+  const newName = get(newNameAtom);
+
+  let existing = await get(getExistingGameNames)
+  return name_is_taken(existing, newName);
+});
+
+export const isTeamNameTakenAtom = atom(async (get): Promise<boolean> => {
+    const newName = get(newNameAtom);
+    const newMemberName = get(newMemberNameAtom);
+    const newMemberNames = get(newMemberNamesAtom);
+
+    let existing = await get(getExistingGameNames);
+    existing = existing.concat([newMemberName]).concat(newMemberNames);
+    return name_is_taken(existing, newName);
+  }
+)
+
+export const isMemberNameTakenAtom = atom(async (get): Promise<boolean> => {
+    const newName = get(newNameAtom);
+    const newMemberName = get(newMemberNameAtom);
+    const newMemberNames = get(newMemberNamesAtom);
+
+    let existing = await get(getExistingGameNames);
+    existing = existing.concat([newName]).concat(newMemberNames);
+    return name_is_taken(existing, newMemberName);
+  }
+)
 
 export const addPlayerAtom = atom(
   null, 
   async (get, set) => {
     const game = await get(gameAtom);
-    let newName = await get(newNameAtom);
+    let newName = get(newNameAtom);
     newName = newName.trim();
-    if (newName === '') return;
+    
+    const isPlayerNameTaken = await get(isPlayerNameTakenAtom);
 
-    const id = Crypto.randomUUID();
+    if (newName === '' || isPlayerNameTaken) return;
+
+    const id = crypto.randomUUID();
     set(gameAtom, {
       ...game,
       players: {
@@ -26,93 +58,118 @@ export const addPlayerAtom = atom(
       up_next: [...game.up_next, id]
     });
 
-    // return id;
+    return id;
   }
 );
 
-export const isPlayerNameTakenAtom = atom(
+export const addMemberNameAtom = atom(
   null, 
-  async (get, set): Promise<boolean> => {
-    const game = await get(gameAtom);
-    const newName = await get(newNameAtom);
+  async (get, set) => {
+    let newMemberName = get(newMemberNameAtom);
+    newMemberName = newMemberName.trim();
 
-    let existing = getExistingGameNames(game);
-    return list_contains(existing, newName);
+    const isMemberNameTaken = await get(isMemberNameTakenAtom);
+
+    if (newMemberName === '' || isMemberNameTaken) return;
+    
+    const newMemberNames = get(newMemberNamesAtom);
+    set(newMemberNamesAtom, [
+      ...newMemberNames,
+      newMemberName
+    ])
   }
-)
+);
 
-export const isTeamNameTaken = atom(
+export const addTeamAtom = atom(
   null, 
-  async (get, set): Promise<boolean> => {
+  async (get, set): Promise<string | undefined> => {
     const game = await get(gameAtom);
-    const newName = await get(newNameAtom);
-    const newMemberNames = await get(newMemberNamesAtom);
+    
+    let newTeamName = get(newNameAtom);
+    newTeamName = newTeamName.trim();
+    const isTeamNameTaken =  await get(isTeamNameTakenAtom);
+    if (newTeamName === '' || isTeamNameTaken) return;
 
-    let existing = getExistingGameNames(game).concat(newMemberNames);
-    return list_contains(existing, newName);
+    let newMemberName = get(newMemberNameAtom);
+    newMemberName = newMemberName.trim();
+    const isMemberNameTaken = await get(isMemberNameTakenAtom);
+    if (newMemberName !== '' && isMemberNameTaken) return;
+    
+    const newMemberNames = get(newMemberNamesAtom);
+    if (newMemberName !== '') {
+      newMemberNames.push(newMemberName);
+    }
+    if (newMemberNames.length < 2) return;
+
+    const members = Object.fromEntries(
+      newMemberNames.map((name) => [ crypto.randomUUID(), name])
+    )
+
+    const team: Team = {
+      name: newTeamName,
+      members
+    }
+
+    const up_next_members = Object.keys(members);
+
+    const id = crypto.randomUUID();
+    set(gameAtom, {
+      ...game,
+      teams: {
+        ...game.teams,
+        [id]: team
+      },
+      state: {
+        ...game.state,
+        [id]: {...initialParticipantState}
+      },
+      up_next: [...game.up_next, id],
+      up_next_members: {
+        ...game.up_next_members,
+        [id]: up_next_members
+      }
+    });
+    return id;
   }
-)
+);
 
-export const isMemberNameTaken = atom(
-  null, 
-  async (get, set): Promise<boolean> => {
-    const game = await get(gameAtom);
-    const newName = await get(newNameAtom);
-    const newMemberName = await get(newMemberNameAtom);
-    const newMemberNames = await get(newMemberNamesAtom);
-
-    let existing = getExistingGameNames(game).concat([newName]).concat(newMemberNames);
-    return list_contains(existing, newMemberName);
-  }
-)
-
-export const isSubmitDisabled = atom(
-  null, 
-  async (get, set): Promise<boolean> => {
+export const isSubmitNewParticipantDisabled = atom(async (get): Promise<boolean> => {
     const isPlayer = get(isPlayerAtom);
-    const newName = await get(newNameAtom);
+    const newName = get(newNameAtom);
 
     if (newName.trim() === '') return true;
 
     if (isPlayer) {
-      const isPlayerNameTaken = useSetAtom(isPlayerNameTakenAtom);
-      return await isPlayerNameTaken()
+      return await get(isPlayerNameTakenAtom);
     }
 
-    // todo team logic
-    const newMember = await get(newMemberNameAtom);
-    const newMembers = await get(newMemberNamesAtom);
+    const newMember = get(newMemberNameAtom);
+    const isMemberNameTaken = await get(isMemberNameTakenAtom);
 
-    // if (newMember.trim() !== '' && ) {
-    //   newMembers.push(newMember);
-    // }
+    if (newMember.trim() !== '' && isMemberNameTaken) return true; 
+    
+    const newMembers = get(newMemberNamesAtom);
+    if (newMember.trim() !== '') {
+      newMembers.push(newMember);
+    }
+    if (newMembers.length < 2) return true
 
     return false;
   }
 )
 
-
-// export const addTeam = atom(
-//   null,
-//   async (get, set, teamName: string) => {
-//     const game = await get(gameAtom);
-//     const newName = await get(newNameAtom);
-//     const newMemberName = await get(newMemberNameAtom);
-//     const newMemberNames = await get(newMemberNamesAtom);
-//   }
-// )
-
-const getExistingGameNames = (game: Game): string[] => {
-  let existing = Object.values(game);
+export const getExistingGameNames = atom(async (get): Promise<string[]> => {
+  const game = await get(gameAtom);
+  let existing = Object.values(game.players);
   for (const team of Object.values(game.teams)) {
     existing.push(team.name);
-    existing.concat(team.members);
+    existing = existing.concat(Object.values(team.members));
   }
   return existing;
-};
+})
 
-const list_contains = (list: string[], name: string): boolean => {
+export const name_is_taken = (list: string[], name: string): boolean => {
   return list.some((item) => {
-    item.trim().toLowerCase() === name.trim().toLowerCase()
+    return item.trim().toLowerCase() === name.trim().toLowerCase()
   });
 };
