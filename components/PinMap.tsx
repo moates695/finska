@@ -4,9 +4,10 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { completeStateAtom, gameAtom, gameIsValid, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom, showAddParticipantAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
-import { useAtom, useAtomValue } from "jotai";
+import { completeStateAtom, gameAtom, gameIsValid, GameState, getDistinctUpNext, getMaxScore, ParticipantStanding, screenAtom, selectedPinsAtom, showAddParticipantAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import AddParticipantModal from "./AddParticipantModal";
+import { missTurnAtom, skipTurnAtom, submitTurnAtom } from "@/store/actions";
 
 // todo handle win, handle game invalidated (eliminations)
 export default function PinMap() {
@@ -17,8 +18,11 @@ export default function PinMap() {
   const theme = useAtomValue(themeAtom);
   const [showAddParticipant, setShowAddParticipant] = useAtom(showAddParticipantAtom);
   
-  
-  const [selectedPins, setSelectedPins] = useState<Set<number>>(new Set());
+  const [selectedPins, setSelectedPins] = useAtom(selectedPinsAtom);
+
+  const submitTurn = useSetAtom(submitTurnAtom);
+  const skipTurn = useSetAtom(skipTurnAtom);
+  const missTurn = useSetAtom(missTurnAtom);
 
   const pressPin = (number: number) => {
     setSelectedPins(prev => {
@@ -271,7 +275,7 @@ export default function PinMap() {
             )})}
           </View>
           <TouchableOpacity
-            onPress={handleSkip}
+            onPress={skipTurn}
             style={{
               position: 'absolute',
               top: 20,
@@ -298,7 +302,7 @@ export default function PinMap() {
             count: {selectedPins.size === 0 ? 0 : countPins()}
           </Text>
           <TouchableOpacity
-            onPress={handleSubmit}
+            onPress={submitTurn}
             style={{
               position: 'absolute',
               bottom: 20,
@@ -315,7 +319,7 @@ export default function PinMap() {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={handleMiss}
+            onPress={missTurn}
             style={{
               position: 'absolute',
               top: 20,

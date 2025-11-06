@@ -10,7 +10,7 @@ import Feather from '@expo/vector-icons/Feather';
 import * as Crypto from 'expo-crypto';
 import { Ionicons } from "@expo/vector-icons";
 import { Theme } from "@/styles/theme";
-import { addPlayerAtom } from "@/store/actions";
+import { addMemberNameAtom, addPlayerAtom, addTeamAtom, isAddMemberDisabledAtom, isMemberNameTakenAtom, isPlayerNameTakenAtom, isSubmitNewParticipantDisabledAtom, isTeamNameTakenAtom } from "@/store/actions";
 
 type ParticipantType = 'player' | 'team';
 interface ParticipantOption {
@@ -29,9 +29,17 @@ export default function AddParticipantModal() {
   const [memberNames, setMemberNames] = useAtom(newMemberNamesAtom);
   const [nameError, setNameError] = useAtom(newNameErrorAtom);
   const [memberNameError, setMemberNameError] = useAtom(newMemberNameErrorAtom);
-  // const [isNameFocused, setIsNameFocused] = useAtom(isNameInputFocusedAtom);
+
+  const isPlayerNameTaken = useAtomValue(isPlayerNameTakenAtom);
+  const isTeamNameTaken = useAtomValue(isTeamNameTakenAtom);
+  const isMemberNameTaken = useAtomValue(isMemberNameTakenAtom);
 
   const addPlayer = useSetAtom(addPlayerAtom);
+  const addTeam = useSetAtom(addTeamAtom);
+  const addMemberName = useSetAtom(addMemberNameAtom);
+
+  const isSubmitNewParticipantDisabled = useAtomValue(isSubmitNewParticipantDisabledAtom);
+  const isAddMemberDisabled = useAtomValue(isAddMemberDisabledAtom);
 
   const styles = createStyles(theme);
 
@@ -49,15 +57,6 @@ export default function AddParticipantModal() {
   const maxNameLength = Constants.expoConfig?.extra?.maxNameLength;
 
   const handleChangeName = (text: string) => {
-    if (text.trim() === '') {
-      setNameError('name is empty');
-    } else if (isNameTaken(text)) {
-      setNameError('name is already taken')
-    } else if (namesAreSame(text, memberName)) {
-      setNameError('team and member names are equal'); 
-    } else {
-      setNameError(null);
-    }
     if (text.length >= maxNameLength) {
       setNameError('name is too long');
       return;
@@ -65,39 +64,41 @@ export default function AddParticipantModal() {
     setName(text);
   }
 
-  const handleChangeMemberName = (text: string) => {
-    if (text.trim() === '') {
-      setMemberNameError('name is empty');
-    } else if (isNameTaken(text)) {
-      setMemberNameError('name is already taken');
-    } else if (namesAreSame(name, text)) {
+  useEffect(() => {
+    if (name.trim() === '') {
+      setNameError('name is empty');
+    } else if ((isPlayer && isPlayerNameTaken) || (!isPlayer && isTeamNameTaken)) {
+      setNameError('name is already taken')
+    } else if (!isPlayer && namesAreSame(name, memberName)) {
       setNameError('team and member names are equal'); 
     } else {
-      setMemberNameError(null);
+      setNameError(null);
     }
+  }, [name]);
+
+  const handleChangeMemberName = (text: string) => {
     if (text.length >= maxNameLength) {
-      setNameError('name is too long');
+      setMemberNameError('name is too long');
       return;
     }
     setMemberName(text);
   }
 
-  const isNameTaken = (newName: string): boolean => {
-    if (newName.trim() === '') return true;
-    return existingNames.some((tempName) => { return tempName.trim().toLowerCase() === newName.trim().toLowerCase()});
-  }
+  useEffect(() => {
+    if (memberName.trim() === '') {
+      setMemberNameError('name is empty');
+    } else if (isMemberNameTaken) {
+      setMemberNameError('name is already taken');
+    } else if (namesAreSame(name, memberName)) {
+      setNameError('team and member names are equal'); 
+    } else {
+      setMemberNameError(null);
+    }
+  }, [memberName]);
 
   const namesAreSame = (name1: string, name2: string): boolean => {
     if (isPlayer) return false;
     return name1.trim().toLowerCase() === name2.trim().toLowerCase();
-  };
-
-  const handleAddMember = () => {
-    const newMember = memberName.trim();
-    if (isNameTaken(newMember) || namesAreSame(newMember, name)) return;
-
-    setMemberNames((prev) => [...prev, newMember]);
-    setMemberName('');
   };
 
   const handleRemoveMember = (index: number) => {
@@ -105,79 +106,11 @@ export default function AddParticipantModal() {
   };
 
   const handleAddParticipant = async () => {
-    const newName = name.trim();
-    if (isNameTaken(newName)) return;
-
-    let id = Crypto.randomUUID();
     if (isPlayer) {
-      id = await addPlayer();
-      // setGame({
-      //   ...game,
-      //   players: {
-      //     ...game.players,
-      //     [id]: newName
-      //   },
-      //   state: {
-      //     ...game.state,
-      //     [id]: {...initialParticipantState}
-      //   },
-      //   up_next: [...game.up_next, id]
-      // })
-
+      await addPlayer();
     } else {
-      const tempMembers = [...memberNames];
-      if (!isNameTaken(memberName) && !namesAreSame(name, memberName)) {
-        tempMembers.push(memberName.trim());
-      }
-      if (tempMembers.length === 0) return;
-
-      const members = Object.fromEntries(
-        tempMembers.map((name) => [ Crypto.randomUUID(), name])
-      )
-
-      const team: Team = {
-        name: newName,
-        members
-      }
-
-      const up_next_members = Object.keys(members);
-
-      setGame({
-        ...game,
-        teams: {
-          ...game.teams,
-          [id]: team
-        },
-        state: {
-          ...game.state,
-          [id]: {...initialParticipantState}
-        },
-        up_next: [...game.up_next, id],
-        up_next_members: {
-          ...game.up_next_members,
-          [id]: up_next_members
-        }
-      })
-
-      setMemberNames([]);
-      setMemberName('');
+      await addTeam();
     }
-
-    setName('');
-  };
-
-  const disableAddMember = (input: string): boolean => {
-    if (isNameTaken(input) || namesAreSame(name, memberName)) return true;
-    return false;
-  };
-
-  const isSubmitDisabled = (): boolean => {
-    if (name.trim() === '') return true;
-    if (isNameTaken(name)) return true;
-    if (isPlayer) return false;
-    if (memberName.trim() === '' && memberNames.length === 0) return true;
-    if (memberName.trim() !== '' && (isNameTaken(memberName) || namesAreSame(name, memberName))) return true;
-    return false;
   };
 
   useEffect(() => {
@@ -274,12 +207,12 @@ export default function AddParticipantModal() {
           />
           <TouchableOpacity
             onPress={() => handleAddParticipant()}
-            disabled={isSubmitDisabled()}
+            disabled={isSubmitNewParticipantDisabled}
           >
             <Ionicons
               name="checkmark-circle" 
               size={30}  
-              color={isSubmitDisabled() ? theme.disabledButton : theme.submit} 
+              color={isSubmitNewParticipantDisabled ? theme.disabledButton : theme.submit} 
             />
           </TouchableOpacity>
         </View>
@@ -306,7 +239,7 @@ export default function AddParticipantModal() {
               <TextInput
                 value={memberName}
                 onChangeText={(text) => handleChangeMemberName(text)}
-                returnKeyType="done"
+                // returnKeyType="done"
                 placeholder="member name" 
                 placeholderTextColor={theme.placeHolderText}
                 style={{
@@ -322,13 +255,13 @@ export default function AddParticipantModal() {
                 }}
               />
               <TouchableOpacity
-                onPress={() => handleAddMember()}
-                disabled={disableAddMember(memberName)}
+                onPress={addMemberName}
+                disabled={isAddMemberDisabled}
               >
                 <Ionicons 
                   name="add-circle-outline" 
                   size={30} 
-                  color={disableAddMember(memberName) ? theme.staticButton : theme.submit}
+                  color={isAddMemberDisabled ? theme.staticButton : theme.submit}
                 />
               </TouchableOpacity>
             </View>
