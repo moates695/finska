@@ -13,39 +13,39 @@ export function GameEndModal() {
   const completeState = useAtomValue(completeStateAtom);
   const theme = useAtomValue(themeAtom);
   
-  const winContinue = () => {
-    const tempState = {...game.state};
-    for (const [id, state] of Object.entries(tempState)) {
-      if (state.score < game.target_score) continue;
-      tempState[id].score = game.reset_score;
-    }
+  // const winContinue = () => {
+  //   const tempState = {...game.state};
+  //   for (const [id, state] of Object.entries(tempState)) {
+  //     if (state.score < game.target_score) continue;
+  //     tempState[id].score = game.reset_score;
+  //   }
 
-    setGame({
-      ...game,
-      state: tempState
-    });
-  };
+  //   setGame({
+  //     ...game,
+  //     state: tempState
+  //   });
+  // };
 
   const finishBack = () => {};
   
-  const loseReset = () => {
-    const tempState = {...game.state};
-    for (const [id, state] of Object.entries(tempState)) {
-      tempState[id].score = 0;
-      tempState[id].eliminated_turns = 0;
-      tempState[id].num_misses = 0;
-      if (state.standing === 'paused') continue;
-      tempState[id].standing = 'playing';
-    }
+  // const loseReset = () => {
+  //   const tempState = {...game.state};
+  //   for (const [id, state] of Object.entries(tempState)) {
+  //     tempState[id].score = 0;
+  //     tempState[id].eliminated_turns = 0;
+  //     tempState[id].num_misses = 0;
+  //     if (state.standing === 'paused') continue;
+  //     tempState[id].standing = 'playing';
+  //   }
 
-    setGame({
-      ...game,
-      state: tempState
-    });
-  };
+  //   setGame({
+  //     ...game,
+  //     state: tempState
+  //   });
+  // };
 
   const saveGame = () => {
-    // todo save game
+    // todo save game?
     setGame({...initialGame});
     setScreen('game setup');
   };

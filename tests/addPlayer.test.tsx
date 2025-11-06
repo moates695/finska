@@ -305,11 +305,30 @@ describe('app participants', () => {
     store.set(newMemberNameAtom, '');
     store.set(newMemberNamesAtom, []);
 
+    store.set(newNameAtom, ' team1 ');
+    store.set(newMemberNameAtom, '   ');
+    store.set(newMemberNamesAtom, []);
+    await store.set(addTeamAtom);
+    let game = await store.get(gameAtom);
+    expect(game.teams).toEqual({});
+    expect(store.get(newNameAtom)).toBe(' team1 ');
+    expect(store.get(newMemberNameAtom)).toBe('   ');
+    expect(store.get(newMemberNamesAtom)).toEqual([]);
+
+    store.set(newNameAtom, ' ');
+    store.set(newMemberNameAtom, ' member1 ');
+    store.set(newMemberNamesAtom, []);
+    await store.set(addTeamAtom);
+    game = await store.get(gameAtom);
+    expect(game.teams).toEqual({});
+    expect(store.get(newNameAtom)).toBe(' ');
+    expect(store.get(newMemberNameAtom)).toBe(' member1 ');
+    expect(store.get(newMemberNamesAtom)).toEqual([]);
+
     store.set(newNameAtom, ' Member1 ');
     store.set(newMemberNameAtom, 'member0');
     store.set(newMemberNamesAtom, ['member1']);
     await store.set(addTeamAtom);
-    let game = await store.get(gameAtom);
     game = await store.get(gameAtom);
     expect(game.teams).toEqual({});
     expect(store.get(newNameAtom)).toBe(' Member1 ');
@@ -372,6 +391,17 @@ describe('app participants', () => {
     const team2 = game.teams[id2!];
     expect(team2.name).toEqual('team2');
     expect(Object.values(team2.members)).toEqual(['member5','member6','member7']);
+
+    store.set(newNameAtom, 'team3');
+    store.set(newMemberNameAtom, 'member8');
+    store.set(newMemberNamesAtom, []);
+
+    const id3 = await store.set(addTeamAtom);
+    expect(id3).toBeDefined();
+    game = await store.get(gameAtom);
+    const team3 = game.teams[id3!];
+    expect(team3.name).toEqual('team3');
+    expect(Object.values(team3.members)).toEqual(['member8']);
 
   })
 

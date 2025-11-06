@@ -101,7 +101,7 @@ export const addTeamAtom = atom(
     if (newMemberName !== '') {
       newMemberNames.push(newMemberName);
     }
-    if (newMemberNames.length < 2) return;
+    if (newMemberNames.length === 0) return;
 
     const membersEntries = await Promise.all(
       newMemberNames.map(async (name) => {
@@ -220,13 +220,13 @@ export const submitTurnAtom = atom(
     };
 
     const index = await get(cycleThrough(tempState));
-    const temp_up_next_members = await get(cycleThroughMembers(id)); 
+    const up_next_members = await get(cycleThroughMembers(id)); 
 
     set(gameAtom, {
       ...game,
       state: tempState,
       up_next: [...game.up_next.slice(index), ...game.up_next.slice(0, index)],
-      temp_up_next_members
+      up_next_members
     })
     set(selectedPinsAtom, new Set());
   }
@@ -247,13 +247,13 @@ export const skipTurnAtom = atom(
     const tempState = {...game.state};
 
     const index = await get(cycleThrough(tempState));
-    const temp_up_next_members = await get(cycleThroughMembers(id)); 
+    const up_next_members = await get(cycleThroughMembers(id)); 
 
     set(gameAtom, {
       ...game,
       state: tempState,
       up_next: [...game.up_next.slice(index), ...game.up_next.slice(0, index)],
-      temp_up_next_members
+      up_next_members
     })
     set(selectedPinsAtom, new Set());
   }
@@ -279,7 +279,7 @@ export const missTurnAtom = atom(
     }
 
     const index = await get(cycleThrough(tempState));
-    const temp_up_next_members = await get(cycleThroughMembers(id)); 
+    const up_next_members = await get(cycleThroughMembers(id)); 
 
     if (!gameIsValid(tempState)) {
       set(completeStateAtom, 'default');
@@ -290,7 +290,7 @@ export const missTurnAtom = atom(
       ...game,
       state: tempState,
       up_next: [...game.up_next.slice(index), ...game.up_next.slice(0, index)],
-      temp_up_next_members
+      up_next_members
     })
     set(selectedPinsAtom, new Set());
   }
@@ -341,12 +341,48 @@ const cycleThroughMembers = (id: string) => atom(
     const game = await get(gameAtom); 
     
     let up_next_members = {...game.up_next_members};
-    if (id in game.teams) {
-      up_next_members = {
-        ...up_next_members,
-        [id]: [...up_next_members[id].slice(1), up_next_members[id][0]]
-      }
+    if (!(id in game.teams)) return up_next_members;
+    up_next_members = {
+      ...up_next_members,
+      [id]: [...up_next_members[id].slice(1), up_next_members[id][0]]
     }
     return up_next_members;
+  }
+)
+
+export const winContinueAtom = atom(
+  null,
+  async (get, set) => {
+    const game = await get(gameAtom);
+    const tempState = {...game.state};
+    for (const [id, state] of Object.entries(tempState)) {
+      if (state.score < game.target_score) continue;
+      tempState[id].score = game.reset_score;
+    }
+
+    set(gameAtom, {
+      ...game,
+      state: tempState
+    });
+  }
+)
+
+export const loseResetAtom = atom(
+  null,
+  async (get, set) => {
+    const game = await get(gameAtom);
+    const tempState = {...game.state};
+    for (const [id, state] of Object.entries(tempState)) {
+      tempState[id].score = 0;
+      tempState[id].eliminated_turns = 0;
+      tempState[id].num_misses = 0;
+      if (state.standing === 'paused') continue;
+      tempState[id].standing = 'playing';
+    }
+
+    set(gameAtom, {
+      ...game,
+      state: tempState
+    });
   }
 )
