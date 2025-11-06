@@ -1,5 +1,5 @@
 import { PrimitiveAtom, useSetAtom } from "jotai";
-import { completeStateAtom, Game, gameAtom, gameIsValid, GameState, initialParticipantState, isPlayerAtom, newMemberNameAtom, newMemberNamesAtom, newNameAtom, ParticipantStanding, ParticipantState, selectedPinsAtom, showCompleteModalAtom, Team } from "./general";
+import { completeStateAtom, Game, gameAtom, gameIsValid, GameState, initialGame, initialParticipantState, isPlayerAtom, newMemberNameAtom, newMemberNamesAtom, newNameAtom, ParticipantStanding, ParticipantState, screenAtom, selectedPinsAtom, showCompleteModalAtom, Team } from "./general";
 import { v4 as uuidv4 } from 'uuid';
 import * as Crypto from 'expo-crypto';
 import { atom } from 'jotai';
@@ -360,7 +360,7 @@ export const winContinueAtom = atom(
       tempState[id].score = game.reset_score;
     }
 
-    set(gameAtom, {
+    await set(gameAtom, {
       ...game,
       state: tempState
     });
@@ -380,9 +380,17 @@ export const loseResetAtom = atom(
       tempState[id].standing = 'playing';
     }
 
-    set(gameAtom, {
+    await set(gameAtom, {
       ...game,
       state: tempState
     });
+  }
+)
+
+export const saveGameAtom = atom(
+  null,
+  async (get, set) => {
+    await set(gameAtom, {...initialGame});
+    set(screenAtom, 'game setup');
   }
 )

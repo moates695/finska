@@ -2,9 +2,10 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { BlurView } from 'expo-blur';
 import { generalStyles } from "@/styles/general";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { CompleteState, completeStateAtom, gameAtom, initialGame, screenAtom, showCompleteModalAtom, themeAtom } from "@/store/general";
 import GameEndOptions, { GameEndOptionsProps } from "./GameEndOptions";
+import { loseResetAtom, saveGameAtom, winContinueAtom } from "@/store/actions";
 
 export function GameEndModal() {
   const [game, setGame] = useAtom(gameAtom);
@@ -13,42 +14,11 @@ export function GameEndModal() {
   const completeState = useAtomValue(completeStateAtom);
   const theme = useAtomValue(themeAtom);
   
-  // const winContinue = () => {
-  //   const tempState = {...game.state};
-  //   for (const [id, state] of Object.entries(tempState)) {
-  //     if (state.score < game.target_score) continue;
-  //     tempState[id].score = game.reset_score;
-  //   }
-
-  //   setGame({
-  //     ...game,
-  //     state: tempState
-  //   });
-  // };
+  const winContinue = useSetAtom(winContinueAtom);
+  const loseReset = useSetAtom(loseResetAtom);
+  const saveGame = useSetAtom(saveGameAtom);
 
   const finishBack = () => {};
-  
-  // const loseReset = () => {
-  //   const tempState = {...game.state};
-  //   for (const [id, state] of Object.entries(tempState)) {
-  //     tempState[id].score = 0;
-  //     tempState[id].eliminated_turns = 0;
-  //     tempState[id].num_misses = 0;
-  //     if (state.standing === 'paused') continue;
-  //     tempState[id].standing = 'playing';
-  //   }
-
-  //   setGame({
-  //     ...game,
-  //     state: tempState
-  //   });
-  // };
-
-  const saveGame = () => {
-    // todo save game?
-    setGame({...initialGame});
-    setScreen('game setup');
-  };
 
   const wrapButtonPress = (func: () => void) => {
     func();
