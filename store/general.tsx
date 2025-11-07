@@ -144,6 +144,9 @@ export const showAddParticipantAtom = atom<boolean>(false);
 
 export const selectedPinsAtom = atom<Set<number>>(new Set<number>());
 
+export const showConfirmSaveSettingsAtom = atom<boolean>(false);
+export const tempGameAtom = atom<Game | null>(null);
+
 //######################################################
 // HELPERS
 

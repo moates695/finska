@@ -1,11 +1,13 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet, useColorScheme } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Switch, StyleSheet, useColorScheme, Modal } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAtom, useAtomValue } from "jotai";
-import { gameAtom, initialGame, screenAtom, themeAtom, useDeviceThemeAtom } from "@/store/general";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { gameAtom, initialGame, screenAtom, showConfirmSaveSettingsAtom, themeAtom, useDeviceThemeAtom } from "@/store/general";
 import { generalStyles } from "@/styles/general";
 import { Theme, themes, ThemeType } from "@/styles/theme";
 import Dropdown, { DropdownOption } from "./Dropdown";
+import { handleChangeReset, handleChangeScore, handleSaveAtom } from "@/store/actions";
+import ConfirmSaveSettings from "./ConfirmSaveSettings";
 
 interface ThemeOption {
   label: string
@@ -16,6 +18,7 @@ export default function Settings() {
   const [game, setGame] = useAtom(gameAtom);
   const [, setScreen] = useAtom(screenAtom);
   const [theme, setTheme] = useAtom(themeAtom);
+  const showConfirmSaveSetting = useAtomValue(showConfirmSaveSettingsAtom);
 
   const [useDeviceTheme, setUseDeviceTheme] = useAtom(useDeviceThemeAtom);
 
@@ -32,6 +35,25 @@ export default function Settings() {
   const [eliminationMissCountError, setEliminationMissCountError] = useState<string | null>(null);
   const [eliminationResetScoreError, setEliminationRestScoreError] = useState<string | null>(null);
   const [eliminationTurnsError, setEliminationTurnsError] = useState<string | null>(null);
+
+  const handleSave = useSetAtom(handleSaveAtom);
+
+  // const setHandleSave = useSetAtom;
+
+  // const handleSaveClick = () => {
+  //   const save = setHandleSave(
+  //     handleSaveAtom(
+  //       targetScore,
+  //       resetScore,
+  //       eliminationMissCount,
+  //       eliminationResetScore,
+  //       eliminationTurns,
+  //       skipIsMiss,
+  //       usePinValue
+  //     )
+  //   );
+  //   save();
+  // };
 
   const styles = createStyles(theme);
   const colorScheme = useColorScheme();
@@ -59,60 +81,8 @@ export default function Settings() {
     setTheme(themes[value as ThemeType]);
   };
 
-  const handleChangeScore = (
-    text: string,
-    set: Dispatch<SetStateAction<string>>, 
-    setError: Dispatch<SetStateAction<string | null>>,
-    allowEmpty: boolean = false
-  ) => {
-    try {
-      if (!allowEmpty && text === '') {
-        set('');
-        setError('invalid score');
-        return;
-      };
-      if (allowEmpty && (text === '' || text === '-' || text === '0')) {
-        set('');
-        setError(null);
-        return;
-      }
-      let num = Math.abs(parseInt(text));
-      if (!num) throw new Error(`bad num '${num}'`);
-      set(num.toString());
-      setError(null);
-    } catch (error) {
-      console.log(error);
-      setError('invalid score');
-    }
-  };
-
   const tooBigError = 'reset score too big'
-
-  const handleChangeReset = (
-    text: string, 
-    setter: Dispatch<SetStateAction<string>>, 
-    setError: Dispatch<SetStateAction<string | null>>
-  ) => {
-    try {
-      if (text === '' || text === '-') {
-        setter(text);
-        setError('invalid reset score');
-        return;
-      };
-      let num = parseInt(text);
-      if (!num && num !== 0) throw new Error(`bad num '${num}'`);
-      setter(num.toString());
-      if (num >= parseInt(targetScore)) {
-        setError(tooBigError);
-      } else {
-        setError(null);
-      }
-    } catch (error) {
-      console.log(error);
-      setError('invalid reset score');
-    }
-  };
-
+  
   const handleDefaults = () => {
     setTargetScore(initialGame.target_score.toString());
     setResetScore(initialGame.reset_score.toString());
@@ -121,76 +91,11 @@ export default function Settings() {
     setEliminationTurns((initialGame.elimination_reset_turns ?? '').toString());
   };
 
-  const convertString = (text: string, base: number, allowNegative: boolean): number => {
-    const tempNum = parseInt(text);
-    if (Number.isNaN(tempNum)) return base;
-    else if (!allowNegative && tempNum < 0) return base;
-    return tempNum;
-  };
+  
 
   const disableSave = (): boolean => {
     return targetScoreError !== null || resetScoreError !== null || eliminationMissCountError !== null || eliminationResetScoreError !== null || eliminationTurnsError !== null;
   };
-
-  // todo if game state is going to be altered, ask to confirm?
-  const handleSave = () => {
-    const tempTarget = convertString(targetScore, game.target_score, false);
-    const tempReset = convertString(resetScore, game.reset_score, true);
-    const tempElimMissCount = convertString(eliminationMissCount, game.elimination_count, false);
-    const tempElimResetScore = convertString(eliminationResetScore, game.elimination_reset_score, true);
-
-    if (tempReset >= tempTarget || tempElimResetScore >= tempTarget) return;
-    
-    let tempElimTurns: number | null = game.elimination_reset_turns;
-    if (eliminationTurns === '') {
-      tempElimTurns = null;
-    } else {
-      try {
-        const num = parseInt(eliminationTurns);
-        if (Number.isNaN(num)) throw Error('could not convert turns to int');
-        else if (num <= 0) throw Error('invalid elimination turns');
-        tempElimTurns = num;
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    const tempGame = {...game}
-    for (const [id, currState] of Object.entries(game.state)) {
-      const tempState = tempGame.state[id];
-
-      if (currState.score >= tempTarget) {
-        tempState.score = tempReset;
-      }
-
-      if (currState.standing === 'paused') {
-        continue;
-      } else if (currState.standing === 'playing') {
-        if (currState.num_misses < tempElimMissCount) continue;
-        tempState.standing = 'eliminated';
-        tempState.eliminated_turns = 0;
-        tempState.num_misses = tempElimMissCount;
-      } else {
-        if (currState.num_misses >= tempElimMissCount) continue;
-        tempState.standing = 'playing';
-        tempState.score = tempReset;
-        tempState.eliminated_turns = 0;
-        tempState.num_misses = 0;
-      }
-    }
-
-    setGame({
-      ...tempGame,
-      target_score: tempTarget,
-      reset_score: tempReset,
-      elimination_count: tempElimMissCount,
-      elimination_reset_score: tempElimResetScore,
-      elimination_reset_turns: tempElimTurns,
-      skip_is_miss: skipIsMiss,
-      use_pin_value: usePinValue
-    })
-  };
-
   
   useEffect(() => {
     const tempTarget = parseInt(targetScore) ?? game.target_score;
@@ -362,7 +267,7 @@ export default function Settings() {
               </Text>
               <TextInput
                 value={resetScore}
-                onChangeText={(text) => handleChangeReset(text, setResetScore, setResetScoreError)}
+                onChangeText={(text) => handleChangeReset(text, setResetScore, setResetScoreError, targetScore, tooBigError)}
                 returnKeyType="done"
                 keyboardType="number-pad"
                 style={{
@@ -442,7 +347,7 @@ export default function Settings() {
               </Text>
               <TextInput
                 value={eliminationResetScore}
-                onChangeText={(text) => handleChangeReset(text, setEliminationResetScore, setEliminationRestScoreError)}
+                onChangeText={(text) => handleChangeReset(text, setEliminationResetScore, setEliminationRestScoreError, targetScore, tooBigError)}
                 returnKeyType="done"
                 keyboardType="number-pad"
                 style={{
@@ -592,7 +497,15 @@ export default function Settings() {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={handleSave}
+              onPress={() => handleSave(
+                targetScore,
+                resetScore,
+                eliminationMissCount,
+                eliminationResetScore,
+                eliminationTurns,
+                skipIsMiss,
+                usePinValue,
+              )}
               style={[
                 generalStyles.button,
                 generalStyles.bigButton,
@@ -613,6 +526,14 @@ export default function Settings() {
           </View>
         </View>
       </View>
+      <Modal 
+        visible={showConfirmSaveSetting}
+        transparent={true}
+        onRequestClose={() => {}}
+        animationType='fade'
+      >
+        <ConfirmSaveSettings />
+      </Modal>
     </View>
   )
 }

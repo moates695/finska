@@ -1,9 +1,11 @@
 import { PrimitiveAtom, useSetAtom } from "jotai";
-import { completeStateAtom, Game, gameAtom, gameIsValid, GameState, initialGame, initialParticipantState, isPlayerAtom, newMemberNameAtom, newMemberNamesAtom, newNameAtom, ParticipantStanding, ParticipantState, screenAtom, selectedPinsAtom, showCompleteModalAtom, Team } from "./general";
+import { completeStateAtom, Game, gameAtom, gameIsValid, GameState, initialGame, initialParticipantState, isPlayerAtom, newMemberNameAtom, newMemberNamesAtom, newNameAtom, ParticipantStanding, ParticipantState, screenAtom, selectedPinsAtom, showCompleteModalAtom, showConfirmSaveSettingsAtom, Team, tempGameAtom } from "./general";
 import { v4 as uuidv4 } from 'uuid';
 import * as Crypto from 'expo-crypto';
 import { atom } from 'jotai';
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { Dispatch, SetStateAction } from "react";
+import _ from "lodash";
 
 export const isPlayerNameTakenAtom = atom(async (get): Promise<boolean> => {
   const newName = get(newNameAtom);
@@ -394,3 +396,149 @@ export const saveGameAtom = atom(
     set(screenAtom, 'game setup');
   }
 )
+
+export const handleChangeScore = (
+  text: string,
+  set: Dispatch<SetStateAction<string>>, 
+  setError: Dispatch<SetStateAction<string | null>>,
+  allowEmpty: boolean = false
+) => {
+  try {
+    if (!allowEmpty && text === '') {
+      set('');
+      setError('invalid score');
+      return;
+    };
+    if (allowEmpty && (text === '' || text === '-' || text === '0')) {
+      set('');
+      setError(null);
+      return;
+    }
+    let num = Math.abs(parseInt(text));
+    if (!num) throw new Error(`bad num '${num}'`);
+    set(num.toString());
+    setError(null);
+  } catch (error) {
+    console.log(error);
+    setError('invalid score');
+  }
+};
+
+export const handleChangeReset = (
+  text: string, 
+  setter: Dispatch<SetStateAction<string>>, 
+  setError: Dispatch<SetStateAction<string | null>>,
+  targetScore: string,
+  tooBigError: string,
+) => {
+  try {
+    if (text === '' || text === '-') {
+      setter(text);
+      setError('invalid reset score');
+      return;
+    };
+    let num = parseInt(text);
+    if (!num && num !== 0) throw new Error(`bad num '${num}'`);
+    setter(num.toString());
+    if (num >= parseInt(targetScore)) {
+      setError(tooBigError);
+    } else {
+      setError(null);
+    }
+  } catch (error) {
+    console.log(error);
+    setError('invalid reset score');
+  }
+};
+
+// todo if game state is going to be altered, ask to confirm?
+export const handleSaveAtom = atom(
+  null,
+  async (get, set,
+    targetScore: string,
+    resetScore: string,
+    eliminationMissCount: string,
+    eliminationResetScore: string,
+    eliminationTurns: string,
+    skipIsMiss: boolean,
+    usePinValue: boolean,
+  ) => {
+    const game = await get(gameAtom);
+    
+    const tempTarget = convertString(targetScore, game.target_score, false);
+    const tempReset = convertString(resetScore, game.reset_score, true);
+    const tempElimMissCount = convertString(eliminationMissCount, game.elimination_count, false);
+    const tempElimResetScore = convertString(eliminationResetScore, game.elimination_reset_score, true);
+
+    if (tempReset >= tempTarget || tempElimResetScore >= tempTarget) return;
+    
+    let tempElimTurns: number | null = game.elimination_reset_turns;
+    if (eliminationTurns === '') {
+      tempElimTurns = null;
+    } else {
+      try {
+        const num = parseInt(eliminationTurns);
+        if (Number.isNaN(num)) throw Error('could not convert turns to int');
+        else if (num <= 0) throw Error('invalid elimination turns');
+        tempElimTurns = num;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    let tempGame = _.cloneDeep(game); 
+    let stateChanged = false;
+
+    for (const [id, currState] of Object.entries(game.state)) {
+      const tempState = tempGame.state[id];
+
+      if (currState.score >= tempTarget) {
+        tempState.score = tempReset;
+        stateChanged = true;
+      }
+
+      if (currState.standing === 'paused') {
+        continue;
+      } else if (currState.standing === 'playing') {
+        if (currState.num_misses < tempElimMissCount) continue;
+        tempState.standing = 'eliminated';
+        tempState.eliminated_turns = 0;
+        tempState.num_misses = tempElimMissCount;
+        stateChanged = true;
+      } else {
+        if (currState.num_misses >= tempElimMissCount) continue;
+        tempState.standing = 'playing';
+        tempState.score = tempReset;
+        tempState.eliminated_turns = 0;
+        tempState.num_misses = 0;
+        stateChanged = true;
+      }
+    }
+
+    tempGame = {
+      ...tempGame,
+      target_score: tempTarget,
+      reset_score: tempReset,
+      elimination_count: tempElimMissCount,
+      elimination_reset_score: tempElimResetScore,
+      elimination_reset_turns: tempElimTurns,
+      skip_is_miss: skipIsMiss,
+      use_pin_value: usePinValue
+    }
+
+    if (!stateChanged) {
+      set(gameAtom, tempGame);
+    } else {
+      set(tempGameAtom, tempGame);
+      set(showConfirmSaveSettingsAtom, true);
+    }
+    
+  }
+);
+
+const convertString = (text: string, base: number, allowNegative: boolean): number => {
+  const tempNum = parseInt(text);
+  if (Number.isNaN(tempNum)) return base;
+  else if (!allowNegative && tempNum < 0) return base;
+  return tempNum;
+};
