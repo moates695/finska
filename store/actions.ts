@@ -205,7 +205,7 @@ export const submitTurnAtom = atom(
     const game = await get(gameAtom);
     const id = game.up_next[0];
 
-    const count = await get(countPins);
+    const count = await get(countPinsAtom);
     let newScore = count + game.state[id].score;
     if (newScore === game.target_score) {
       set(completeStateAtom, 'win');
@@ -221,8 +221,8 @@ export const submitTurnAtom = atom(
       score: newScore
     };
 
-    const index = await get(cycleThrough(tempState));
-    const up_next_members = await get(cycleThroughMembers(id)); 
+    const index = await get(cycleThroughAtom(tempState));
+    const up_next_members = await get(cycleThroughMembersAtom(id)); 
 
     set(gameAtom, {
       ...game,
@@ -248,8 +248,8 @@ export const skipTurnAtom = atom(
 
     const tempState = {...game.state};
 
-    const index = await get(cycleThrough(tempState));
-    const up_next_members = await get(cycleThroughMembers(id)); 
+    const index = await get(cycleThroughAtom(tempState));
+    const up_next_members = await get(cycleThroughMembersAtom(id)); 
 
     set(gameAtom, {
       ...game,
@@ -280,8 +280,8 @@ export const missTurnAtom = atom(
       standing
     }
 
-    const index = await get(cycleThrough(tempState));
-    const up_next_members = await get(cycleThroughMembers(id)); 
+    const index = await get(cycleThroughAtom(tempState));
+    const up_next_members = await get(cycleThroughMembersAtom(id)); 
 
     if (!gameIsValid(tempState)) {
       set(completeStateAtom, 'default');
@@ -298,7 +298,7 @@ export const missTurnAtom = atom(
   }
 )
 
-export const countPins = atom(
+export const countPinsAtom = atom(
   async (get): Promise<number> => {
     const game = await get(gameAtom);
     const selectedPins = get(selectedPinsAtom);
@@ -314,7 +314,7 @@ export const countPins = atom(
   }
 )
 
-const cycleThrough = (state: GameState) => atom(
+const cycleThroughAtom = (state: GameState) => atom(
   async (get): Promise<number> => {
     const game = await get(gameAtom); 
 
@@ -338,7 +338,7 @@ const cycleThrough = (state: GameState) => atom(
   }
 )
 
-const cycleThroughMembers = (id: string) => atom(
+const cycleThroughMembersAtom = (id: string) => atom(
   async (get): Promise<Record<string, string[]>> => {
     const game = await get(gameAtom); 
     
