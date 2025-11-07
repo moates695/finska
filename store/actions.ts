@@ -506,9 +506,9 @@ export const handleSaveAtom = atom(
         tempState.num_misses = tempElimMissCount;
         stateChanged = true;
       } else {
-        if (currState.num_misses >= tempElimMissCount) continue;
+        if (currState.num_misses >= tempElimMissCount && (tempElimTurns !== null && currState.eliminated_turns < tempElimTurns)) continue;
         tempState.standing = 'playing';
-        tempState.score = tempReset;
+        tempState.score = tempElimResetScore;
         tempState.eliminated_turns = 0;
         tempState.num_misses = 0;
         stateChanged = true;

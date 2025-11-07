@@ -226,4 +226,121 @@ describe('settings', () => {
 
   });
 
+  it('eliminated player settings change', async () => {
+    const store = getDefaultStore();
+    await store.set(gameAtom, {
+      ...initialGame,
+      players: {
+        'id1': 'player1',
+        'id2': 'player2',
+        'id3': 'player3',
+      },
+      state: {
+        'id1': {
+          ...initialParticipantState,
+          num_misses: 3,
+          standing: 'eliminated',
+          eliminated_turns: 2,
+        },
+        'id2': {...initialParticipantState},
+        'id3': {...initialParticipantState},
+      },
+      up_next: ['id1','id2','id3'],
+    });
+
+    await store.set(handleSaveAtom,
+      '40',
+      '22',
+      '4',
+      '15',
+      '3',
+      false,
+      false,
+    );
+    expect(store.get(showConfirmSaveSettingsAtom)).toBe(true);
+    expect(store.get(tempGameAtom)).not.toBe(null);
+    store.set(handleConfirmAtom);
+
+    let game = await store.get(gameAtom);
+    expect(game.state.id1).toEqual({
+      score: 15,
+      num_misses: 0,
+      standing: 'playing',
+      eliminated_turns: 0,
+    })
+
+    await store.set(gameAtom, {
+      ...initialGame,
+      players: {
+        'id1': 'player1',
+        'id2': 'player2',
+        'id3': 'player3',
+      },
+      state: {
+        'id1': {
+          ...initialParticipantState,
+          num_misses: 2,
+          standing: 'playing',
+          eliminated_turns: 0,
+        },
+        'id2': {...initialParticipantState},
+        'id3': {...initialParticipantState},
+      },
+      up_next: ['id1','id2','id3'],
+    });
+
+    await store.set(handleSaveAtom,
+      '40',
+      '22',
+      '2',
+      '15',
+      '3',
+      false,
+      false,
+    );
+    expect(store.get(showConfirmSaveSettingsAtom)).toBe(true);
+    expect(store.get(tempGameAtom)).not.toBe(null);
+    store.set(handleConfirmAtom);
+
+    game = await store.get(gameAtom);
+    expect(game.state.id1).toEqual({
+      score: 0,
+      num_misses: 2,
+      standing: 'eliminated',
+      eliminated_turns: 0,
+    })
+
+    await store.set(gameAtom, {
+      ...game,
+      state: {
+        ...game.state,
+        'id1': {
+          ...game.state.id1,
+          eliminated_turns: 2
+        }
+      }
+    });
+
+    await store.set(handleSaveAtom,
+      '40',
+      '22',
+      '2',
+      '10',
+      '2',
+      false,
+      false,
+    );
+    expect(store.get(showConfirmSaveSettingsAtom)).toBe(true);
+    expect(store.get(tempGameAtom)).not.toBe(null);
+    store.set(handleConfirmAtom);
+
+    game = await store.get(gameAtom);
+    expect(game.state.id1).toEqual({
+      score: 10,
+      num_misses: 0,
+      standing: 'playing',
+      eliminated_turns: 0,
+    })
+
+  })
 })
