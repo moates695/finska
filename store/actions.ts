@@ -542,3 +542,25 @@ const convertString = (text: string, base: number, allowNegative: boolean): numb
   else if (!allowNegative && tempNum < 0) return base;
   return tempNum;
 };
+
+export const handleCancelAtom = atom(
+  null,
+  async(get, set) => {
+    set(showConfirmSaveSettingsAtom, false);
+    set(tempGameAtom, null);
+  }
+)
+
+export const handleConfirmAtom = atom(
+  null,
+  async(get, set) => {
+    const tempGame = get(tempGameAtom);
+
+    if (tempGame !== null) {
+      set(gameAtom, tempGame);
+    }
+
+    set(showConfirmSaveSettingsAtom, false);
+    set(tempGameAtom, null);
+  }
+)

@@ -1,3 +1,4 @@
+import { handleCancelAtom, handleConfirmAtom } from "@/store/actions";
 import { gameAtom, showConfirmSaveSettingsAtom, tempGameAtom, themeAtom } from "@/store/general";
 import { generalStyles } from "@/styles/general";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -5,25 +6,11 @@ import React from "react";
 import { TouchableOpacity, View, Text } from "react-native";
 
 
-export default function ConfirmSaveSettings() {
-  const setGame = useSetAtom(gameAtom);
-  const setShowConfirmSaveSettings = useSetAtom(showConfirmSaveSettingsAtom);
-  const [tempGame, setTempGame] = useAtom(tempGameAtom);
-  
+export default function ConfirmSaveSettings() { 
   const theme = useAtomValue(themeAtom);
   
-  const handleCancel = () => {
-    setShowConfirmSaveSettings(false);
-    setTempGame(null);
-  };
-
-  const handleConfirm = () => {
-    if (tempGame !== null) {
-      setGame(tempGame);
-    }
-    setShowConfirmSaveSettings(false);
-    setTempGame(null);
-  };
+  const handleCancel = useSetAtom(handleCancelAtom);
+  const handleConfirm = useSetAtom(handleConfirmAtom);
 
   return (
       <View
