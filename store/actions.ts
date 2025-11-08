@@ -392,8 +392,8 @@ export const loseResetAtom = atom(
 export const saveGameAtom = atom(
   null,
   async (get, set) => {
-    await set(gameAtom, {...initialGame});
     set(screenAtom, 'game setup');
+    await set(gameAtom, {...initialGame});
   }
 )
 

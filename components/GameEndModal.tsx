@@ -86,6 +86,10 @@ export function GameEndModal() {
         alignItems: 'center',
         backgroundColor: theme.modalBackdrop,
         width: '100%',
+        height: '100%',
+        marginBottom: -100,
+        marginTop: -100,
+        overflow: 'visible',
       }}
     >
       <View

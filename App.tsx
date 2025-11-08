@@ -114,8 +114,6 @@ export default function App() {
     'settings': <Settings />,
   }
 
-  
-
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={[]}>
@@ -142,7 +140,6 @@ export default function App() {
   );
 }
 
-// const styles = StyleSheet.create({
 const createStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
