@@ -20,6 +20,7 @@
     "expo-dev-client": "~6.0.15",
     "expo-font": "~14.0.9",
     "expo-status-bar": "~3.0.8",
+    "expo-updates": "~29.0.13",
     "jest-expo": "~54.0.13",
     "jotai": "~2.15.0",
     "lodash": "^4.17.21",

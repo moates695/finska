@@ -7,11 +7,20 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffedaaff"
-    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "image": "./assets/splash-icon.png",
+          "dark": {
+            "image": "./assets/splash-icon-dark.png",
+            "backgroundColor": "#181818ff"
+          },
+          "imageWidth": 200
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.moates.finska"
@@ -23,12 +32,20 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.moates.finska"
+      "package": "com.moates.finska",
+      "compileSdkVersion": 34,
+      "targetSdkVersion": 34
     },
     "extra": {
       "eas": {
         "projectId": "17b301fd-3c8d-46a2-a0cc-90f945dd0f62"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/17b301fd-3c8d-46a2-a0cc-90f945dd0f62"
     }
   }
 }

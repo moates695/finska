@@ -24,6 +24,25 @@
       "env": {
         "maxNameLength": "18"
       }
+    },
+    "internal_bundle": {
+      "channel": "internal",
+      "distribution": "store",
+      "android": {
+        "buildType": "app-bundle",
+        "image": "latest"
+      },
+      "env": {
+        "maxNameLength": "18"
+      }
+    }
+  },
+  "submit": {
+    "internal_test": {
+      "android": {
+        "serviceAccountKeyPath": "./finska-tracker-70f119cc4413.json",
+        "track": "internal"
+      }
     }
   }
 }
