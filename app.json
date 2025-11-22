@@ -33,6 +33,7 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.moates.finska",
+      "bundleIdentifier": "com.moates.finska",
       "compileSdkVersion": 34,
       "targetSdkVersion": 34
     },
