@@ -9,15 +9,24 @@ export default ({ config }: any) => {
   return {
     ...config,
     expo: {
-      name: "Finska",
+      name: "Finska Tracker",
       slug: "finska",
-      version: "0.0.1",
+      version: "0.0.3",
       orientation: "portrait",
       userInterfaceStyle: "automatic",
       android: {
+        versionCode: 2,
         compileSdkVersion: 34,
         targetSdkVersion: 34,
         package: "com.moates.finska",
+        adaptiveIcon: {
+          foregroundImage: "./assets/images/adaptive-icon.png",
+          backgroundColor: "#FFFFFF",
+        },
+        displayName: "Finska Tracker"
+      },
+      ios: {
+        bundleIdentifier: "com.moates.finska"
       },
       extra: {
         maxNameLength: process.env.MAX_NAME_LENGTH,
@@ -28,8 +37,21 @@ export default ({ config }: any) => {
       owner: "moates",
       plugins: [
         "expo-asset",
-        "expo-font"
-      ]
+        "expo-font",
+        [
+          "expo-splash-screen",
+          {
+            backgroundColor: "#ffffff",
+            image: "./assets/images/splash-icon.png",
+            dark: {
+              image: "./assets/images/splash-icon.png",
+              backgroundColor: "#181818",
+            },
+            imageWidth: 200,
+          }
+        ]
+      ],
+      icon: "./assets/images/icon.png",
     },
   }
 };
