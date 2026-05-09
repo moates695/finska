@@ -112,21 +112,27 @@ export default function UpNext({ actor }: Props) {
           }}
         >
           <ScrollView ref={scrollViewRef} style={{ paddingHorizontal: 20 }}>
-            {playingIds.slice(2).reverse().map((id, i) => (
-              <View
-                key={id}
-                style={{
-                  backgroundColor: i % 2 ? theme.brightComponentSeperate : 'transparent',
-                  padding: 4,
-                  paddingHorizontal: 10,
-                  borderRadius: 4,
-                }}
-              >
-                <Text style={{ color: theme.text }}>
-                  {getParticipantName(ctx, id)}
-                </Text>
-              </View>
-            ))}
+            {playingIds.slice(2).reverse().map((id, i) => {
+              const name = getParticipantName(ctx, id);
+              const memberId = ctx.member_order[id]?.[0];
+              const memberName =
+                id in ctx.teams && memberId ? ctx.teams[id].members[memberId] : null;
+              return (
+                <View
+                  key={id}
+                  style={{
+                    backgroundColor: i % 2 ? theme.brightComponentSeperate : 'transparent',
+                    padding: 4,
+                    paddingHorizontal: 10,
+                    borderRadius: 4,
+                  }}
+                >
+                  <Text style={{ color: theme.text }}>
+                    {memberName ? `${name} → ${memberName}` : name}
+                  </Text>
+                </View>
+              );
+            })}
           </ScrollView>
         </View>
       )}
