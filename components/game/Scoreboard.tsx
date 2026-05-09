@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Modal } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -329,6 +329,7 @@ export default function Scoreboard({ actor }: Props) {
       <TouchableOpacity
         onPress={() => editMode && startEditingName(id, name, teamId)}
         disabled={!editMode}
+        delayPressIn={150}
         style={{ flex: 1 }}
       >
         <Text
@@ -341,9 +342,8 @@ export default function Scoreboard({ actor }: Props) {
     );
   };
 
-  return (
-    <View style={styles.outer}>
-      <View style={styles.container}>
+  const content = (
+    <View style={styles.container}>
         {/* Header */}
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
@@ -407,7 +407,7 @@ export default function Scoreboard({ actor }: Props) {
         </View>
 
         {/* Rows */}
-        <ScrollView keyboardShouldPersistTaps="handled">
+        <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
           {sortedParticipants.map((data, i) => {
             const isTeam = data.id in viewCtx.teams;
             const memberIds = isTeam ? (viewCtx.member_order[data.id] ?? []) : [];
@@ -451,6 +451,7 @@ export default function Scoreboard({ actor }: Props) {
                       <TouchableOpacity
                         onPress={() => editMode && handleEditScore(data.id, data.score)}
                         disabled={!editMode}
+                        delayPressIn={150}
                         style={[
                           styles.editableValueCell,
                           editMode && { borderColor: theme.border, borderBottomWidth: 1 },
@@ -481,6 +482,7 @@ export default function Scoreboard({ actor }: Props) {
                       <TouchableOpacity
                         onPress={() => editMode && handleEditMisses(data.id, data.misses)}
                         disabled={!editMode}
+                        delayPressIn={150}
                         style={[
                           styles.editableValueCell,
                           editMode && { borderColor: theme.border, borderBottomWidth: 1 },
@@ -566,7 +568,24 @@ export default function Scoreboard({ actor }: Props) {
           })}
         </ScrollView>
       </View>
-    </View>
+  );
+
+  return (
+    <>
+      <View style={styles.outer}>{!editMode && content}</View>
+      <Modal
+        visible={editMode}
+        transparent
+        animationType="fade"
+        onRequestClose={cancelEditMode}
+      >
+        <View style={styles.backdrop}>
+          <View style={styles.modalOuter}>
+            {editMode && content}
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
@@ -579,6 +598,7 @@ const createStyles = (theme: Theme) =>
       marginBottom: 20,
     },
     container: {
+      flex: 1,
       backgroundColor: theme.paleComponent,
       padding: 12,
       borderRadius: 14,
@@ -588,6 +608,15 @@ const createStyles = (theme: Theme) =>
       shadowOpacity: 0.06,
       shadowRadius: 4,
       elevation: 2,
+    },
+    backdrop: {
+      flex: 1,
+      paddingVertical: 40,
+      paddingHorizontal: 16,
+      backgroundColor: theme.modalBackdrop,
+    },
+    modalOuter: {
+      flex: 1,
     },
     headerRow: {
       flexDirection: 'row',
