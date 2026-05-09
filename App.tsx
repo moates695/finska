@@ -1,4 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
+import * as NavigationBar from 'expo-navigation-bar';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -102,6 +103,13 @@ export default function App() {
     if (!themes[themeType]) setThemeType('light');
   }, [themeType]);
 
+  // Make Android system nav bar transparent so modal backdrops bleed into it
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    NavigationBar.setBackgroundColorAsync('#00000000').catch(() => {});
+    NavigationBar.setButtonStyleAsync(theme.type === 'dark' ? 'light' : 'dark').catch(() => {});
+  }, [theme.type]);
+
   // Apply device theme if enabled
   useEffect(() => {
     if (!useDeviceTheme || !colorScheme) return;
@@ -182,7 +190,8 @@ export default function App() {
           >
             <StatusBar
               style={theme.type === 'dark' ? 'light' : 'dark'}
-              backgroundColor={theme.primaryBackground}
+              backgroundColor="transparent"
+              translucent
             />
             <ScreenRouter actor={actorRef.current} />
             <View style={{ height: keyboardHeight }} />

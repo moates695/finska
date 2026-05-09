@@ -60,6 +60,8 @@ export default function PlayScreen({ actor }: Props) {
       <Modal
         visible={isWon || isGameOver}
         transparent
+        statusBarTranslucent
+        navigationBarTranslucent
         onRequestClose={() => {}}
         animationType="fade"
       >
@@ -68,6 +70,8 @@ export default function PlayScreen({ actor }: Props) {
       <Modal
         visible={isFinishing}
         transparent
+        statusBarTranslucent
+        navigationBarTranslucent
         onRequestClose={() => {}}
         animationType="fade"
       >

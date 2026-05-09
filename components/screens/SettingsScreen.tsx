@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Modal,
   useColorScheme,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -334,7 +335,16 @@ export default function SettingsScreen({ actor }: Props) {
           </View>
         </View>
       </View>
-      {showRulesInfo && <RulesInfoModal onClose={() => setShowRulesInfo(false)} />}
+      <Modal
+        visible={showRulesInfo}
+        transparent
+        statusBarTranslucent
+        navigationBarTranslucent
+        onRequestClose={() => setShowRulesInfo(false)}
+        animationType="fade"
+      >
+        <RulesInfoModal onClose={() => setShowRulesInfo(false)} />
+      </Modal>
     </View>
   );
 }
