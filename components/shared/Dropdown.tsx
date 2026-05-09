@@ -1,0 +1,73 @@
+import { themeAtom } from '@/store/theme';
+import { useAtomValue } from 'jotai';
+import React from 'react';
+import { View, Text } from 'react-native';
+import { Dropdown as DropdownComponent } from 'react-native-element-dropdown';
+
+export interface DropdownOption {
+  label: string;
+  value: string | number;
+}
+
+export interface DropdownProps {
+  options: DropdownOption[];
+  selectedValue: string | number;
+  setSelectedValue: (value: any) => void;
+  width?: number;
+  disabled?: boolean;
+}
+
+export default function Dropdown({
+  options,
+  selectedValue,
+  setSelectedValue,
+  width = 150,
+  disabled = false,
+}: DropdownProps) {
+  const theme = useAtomValue(themeAtom);
+
+  return (
+    <DropdownComponent
+      data={options}
+      value={selectedValue}
+      labelField="label"
+      valueField="value"
+      onChange={(item) => setSelectedValue(item.value)}
+      style={{
+        height: 40,
+        borderRadius: 5,
+        paddingLeft: 5,
+        paddingRight: 5,
+        backgroundColor: theme.dropdownBackground,
+        width,
+      }}
+      selectedTextStyle={{ color: theme.text }}
+      renderItem={(item, selected) => (
+        <View
+          style={{
+            height: 40,
+            paddingLeft: 5,
+            paddingRight: 5,
+            justifyContent: 'center',
+            backgroundColor: selected
+              ? theme.brightComponentSeperate
+              : theme.dropdownBackground,
+          }}
+        >
+          <Text
+            style={{
+              color: selected
+                ? theme.dropdownSelectedText
+                : theme.dropdownText,
+              fontWeight: selected ? '600' : '400',
+            }}
+          >
+            {item.label}
+          </Text>
+        </View>
+      )}
+      disable={disabled}
+      autoScroll={false}
+    />
+  );
+}
