@@ -69,6 +69,7 @@ export type GameEvent =
   | { type: 'ADD_TEAM'; name: string; members: string[] }
   | { type: 'REMOVE_PARTICIPANT'; id: string }
   | { type: 'REMOVE_MEMBER'; teamId: string; memberId: string }
+  | { type: 'ADD_MEMBER'; teamId: string; name: string }
   | { type: 'RENAME'; id: string; newName: string; teamId?: string }
   | { type: 'START_GAME'; shuffle: boolean }
   | { type: 'SUBMIT_TURN'; pins: Set<number> }

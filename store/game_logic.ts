@@ -155,6 +155,36 @@ export function removeParticipant(ctx: GameContext, id: string): Partial<GameCon
   return {};
 }
 
+export function addMember(
+  ctx: GameContext,
+  teamId: string,
+  memberName: string,
+): Partial<GameContext> {
+  const team = ctx.teams[teamId];
+  if (!team) return {};
+
+  const trimmed = memberName.trim();
+  if (!trimmed) return {};
+  if (isNameTaken(ctx, trimmed)) return {};
+  if (trimmed.toLowerCase() === team.name.trim().toLowerCase()) return {};
+  if (Object.values(team.members).some(m => m.toLowerCase() === trimmed.toLowerCase())) return {};
+
+  const memberId = generateId();
+  return {
+    teams: {
+      ...ctx.teams,
+      [teamId]: {
+        ...team,
+        members: { ...team.members, [memberId]: trimmed },
+      },
+    },
+    member_order: {
+      ...ctx.member_order,
+      [teamId]: [...(ctx.member_order[teamId] ?? []), memberId],
+    },
+  };
+}
+
 export function removeMember(
   ctx: GameContext,
   teamId: string,

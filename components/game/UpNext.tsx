@@ -111,6 +111,16 @@ export default function UpNext({ actor }: Props) {
             maxHeight: 400,
           }}
         >
+          <Text
+            style={{
+              color: theme.text,
+              fontWeight: 'bold',
+              paddingHorizontal: 20,
+              marginBottom: 4,
+            }}
+          >
+            Up Later:
+          </Text>
           <ScrollView ref={scrollViewRef} style={{ paddingHorizontal: 20 }}>
             {playingIds.slice(2).reverse().map((id, i) => {
               const name = getParticipantName(ctx, id);
@@ -157,9 +167,16 @@ export default function UpNext({ actor }: Props) {
             <TouchableOpacity
               key={memberId}
               onPress={() => handleSwapMember(memberId)}
-              style={{ padding: 6 }}
+              style={{
+                backgroundColor: theme.brightComponentSeperate,
+                paddingVertical: 10,
+                paddingHorizontal: 14,
+                borderRadius: 8,
+                marginVertical: 4,
+                alignItems: 'center',
+              }}
             >
-              <Text style={{ color: theme.text }}>
+              <Text style={{ color: theme.text, fontWeight: '600' }}>
                 {ctx.teams[currentId].members[memberId]}
               </Text>
             </TouchableOpacity>
@@ -220,9 +237,13 @@ export default function UpNext({ actor }: Props) {
                 {isCurrentTeam && teamMembers.length > 1 && (
                   <TouchableOpacity
                     onPress={() => setShowSwap(!showSwap)}
-                    style={{ marginLeft: 6 }}
+                    style={{ marginLeft: 12 }}
                   >
-                    <Ionicons name="swap-horizontal" size={18} color={theme.staticButton} />
+                    <Ionicons
+                      name="swap-vertical"
+                      size={18}
+                      color={showSwap ? theme.submit : theme.staticButton}
+                    />
                   </TouchableOpacity>
                 )}
               </View>

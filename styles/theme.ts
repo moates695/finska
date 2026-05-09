@@ -113,7 +113,7 @@ export const themes: Record<ThemeType, Theme> = {
     pinOutline: '#5b606f',
     pinWinOutline: '#d4a056',
     eliminatedSeperator: '#e07a6e',
-    canWinSeperator: '#d4a056',
+    canWinSeperator: '#7fb27e',
     scoreboardCurrentOutline: '#d4a056',
     scoreboardOutline: 'transparent',
     scoreboardEliminatedText: '#e07a6e',

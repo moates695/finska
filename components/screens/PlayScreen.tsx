@@ -49,9 +49,9 @@ export default function PlayScreen({ actor }: Props) {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setShowAddParticipant(!showAddParticipant)}>
           <Ionicons
-            name={showAddParticipant ? 'person-remove' : 'person-add-outline'}
+            name={showAddParticipant ? 'person-add' : 'person-add-outline'}
             size={24}
-            color={theme.staticButton}
+            color={showAddParticipant ? theme.submit : theme.staticButton}
           />
         </TouchableOpacity>
       </View>

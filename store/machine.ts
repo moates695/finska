@@ -10,6 +10,7 @@ import {
   addTeam,
   removeParticipant,
   removeMember,
+  addMember,
   renameParticipant,
   startGame,
   submitTurn,
@@ -71,6 +72,13 @@ export const gameMachine = setup({
       return after.has_started && !isGameValid(after);
     },
 
+    removeMemberInvalidates: ({ context, event }) => {
+      if (event.type !== 'REMOVE_MEMBER') return false;
+      const updates = removeMember(context, event.teamId, event.memberId);
+      const after = { ...context, ...updates };
+      return after.has_started && !isGameValid(after);
+    },
+
     returnToSetup: ({ context }) => context.return_to === 'setup',
     returnToPlaying: ({ context }) => context.return_to === 'playing',
   },
@@ -110,6 +118,11 @@ export const gameMachine = setup({
     removeMember: assign(({ context, event }) => {
       if (event.type !== 'REMOVE_MEMBER') return {};
       return removeMember(context, event.teamId, event.memberId);
+    }),
+
+    addMember: assign(({ context, event }) => {
+      if (event.type !== 'ADD_MEMBER') return {};
+      return addMember(context, event.teamId, event.name);
     }),
 
     renameParticipant: assign(({ context, event }) => {
@@ -192,6 +205,7 @@ export const gameMachine = setup({
         ADD_TEAM: { actions: 'addTeam' },
         REMOVE_PARTICIPANT: { actions: 'removeParticipantAction' },
         REMOVE_MEMBER: { actions: 'removeMember' },
+        ADD_MEMBER: { actions: 'addMember' },
         RENAME: { actions: 'renameParticipant' },
         OPEN_SETTINGS: {
           target: 'settings',
@@ -260,6 +274,16 @@ export const gameMachine = setup({
               },
               { actions: 'removeParticipantAction' },
             ],
+            REMOVE_MEMBER: [
+              {
+                guard: 'removeMemberInvalidates',
+                target: 'gameOver',
+                actions: 'removeMember',
+              },
+              { actions: 'removeMember' },
+            ],
+            ADD_MEMBER: { actions: 'addMember' },
+            RENAME: { actions: 'renameParticipant' },
             OPEN_SETTINGS: {
               target: '#finska.settings',
               actions: 'setReturnPlaying',

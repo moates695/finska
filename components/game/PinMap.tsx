@@ -145,7 +145,7 @@ export default function PinMap({ actor, showAddParticipant }: Props) {
               color: theme.text,
             }}
           >
-            count: {pinCount}
+            score: {pinCount}
           </Text>
 
           {/* Submit button (bottom right) */}
