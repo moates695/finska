@@ -12,6 +12,7 @@ import {
   getRemainingScore,
   getParticipantName,
   editScore as applyEditScore,
+  editMisses as applyEditMisses,
   cycleStanding as applyCycleStanding,
   renameParticipant as applyRename,
   removeParticipant as applyRemoveParticipant,
@@ -29,6 +30,7 @@ interface Props {
 
 type PendingEvent =
   | { type: 'EDIT_SCORE'; id: string; score: number }
+  | { type: 'EDIT_MISSES'; id: string; misses: number }
   | { type: 'RENAME'; id: string; newName: string; teamId?: string }
   | { type: 'CYCLE_STANDING'; id: string }
   | { type: 'REMOVE_PARTICIPANT_MIDGAME'; id: string }
@@ -39,6 +41,8 @@ function applyPendingEvent(ctx: GameContext, event: PendingEvent): GameContext {
   switch (event.type) {
     case 'EDIT_SCORE':
       return { ...ctx, ...applyEditScore(ctx, event.id, event.score).updates };
+    case 'EDIT_MISSES':
+      return { ...ctx, ...applyEditMisses(ctx, event.id, event.misses).updates };
     case 'RENAME':
       return { ...ctx, ...applyRename(ctx, event.id, event.newName, event.teamId) };
     case 'CYCLE_STANDING':
@@ -70,6 +74,8 @@ export default function Scoreboard({ actor }: Props) {
   const [pendingEvents, setPendingEvents] = useState<PendingEvent[]>([]);
   const [editingScoreId, setEditingScoreId] = useState<string | null>(null);
   const [editScoreValue, setEditScoreValue] = useState('');
+  const [editingMissesId, setEditingMissesId] = useState<string | null>(null);
+  const [editMissesValue, setEditMissesValue] = useState('');
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editNameTeamId, setEditNameTeamId] = useState<string | undefined>(undefined);
@@ -102,23 +108,37 @@ export default function Scoreboard({ actor }: Props) {
   const sortedParticipants = useMemo((): SortedEntry[] => {
     const maxScore = getMaxScore(viewCtx.rules);
 
-    const sorted = Object.entries(viewCtx.state).map(([id, data]) => ({
-      ...data,
-      id,
-      name: getParticipantName(viewCtx, id),
-      is_first_eliminated: false,
-      last_can_win: false,
-      in_range: data.standing === 'playing' && data.score >= viewCtx.rules.target_score - maxScore,
-    }));
+    // Order is sorted from `ctx` while editing (frozen — ctx doesn't change until Save)
+    // and from `viewCtx` otherwise. Values always come from viewCtx.
+    const orderCtx = editMode ? ctx : viewCtx;
+    const orderedIds = Object.keys(orderCtx.state)
+      .filter((id) => id in viewCtx.state)
+      .sort((a, b) => {
+        const sa = orderCtx.state[a];
+        const sb = orderCtx.state[b];
+        if (sa.standing === 'playing' && sb.standing !== 'playing') return -1;
+        if (sa.standing !== 'playing' && sb.standing === 'playing') return 1;
+        if (sa.score === sb.score) {
+          return getParticipantName(orderCtx, a).localeCompare(getParticipantName(orderCtx, b));
+        }
+        return sb.score - sa.score;
+      });
 
-    sorted.sort((a, b) => {
-      if (a.standing === 'playing' && b.standing !== 'playing') return -1;
-      if (a.standing !== 'playing' && b.standing === 'playing') return 1;
-      if (a.score === b.score) return a.name.localeCompare(b.name);
-      return b.score - a.score;
+    const sorted = orderedIds.map((id) => {
+      const data = viewCtx.state[id];
+      return {
+        ...data,
+        id,
+        name: getParticipantName(viewCtx, id),
+        is_first_eliminated: false,
+        last_can_win: false,
+        in_range: data.standing === 'playing' && data.score >= viewCtx.rules.target_score - maxScore,
+      };
     });
 
-    // Mark separators
+    // Separators are only shown outside edit mode.
+    if (editMode) return sorted;
+
     for (let i = 0; i < sorted.length - 1; i++) {
       if (sorted[i].in_range && !sorted[i + 1].in_range && sorted[i + 1].standing === 'playing') {
         sorted[i].last_can_win = true;
@@ -132,7 +152,7 @@ export default function Scoreboard({ actor }: Props) {
     }
 
     return sorted;
-  }, [viewCtx.state, viewCtx.rules, viewCtx]);
+  }, [ctx, viewCtx, editMode]);
 
   const queueEvent = (event: PendingEvent) => {
     setPendingEvents((prev) => [...prev, event]);
@@ -145,11 +165,44 @@ export default function Scoreboard({ actor }: Props) {
 
   const submitEditScore = () => {
     if (!editingScoreId) return;
+    const id = editingScoreId;
     const num = parseInt(editScoreValue);
-    if (!isNaN(num) && num !== viewCtx.state[editingScoreId]?.score) {
-      queueEvent({ type: 'EDIT_SCORE', id: editingScoreId, score: num });
-    }
     setEditingScoreId(null);
+    if (isNaN(num)) return;
+
+    const { target_score, reset_score } = viewCtx.rules;
+
+    // Winning score: auto-flush so the machine transitions to 'won' immediately.
+    if (num === target_score) {
+      flushAndExit([{ type: 'EDIT_SCORE', id, score: num }]);
+      return;
+    }
+
+    let final = num;
+    if (num > target_score) final = reset_score;
+    else if (num < 0) final = 0;
+
+    if (final !== viewCtx.state[id]?.score) {
+      queueEvent({ type: 'EDIT_SCORE', id, score: final });
+    }
+  };
+
+  const handleEditMisses = (id: string, currentMisses: number) => {
+    setEditingMissesId(id);
+    setEditMissesValue(currentMisses.toString());
+  };
+
+  const submitEditMisses = () => {
+    if (!editingMissesId) return;
+    const id = editingMissesId;
+    const num = parseInt(editMissesValue);
+    setEditingMissesId(null);
+    if (isNaN(num)) return;
+
+    const clamped = Math.max(0, Math.min(num, viewCtx.rules.elimination_count));
+    if (clamped !== viewCtx.state[id]?.misses) {
+      queueEvent({ type: 'EDIT_MISSES', id, misses: clamped });
+    }
   };
 
   const startEditingName = (id: string, currentName: string, teamId?: string) => {
@@ -224,6 +277,7 @@ export default function Scoreboard({ actor }: Props) {
 
   const clearTransientEdits = () => {
     setEditingScoreId(null);
+    setEditingMissesId(null);
     cancelEditingName();
     cancelAddingMember();
   };
@@ -234,15 +288,17 @@ export default function Scoreboard({ actor }: Props) {
     setEditMode(false);
   };
 
-  const saveEditMode = () => {
+  const flushAndExit = (extra: PendingEvent[] = []) => {
     clearTransientEdits();
     // Defer so any blur-triggered queueEvent from an open TextInput commits first.
     setTimeout(() => {
-      pendingRef.current.forEach((e) => actor.send(e));
+      [...pendingRef.current, ...extra].forEach((e) => actor.send(e));
       setPendingEvents([]);
       setEditMode(false);
     }, 0);
   };
+
+  const saveEditMode = () => flushAndExit();
 
   const renderEditableName = (
     id: string,
@@ -365,7 +421,7 @@ export default function Scoreboard({ actor }: Props) {
                     {
                       backgroundColor: i % 2 ? theme.listColorA : theme.listColorB,
                       borderColor:
-                        data.id === viewCtx.turn_order[0]
+                        !editMode && data.id === viewCtx.turn_order[0]
                           ? theme.scoreboardCurrentOutline
                           : theme.scoreboardOutline,
                     },
@@ -389,13 +445,16 @@ export default function Scoreboard({ actor }: Props) {
                         onSubmitEditing={submitEditScore}
                         autoFocus
                         keyboardType="number-pad"
-                        style={[styles.scoreInput, { color: theme.text, borderColor: theme.border }]}
+                        style={[styles.numericInput, { color: theme.text, borderColor: theme.border }]}
                       />
                     ) : (
                       <TouchableOpacity
                         onPress={() => editMode && handleEditScore(data.id, data.score)}
                         disabled={!editMode}
-                        style={{ width: 45, alignItems: 'center' }}
+                        style={[
+                          styles.editableValueCell,
+                          editMode && { borderColor: theme.border, borderBottomWidth: 1 },
+                        ]}
                       >
                         <Text style={[styles.valueText, { color: theme.text }]}>
                           {data.score}
@@ -406,20 +465,42 @@ export default function Scoreboard({ actor }: Props) {
                     <Text style={[styles.valueText, { width: 45, color: theme.text }]}>
                       {getRemainingScore(viewCtx.rules, data.score)}
                     </Text>
-                    <Text
-                      style={[
-                        styles.valueText,
-                        {
-                          width: 45,
-                          color:
-                            data.standing === 'eliminated'
-                              ? theme.scoreboardEliminatedText
-                              : theme.text,
-                        },
-                      ]}
-                    >
-                      {data.misses}/{viewCtx.rules.elimination_count}
-                    </Text>
+
+                    {/* Misses */}
+                    {editMode && editingMissesId === data.id ? (
+                      <TextInput
+                        value={editMissesValue}
+                        onChangeText={setEditMissesValue}
+                        onBlur={submitEditMisses}
+                        onSubmitEditing={submitEditMisses}
+                        autoFocus
+                        keyboardType="number-pad"
+                        style={[styles.numericInput, { color: theme.text, borderColor: theme.border }]}
+                      />
+                    ) : (
+                      <TouchableOpacity
+                        onPress={() => editMode && handleEditMisses(data.id, data.misses)}
+                        disabled={!editMode}
+                        style={[
+                          styles.editableValueCell,
+                          editMode && { borderColor: theme.border, borderBottomWidth: 1 },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.valueText,
+                            {
+                              color:
+                                data.standing === 'eliminated'
+                                  ? theme.scoreboardEliminatedText
+                                  : theme.text,
+                            },
+                          ]}
+                        >
+                          {data.misses}/{viewCtx.rules.elimination_count}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                     {editMode && (
                       <TouchableOpacity onPress={() => handleRemove(data.id)}>
                         <Feather name="delete" size={22} color={theme.missButton} />
@@ -572,7 +653,7 @@ const createStyles = (theme: Theme) =>
       textAlign: 'center',
       fontSize: 18,
     },
-    scoreInput: {
+    numericInput: {
       width: 45,
       textAlign: 'center',
       fontSize: 16,
@@ -580,6 +661,10 @@ const createStyles = (theme: Theme) =>
       borderRadius: 4,
       padding: 2,
       height: 30,
+    },
+    editableValueCell: {
+      width: 45,
+      alignItems: 'center',
     },
     nameInput: {
       borderWidth: 1,

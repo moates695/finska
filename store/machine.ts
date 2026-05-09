@@ -17,6 +17,7 @@ import {
   missTurn,
   skipTurn,
   editScore,
+  editMisses,
   cycleStanding,
   swapTeamMember,
   winContinue,
@@ -61,6 +62,12 @@ export const gameMachine = setup({
     standingChangeInvalidates: ({ context, event }) => {
       if (event.type !== 'CYCLE_STANDING') return false;
       const result = cycleStanding(context, event.id);
+      return result.event === 'gameOver';
+    },
+
+    editMissesInvalidates: ({ context, event }) => {
+      if (event.type !== 'EDIT_MISSES') return false;
+      const result = editMisses(context, event.id, event.misses);
       return result.event === 'gameOver';
     },
 
@@ -162,6 +169,12 @@ export const gameMachine = setup({
       return result.updates;
     }),
 
+    editMisses: assign(({ context, event }) => {
+      if (event.type !== 'EDIT_MISSES') return {};
+      const result = editMisses(context, event.id, event.misses);
+      return result.updates;
+    }),
+
     cycleStanding: assign(({ context, event }) => {
       if (event.type !== 'CYCLE_STANDING') return {};
       const result = cycleStanding(context, event.id);
@@ -256,6 +269,14 @@ export const gameMachine = setup({
                 actions: 'editScore',
               },
               { actions: 'editScore' },
+            ],
+            EDIT_MISSES: [
+              {
+                guard: 'editMissesInvalidates',
+                target: 'gameOver',
+                actions: 'editMisses',
+              },
+              { actions: 'editMisses' },
             ],
             CYCLE_STANDING: [
               {

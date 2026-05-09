@@ -26,6 +26,26 @@ function shuffleArray<T>(arr: T[]): T[] {
   return shuffled;
 }
 
+/**
+ * If turn_order[0] isn't a 'playing' participant, rotate forward to the next
+ * one that is. Used after mid-game edits (cycleStanding, editMisses, removal)
+ * so a paused/eliminated participant never sits at index 0 awaiting a turn.
+ */
+function rotateToCurrentPlaying(
+  turn_order: string[],
+  state: Record<string, ParticipantState>,
+): string[] {
+  if (turn_order.length === 0) return turn_order;
+  if (state[turn_order[0]]?.standing === 'playing') return turn_order;
+
+  for (let i = 1; i < turn_order.length; i++) {
+    if (state[turn_order[i]]?.standing === 'playing') {
+      return [...turn_order.slice(i), ...turn_order.slice(0, i)];
+    }
+  }
+  return turn_order;
+}
+
 /** Get the max score achievable in a single turn. */
 export function getMaxScore(rules: GameRules): number {
   if (rules.use_pin_value) {
@@ -130,7 +150,8 @@ export function addTeam(
 
 export function removeParticipant(ctx: GameContext, id: string): Partial<GameContext> {
   const { [id]: _removedState, ...restState } = ctx.state;
-  const turnOrder = ctx.turn_order.filter(pid => pid !== id);
+  const filteredOrder = ctx.turn_order.filter(pid => pid !== id);
+  const turnOrder = rotateToCurrentPlaying(filteredOrder, restState);
 
   if (id in ctx.players) {
     const { [id]: _removedPlayer, ...restPlayers } = ctx.players;
@@ -480,6 +501,36 @@ export function editScore(ctx: GameContext, id: string, newScore: number): EditR
   };
 }
 
+export function editMisses(ctx: GameContext, id: string, newMisses: number): EditResult {
+  if (!(id in ctx.state)) return { updates: {}, event: null };
+
+  const elimCount = ctx.rules.elimination_count;
+  const misses = Math.max(0, Math.min(newMisses, elimCount));
+  const current = ctx.state[id];
+  let standing = current.standing;
+  let eliminated_turns = current.eliminated_turns;
+
+  if (misses >= elimCount && standing === 'playing') {
+    standing = 'eliminated';
+    eliminated_turns = 0;
+  } else if (misses < elimCount && standing === 'eliminated') {
+    standing = 'playing';
+    eliminated_turns = 0;
+  }
+
+  const newState = {
+    ...ctx.state,
+    [id]: { ...current, misses, standing, eliminated_turns },
+  };
+  const newTurnOrder = rotateToCurrentPlaying(ctx.turn_order, newState);
+
+  const event: 'win' | 'gameOver' | null = isGameValid({ ...ctx, state: newState })
+    ? null
+    : 'gameOver';
+
+  return { updates: { state: newState, turn_order: newTurnOrder }, event };
+}
+
 export function cycleStanding(ctx: GameContext, id: string): EditResult {
   if (!(id in ctx.state)) return { updates: {}, event: null };
 
@@ -499,12 +550,13 @@ export function cycleStanding(ctx: GameContext, id: string): EditResult {
   };
 
   const newState = { ...ctx.state, [id]: newParticipantState };
+  const newTurnOrder = rotateToCurrentPlaying(ctx.turn_order, newState);
   const event: 'win' | 'gameOver' | null = isGameValid({ ...ctx, state: newState })
     ? null
     : 'gameOver';
 
   return {
-    updates: { state: newState },
+    updates: { state: newState, turn_order: newTurnOrder },
     event,
   };
 }

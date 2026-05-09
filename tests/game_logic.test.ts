@@ -466,6 +466,23 @@ describe('cycleStanding', () => {
     // playing → paused, leaving only 1 playing
     expect(result.event).toBe('gameOver');
   });
+
+  test('rotates turn_order when current player is paused', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const [a, b] = ctx.turn_order;
+    // A is current; cycle A to paused → next playing (B) should become current.
+    const result = cycleStanding(ctx, a);
+    expect(result.updates.state![a].standing).toBe('paused');
+    expect(result.updates.turn_order![0]).toBe(b);
+    expect(result.updates.turn_order).toContain(a);
+  });
+
+  test('does not rotate when a non-current player changes standing', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const [, b] = ctx.turn_order;
+    const result = cycleStanding(ctx, b);
+    expect(result.updates.turn_order).toEqual(ctx.turn_order);
+  });
 });
 
 describe('swapTeamMember', () => {

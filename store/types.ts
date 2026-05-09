@@ -77,6 +77,7 @@ export type GameEvent =
   | { type: 'SKIP_TURN' }
   | { type: 'SWAP_MEMBER'; teamId: string; memberId: string }
   | { type: 'EDIT_SCORE'; id: string; score: number }
+  | { type: 'EDIT_MISSES'; id: string; misses: number }
   | { type: 'CYCLE_STANDING'; id: string }
   | { type: 'ADD_PARTICIPANT'; name: string; isTeam?: boolean; members?: string[] }
   | { type: 'REMOVE_PARTICIPANT_MIDGAME'; id: string }
