@@ -101,7 +101,7 @@ export const themes: Record<ThemeType, Theme> = {
     missButton: '#e07a6e',
     removeMemberButton: '#e0954e',
     selectedBox: '#262a35',
-    dropdownBackground: '#1a1d24',
+    dropdownBackground: '#262a35',
     dropdownSelectedText: '#e6e8ed',
     dropdownText: '#e6e8ed',
     modalBackdrop: '#000000bb',

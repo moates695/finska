@@ -15,6 +15,7 @@ import { Theme, themes, ThemeType } from '@/styles/theme';
 import { initialRules } from '@/store/types';
 import Dropdown from '@/components/shared/Dropdown';
 import Toggle from '@/components/shared/Toggle';
+import RulesInfoModal from '@/components/modals/RulesInfoModal';
 import type { gameActor } from '@/App';
 
 interface Props {
@@ -42,6 +43,7 @@ export default function SettingsScreen({ actor }: Props) {
   );
   const [skipIsMiss, setSkipIsMiss] = useState(ctx.rules.skip_is_miss);
   const [usePinValue, setUsePinValue] = useState(ctx.rules.use_pin_value);
+  const [showRulesInfo, setShowRulesInfo] = useState(false);
 
   // Errors
   const [targetScoreError, setTargetScoreError] = useState<string | null>(null);
@@ -191,7 +193,7 @@ export default function SettingsScreen({ actor }: Props) {
             <Toggle value={useDeviceTheme} onValueChange={handleUseDeviceTheme} />
           </View>
           <View style={styles.toggleRow}>
-            <Text style={{ color: theme.text, marginRight: 10 }}>Choose a theme:</Text>
+            <Text style={{ color: theme.text }}>Choose a theme:</Text>
             <Dropdown
               options={themeOptions}
               selectedValue={themeType}
@@ -202,7 +204,20 @@ export default function SettingsScreen({ actor }: Props) {
 
         {/* Game rules */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { paddingBottom: 10 }]}>Game rules:</Text>
+          <View style={styles.rulesHeader}>
+            <Text style={styles.sectionTitle}>Game rules:</Text>
+            <TouchableOpacity
+              onPress={() => setShowRulesInfo(true)}
+              hitSlop={8}
+              accessibilityLabel="Show rule descriptions"
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={22}
+                color={theme.staticButton}
+              />
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.inputRow}>
             <View style={styles.inputCol}>
@@ -271,7 +286,7 @@ export default function SettingsScreen({ actor }: Props) {
           </View>
 
           <View style={styles.inputRow}>
-            <View style={[styles.inputCol, { marginBottom: -10 }]}>
+            <View style={styles.inputCol}>
               <Text style={{ color: theme.text }}>Eliminate turns:</Text>
               <TextInput
                 value={eliminationTurns}
@@ -319,6 +334,7 @@ export default function SettingsScreen({ actor }: Props) {
           </View>
         </View>
       </View>
+      {showRulesInfo && <RulesInfoModal onClose={() => setShowRulesInfo(false)} />}
     </View>
   );
 }
@@ -348,6 +364,12 @@ const createStyles = (theme: Theme) =>
       color: theme.text,
       marginBottom: 4,
     },
+    rulesHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: 10,
+    },
     inputRow: {
       flexDirection: 'row',
       justifyContent: 'space-around',
@@ -374,10 +396,13 @@ const createStyles = (theme: Theme) =>
     toggleRow: {
       flexDirection: 'row',
       alignItems: 'center',
+      gap: 10,
+      marginBottom: 10,
     },
     switchRow: {
       flexDirection: 'row',
       justifyContent: 'space-around',
+      marginTop: 6,
       marginBottom: 10,
     },
     actionButton: {

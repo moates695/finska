@@ -50,7 +50,7 @@ export default function Dropdown({
             paddingRight: 5,
             justifyContent: 'center',
             backgroundColor: selected
-              ? theme.brightComponent
+              ? theme.brightComponentSeperate
               : theme.dropdownBackground,
           }}
         >
@@ -59,6 +59,7 @@ export default function Dropdown({
               color: selected
                 ? theme.dropdownSelectedText
                 : theme.dropdownText,
+              fontWeight: selected ? '600' : '400',
             }}
           >
             {item.label}

@@ -104,7 +104,10 @@ export default function ParticipantList({ actor }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={{ color: theme.text }}>Player list</Text>
+        <View style={{ flexShrink: 1 }}>
+          <Text style={{ color: theme.text }}>Player list</Text>
+          {showEdit && <Text style={styles.editHint}>Tap a name to edit</Text>}
+        </View>
         <TouchableOpacity
           onPress={() => {
             setShowEdit(!showEdit);
@@ -126,10 +129,6 @@ export default function ParticipantList({ actor }: Props) {
           Add players/teams to get going!
         </Text>
       )}
-
-      <Text style={styles.editHint}>
-        {showEdit ? 'Tap a name to edit' : ' '}
-      </Text>
 
       <ScrollView
         style={{ flexGrow: 1 }}
@@ -261,6 +260,5 @@ const createStyles = (theme: Theme) =>
       color: theme.placeHolderText,
       fontSize: 12,
       fontStyle: 'italic',
-      textAlign: 'center',
     },
   });
