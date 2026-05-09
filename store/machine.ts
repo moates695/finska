@@ -56,7 +56,8 @@ export const gameMachine = setup({
 
     editScoreWins: ({ context, event }) => {
       if (event.type !== 'EDIT_SCORE') return false;
-      return event.score === context.rules.target_score;
+      if (event.score !== context.rules.target_score) return false;
+      return context.state[event.id]?.standing === 'playing';
     },
 
     standingChangeInvalidates: ({ context, event }) => {
@@ -88,6 +89,8 @@ export const gameMachine = setup({
 
     returnToSetup: ({ context }) => context.return_to === 'setup',
     returnToPlaying: ({ context }) => context.return_to === 'playing',
+    returnToPlayingInvalid: ({ context }) =>
+      context.return_to === 'playing' && context.has_started && !isGameValid(context),
   },
   actions: {
     resetGame: assign(() => ({
@@ -356,6 +359,7 @@ export const gameMachine = setup({
         UPDATE_RULES: { actions: 'updateRules' },
         GO_BACK: [
           { guard: 'returnToSetup', target: 'setup' },
+          { guard: 'returnToPlayingInvalid', target: 'playing.gameOver' },
           { guard: 'returnToPlaying', target: 'playing.awaitingTurn' },
         ],
       },

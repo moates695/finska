@@ -128,10 +128,15 @@ export function addTeam(
   const teamId = generateId();
   const members: Record<string, string> = {};
   const memberIds: string[] = [];
+  const seen = new Set<string>([trimmedName.toLowerCase()]);
 
   for (const mName of memberNames) {
     const trimmedMember = mName.trim();
     if (!trimmedMember) return {};
+    const lowerMember = trimmedMember.toLowerCase();
+    if (seen.has(lowerMember)) return {};
+    if (isNameTaken(ctx, trimmedMember)) return {};
+    seen.add(lowerMember);
     const memberId = generateId();
     members[memberId] = trimmedMember;
     memberIds.push(memberId);
@@ -341,6 +346,8 @@ export function advanceTurn(ctx: GameContext): Partial<GameContext> {
         newState[id].standing = 'playing';
         newState[id].misses = 0;
         newState[id].eliminated_turns = 0;
+        nextIndex = i;
+        break;
       }
     }
     // 'paused' participants are skipped silently
@@ -406,8 +413,8 @@ export function submitTurn(ctx: GameContext, pins: Set<number>): TurnResult {
   return {
     updates: {
       state: { ...(advanceUpdates.state ?? newState) },
-      turn_order: advanceUpdates.turn_order,
-      member_order: advanceUpdates.member_order,
+      turn_order: advanceUpdates.turn_order ?? ctx.turn_order,
+      member_order: advanceUpdates.member_order ?? ctx.member_order,
     },
     event,
   };
@@ -443,8 +450,8 @@ export function missTurn(ctx: GameContext): TurnResult {
   return {
     updates: {
       state: finalState,
-      turn_order: advanceUpdates.turn_order,
-      member_order: advanceUpdates.member_order,
+      turn_order: advanceUpdates.turn_order ?? ctx.turn_order,
+      member_order: advanceUpdates.member_order ?? ctx.member_order,
     },
     event,
   };
@@ -459,9 +466,9 @@ export function skipTurn(ctx: GameContext): TurnResult {
 
   return {
     updates: {
-      state: advanceUpdates.state,
-      turn_order: advanceUpdates.turn_order,
-      member_order: advanceUpdates.member_order,
+      state: advanceUpdates.state ?? ctx.state,
+      turn_order: advanceUpdates.turn_order ?? ctx.turn_order,
+      member_order: advanceUpdates.member_order ?? ctx.member_order,
     },
     event: null,
   };
@@ -481,9 +488,10 @@ export function editScore(ctx: GameContext, id: string, newScore: number): EditR
 
   let score = newScore;
   let event: 'win' | 'gameOver' | null = null;
+  const isPlaying = ctx.state[id].standing === 'playing';
 
   if (score === ctx.rules.target_score) {
-    event = 'win';
+    if (isPlaying) event = 'win';
   } else if (score > ctx.rules.target_score) {
     score = ctx.rules.reset_score;
   } else if (score < 0) {
