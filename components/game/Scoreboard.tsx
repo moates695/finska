@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Modal, useWindowDimensions } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -69,6 +69,7 @@ interface SortedEntry {
 
 export default function Scoreboard({ actor }: Props) {
   const theme = useAtomValue(themeAtom);
+  const { height: windowHeight } = useWindowDimensions();
   const ctx = useSelector(actor, (s) => s.context);
   const [editMode, setEditMode] = useState(false);
   const [pendingEvents, setPendingEvents] = useState<PendingEvent[]>([]);
@@ -407,7 +408,7 @@ export default function Scoreboard({ actor }: Props) {
         </View>
 
         {/* Rows */}
-        <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
+        <ScrollView style={{ maxHeight: windowHeight * 0.75 }} keyboardShouldPersistTaps="handled">
           {sortedParticipants.map((data, i) => {
             const isTeam = data.id in viewCtx.teams;
             const memberIds = isTeam ? (viewCtx.member_order[data.id] ?? []) : [];
@@ -598,7 +599,6 @@ const createStyles = (theme: Theme) =>
       marginBottom: 20,
     },
     container: {
-      flex: 1,
       backgroundColor: theme.paleComponent,
       padding: 12,
       borderRadius: 14,
@@ -611,12 +611,12 @@ const createStyles = (theme: Theme) =>
     },
     backdrop: {
       flex: 1,
-      paddingVertical: 40,
-      paddingHorizontal: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
       backgroundColor: theme.modalBackdrop,
     },
     modalOuter: {
-      flex: 1,
+      width: '94%',
     },
     headerRow: {
       flexDirection: 'row',
