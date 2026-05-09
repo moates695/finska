@@ -71,8 +71,14 @@ export default function ParticipantForm({ actor }: Props) {
     const trimmedName = name.trim();
     if (!trimmedName) return;
 
+    const isSetup = actor.getSnapshot().matches('setup');
+
     if (isPlayer) {
-      actor.send({ type: 'ADD_PLAYER', name: trimmedName });
+      if (isSetup) {
+        actor.send({ type: 'ADD_PLAYER', name: trimmedName });
+      } else {
+        actor.send({ type: 'ADD_PARTICIPANT', name: trimmedName, isTeam: false });
+      }
     } else {
       // Include the current member input if valid
       const members = [...stagedMembers];
@@ -82,7 +88,6 @@ export default function ParticipantForm({ actor }: Props) {
       }
       if (members.length < 2) return;
 
-      const isSetup = actor.getSnapshot().matches('setup');
       if (isSetup) {
         actor.send({ type: 'ADD_TEAM', name: trimmedName, members });
       } else {
