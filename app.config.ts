@@ -9,23 +9,31 @@ export default ({ config }: any) => {
   return {
     ...config,
     expo: {
-      name: "Finska Tracker",
+      name: "Woodchuck",
       slug: "finska",
-      version: "0.0.3",
+      version: "0.0.4",
       orientation: "portrait",
       userInterfaceStyle: "automatic",
+      newArchEnabled: true,
+      runtimeVersion: {
+        policy: "appVersion"
+      },
+      updates: {
+        url: "https://u.expo.dev/17b301fd-3c8d-46a2-a0cc-90f945dd0f62"
+      },
       android: {
-        versionCode: 2,
-        compileSdkVersion: 34,
-        targetSdkVersion: 34,
-        package: "com.moates.finska",
+        versionCode: 3,
+        package: "au.com.moates.woodchuck",
         adaptiveIcon: {
-          foregroundImage: "./assets/images/adaptive-icon.png",
-          backgroundColor: "#FFFFFF",
+          foregroundImage: "./assets/images/icon.png",
+          backgroundColor: "#ffedaaff",
         },
-        displayName: "Finska Tracker"
+        edgeToEdgeEnabled: true,
+        predictiveBackGestureEnabled: false,
+        displayName: "Woodchuck"
       },
       ios: {
+        supportsTablet: true,
         bundleIdentifier: "com.moates.finska"
       },
       extra: {
@@ -36,6 +44,16 @@ export default ({ config }: any) => {
       },
       owner: "moates",
       plugins: [
+        [
+          "expo-build-properties",
+          {
+            "android": {
+              "compileSdkVersion": 35,
+              "targetSdkVersion": 35,
+              "enable16KbPageAlignedSoFiles": true
+            }
+          }
+        ],
         "expo-asset",
         "expo-font",
         [

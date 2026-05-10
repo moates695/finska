@@ -1,13 +1,23 @@
 {
   "expo": {
-    "name": "Finska Tracker",
+    "name": "Woodchuck",
     "slug": "finska",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "enable16KbPageAlignedSoFiles": true
+          }
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -26,17 +36,15 @@
       "bundleIdentifier": "com.moates.finska"
     },
     "android": {
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffedaaff"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "Finska Tracker",
-      "compileSdkVersion": 34,
-      "targetSdkVersion": 34,
-      "displayName": "Finska Tracker"
+      "package": "au.com.moates.woodchuck",
+      "displayName": "Woodchuck"
     },
     "extra": {
       "eas": {

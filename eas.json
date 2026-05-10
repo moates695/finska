@@ -25,7 +25,7 @@
         "maxNameLength": "18"
       }
     },
-    "internal_bundle": {
+    "store": {
       "channel": "internal",
       "distribution": "store",
       "android": {

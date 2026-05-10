@@ -19,7 +19,7 @@ export default function IdleScreen({ actor }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Finska</Text>
+      <Text style={styles.title}>Woodchuck</Text>
 
       {hasSavedGame && (
         <TouchableOpacity
