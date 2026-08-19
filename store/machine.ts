@@ -23,8 +23,7 @@ import {
   winContinue,
   loseReset,
   updateRules,
-  countPins,
-  getCurrentPlayerScore,
+  getWinnerId,
 } from './game_logic';
 import { isGameValid } from './validation';
 
@@ -37,60 +36,12 @@ export const gameMachine = setup({
     hasEnoughParticipants: ({ context }) => isGameValid(context),
     hasSavedGame: ({ context }) => context.has_started && context.turn_order.length >= 2,
 
-    isWinningScore: ({ context, event }) => {
-      if (event.type !== 'SUBMIT_TURN') return false;
-      const score = countPins(context.rules, event.pins) + getCurrentPlayerScore(context);
-      return score === context.rules.target_score;
-    },
-
-    gameBecomesInvalid: ({ context }) => {
-      const result = missTurn(context);
-      return !isGameValid({ ...context, ...result.updates });
-    },
-
-    skipCausesGameOver: ({ context }) => {
-      if (!context.rules.skip_is_miss) return false;
-      const result = missTurn(context);
-      return !isGameValid({ ...context, ...result.updates });
-    },
-
-    editScoreWins: ({ context, event }) => {
-      if (event.type !== 'EDIT_SCORE') return false;
-      if (event.score !== context.rules.target_score) return false;
-      return context.state[event.id]?.standing === 'playing';
-    },
-
-    standingChangeInvalidates: ({ context, event }) => {
-      if (event.type !== 'CYCLE_STANDING') return false;
-      const result = cycleStanding(context, event.id);
-      return result.event === 'gameOver';
-    },
-
-    editMissesInvalidates: ({ context, event }) => {
-      if (event.type !== 'EDIT_MISSES') return false;
-      const result = editMisses(context, event.id, event.misses);
-      return result.event === 'gameOver';
-    },
-
-    removalInvalidates: ({ context, event }) => {
-      if (event.type !== 'REMOVE_PARTICIPANT' && event.type !== 'REMOVE_PARTICIPANT_MIDGAME')
-        return false;
-      const updates = removeParticipant(context, event.id);
-      const after = { ...context, ...updates };
-      return after.has_started && !isGameValid(after);
-    },
-
-    removeMemberInvalidates: ({ context, event }) => {
-      if (event.type !== 'REMOVE_MEMBER') return false;
-      const updates = removeMember(context, event.teamId, event.memberId);
-      const after = { ...context, ...updates };
-      return after.has_started && !isGameValid(after);
-    },
+    // Round-ending invariants. Every turn action and mid-game edit is checked
+    // against these rather than each event re-deriving the outcome for itself.
+    gameHasWinner: ({ context }) => getWinnerId(context) !== null,
+    gameIsUnplayable: ({ context }) => !isGameValid(context),
 
     returnToSetup: ({ context }) => context.return_to === 'setup',
-    returnToPlaying: ({ context }) => context.return_to === 'playing',
-    returnToPlayingInvalid: ({ context }) =>
-      context.return_to === 'playing' && context.has_started && !isGameValid(context),
   },
   actions: {
     resetGame: assign(() => ({
@@ -239,73 +190,25 @@ export const gameMachine = setup({
       initial: 'awaitingTurn',
       states: {
         awaitingTurn: {
+          // The round ends here and nowhere else. Whatever moved the context —
+          // a throw, a mid-game edit, a rules change on the way back from
+          // settings, a restored snapshot — is judged by the same two
+          // invariants, so no event can quietly leave the game unplayable.
+          always: [
+            { guard: 'gameHasWinner', target: 'won' },
+            { guard: 'gameIsUnplayable', target: 'gameOver' },
+          ],
           on: {
-            SUBMIT_TURN: [
-              {
-                guard: 'isWinningScore',
-                target: 'won',
-                actions: 'submitTurn',
-              },
-              { actions: 'submitTurn' },
-            ],
-            MISS_TURN: [
-              {
-                guard: 'gameBecomesInvalid',
-                target: 'gameOver',
-                actions: 'missTurn',
-              },
-              { actions: 'missTurn' },
-            ],
-            SKIP_TURN: [
-              {
-                guard: 'skipCausesGameOver',
-                target: 'gameOver',
-                actions: 'skipTurn',
-              },
-              { actions: 'skipTurn' },
-            ],
+            SUBMIT_TURN: { actions: 'submitTurn' },
+            MISS_TURN: { actions: 'missTurn' },
+            SKIP_TURN: { actions: 'skipTurn' },
             SWAP_MEMBER: { actions: 'swapMember' },
-            EDIT_SCORE: [
-              {
-                guard: 'editScoreWins',
-                target: 'won',
-                actions: 'editScore',
-              },
-              { actions: 'editScore' },
-            ],
-            EDIT_MISSES: [
-              {
-                guard: 'editMissesInvalidates',
-                target: 'gameOver',
-                actions: 'editMisses',
-              },
-              { actions: 'editMisses' },
-            ],
-            CYCLE_STANDING: [
-              {
-                guard: 'standingChangeInvalidates',
-                target: 'gameOver',
-                actions: 'cycleStanding',
-              },
-              { actions: 'cycleStanding' },
-            ],
+            EDIT_SCORE: { actions: 'editScore' },
+            EDIT_MISSES: { actions: 'editMisses' },
+            CYCLE_STANDING: { actions: 'cycleStanding' },
             ADD_PARTICIPANT: { actions: 'addParticipant' },
-            REMOVE_PARTICIPANT_MIDGAME: [
-              {
-                guard: 'removalInvalidates',
-                target: 'gameOver',
-                actions: 'removeParticipantAction',
-              },
-              { actions: 'removeParticipantAction' },
-            ],
-            REMOVE_MEMBER: [
-              {
-                guard: 'removeMemberInvalidates',
-                target: 'gameOver',
-                actions: 'removeMember',
-              },
-              { actions: 'removeMember' },
-            ],
+            REMOVE_PARTICIPANT_MIDGAME: { actions: 'removeParticipantAction' },
+            REMOVE_MEMBER: { actions: 'removeMember' },
             ADD_MEMBER: { actions: 'addMember' },
             RENAME: { actions: 'renameParticipant' },
             OPEN_SETTINGS: {
@@ -357,10 +260,11 @@ export const gameMachine = setup({
     settings: {
       on: {
         UPDATE_RULES: { actions: 'updateRules' },
+        // Returning to play re-enters awaitingTurn, whose invariants re-route to
+        // won/gameOver if the new rules produced either.
         GO_BACK: [
           { guard: 'returnToSetup', target: 'setup' },
-          { guard: 'returnToPlayingInvalid', target: 'playing.gameOver' },
-          { guard: 'returnToPlaying', target: 'playing.awaitingTurn' },
+          { target: 'playing.awaitingTurn' },
         ],
       },
     },

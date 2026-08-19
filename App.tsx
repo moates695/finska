@@ -4,7 +4,6 @@ import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Keyboard,
-  KeyboardAvoidingView,
   KeyboardEvent,
   Platform,
   StyleSheet,
@@ -86,12 +85,15 @@ export default function App() {
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
-  // Keyboard handling
+  // Keyboard handling — use `will` events on iOS so the spacer animates in
+  // sync with the keyboard; Android only emits the `did` variants.
   useEffect(() => {
-    const showSub = Keyboard.addListener('keyboardDidShow', (e: KeyboardEvent) =>
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (e: KeyboardEvent) =>
       setKeyboardHeight(e.endCoordinates.height + 10),
     );
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
     return () => {
       showSub.remove();
       hideSub.remove();
@@ -182,12 +184,7 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={[]}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={300}
-            style={{ flex: 1, width: '100%' }}
-            contentContainerStyle={styles.container}
-          >
+          <View style={{ flex: 1, width: '100%' }}>
             <StatusBar
               style={theme.type === 'dark' ? 'light' : 'dark'}
               backgroundColor="transparent"
@@ -195,7 +192,7 @@ export default function App() {
             />
             <ScreenRouter actor={actorRef.current} />
             <View style={{ height: keyboardHeight }} />
-          </KeyboardAvoidingView>
+          </View>
         </TouchableWithoutFeedback>
       </SafeAreaView>
     </SafeAreaProvider>

@@ -362,3 +362,114 @@ describe('mid-game edits', () => {
     expect(actor.getSnapshot().context.players[charlieId]).toBeUndefined();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Round-ending invariants (regression tests for the reviewed bugs)
+// ---------------------------------------------------------------------------
+
+describe('round-ending invariants', () => {
+  function createFourPlayerActor() {
+    const actor = createSetupActor();
+    ['Alice', 'Bob', 'Cara', 'Dan'].forEach(name =>
+      actor.send({ type: 'ADD_PLAYER', name }),
+    );
+    actor.send({ type: 'START_GAME', shuffle: false });
+    return actor;
+  }
+
+  test('a rules change never leaves an eliminated participant mid-throw', () => {
+    const actor = createFourPlayerActor();
+    const ids = [...actor.getSnapshot().context.turn_order];
+
+    // Walk Alice up to 2 misses.
+    actor.send({ type: 'MISS_TURN' });
+    [1, 2, 3].forEach(() => actor.send({ type: 'SKIP_TURN' }));
+    actor.send({ type: 'MISS_TURN' });
+    [1, 2, 3].forEach(() => actor.send({ type: 'SKIP_TURN' }));
+    expect(actor.getSnapshot().context.turn_order[0]).toBe(ids[0]);
+
+    actor.send({ type: 'OPEN_SETTINGS' });
+    actor.send({ type: 'UPDATE_RULES', rules: { elimination_count: 2 } });
+    actor.send({ type: 'GO_BACK' });
+
+    const snap = actor.getSnapshot();
+    expect(snap.matches({ playing: 'awaitingTurn' })).toBe(true);
+    expect(snap.context.state[ids[0]].standing).toBe('eliminated');
+    expect(snap.context.state[snap.context.turn_order[0]].standing).toBe('playing');
+  });
+
+  test('RESET from gameOver returns to a playable game', () => {
+    const actor = createSetupActor();
+    ['Alice', 'Bob', 'Cara'].forEach(name => actor.send({ type: 'ADD_PLAYER', name }));
+    actor.send({ type: 'START_GAME', shuffle: false });
+    const ids = [...actor.getSnapshot().context.turn_order];
+
+    actor.send({ type: 'CYCLE_STANDING', id: ids[1] });
+    actor.send({ type: 'CYCLE_STANDING', id: ids[2] });
+    expect(actor.getSnapshot().matches({ playing: 'gameOver' })).toBe(true);
+
+    actor.send({ type: 'RESET' });
+    const snap = actor.getSnapshot();
+    expect(snap.matches({ playing: 'awaitingTurn' })).toBe(true);
+    ids.forEach(id => expect(snap.context.state[id].standing).toBe('playing'));
+    expect(snap.context.state[snap.context.turn_order[0]].standing).toBe('playing');
+  });
+
+  test('a rules change that produces a winner routes to won', () => {
+    const actor = createPlayingActor();
+    const ids = [...actor.getSnapshot().context.turn_order];
+    actor.send({ type: 'EDIT_SCORE', id: ids[0], score: 30 });
+
+    actor.send({ type: 'OPEN_SETTINGS' });
+    actor.send({ type: 'UPDATE_RULES', rules: { target_score: 30, reset_score: 15 } });
+    actor.send({ type: 'GO_BACK' });
+
+    const snap = actor.getSnapshot();
+    expect(snap.matches({ playing: 'won' })).toBe(true);
+    expect(snap.context.state[ids[0]].score).toBe(30);
+  });
+
+  test('a rules change that empties the board routes to gameOver', () => {
+    const actor = createSetupActor();
+    ['Alice', 'Bob', 'Cara'].forEach(name => actor.send({ type: 'ADD_PLAYER', name }));
+    actor.send({ type: 'START_GAME', shuffle: false });
+    const ids = [...actor.getSnapshot().context.turn_order];
+    ids.forEach(id => actor.send({ type: 'EDIT_MISSES', id, misses: 2 }));
+
+    actor.send({ type: 'OPEN_SETTINGS' });
+    actor.send({ type: 'UPDATE_RULES', rules: { elimination_count: 2 } });
+    actor.send({ type: 'GO_BACK' });
+
+    expect(actor.getSnapshot().matches({ playing: 'gameOver' })).toBe(true);
+  });
+
+  test('UPDATE_RULES ignores a rule set the settings screen would reject', () => {
+    const actor = createPlayingActor();
+    actor.send({ type: 'OPEN_SETTINGS' });
+    actor.send({ type: 'UPDATE_RULES', rules: { elimination_count: 0 } });
+    expect(actor.getSnapshot().context.rules.elimination_count).toBe(3);
+  });
+
+  test('restoring an unplayable saved game lands in gameOver', () => {
+    const actor = createPlayingActor();
+    const ids = [...actor.getSnapshot().context.turn_order];
+    const broken = createTestActor({
+      ...actor.getSnapshot().context,
+      state: {
+        ...actor.getSnapshot().context.state,
+        [ids[1]]: { score: 0, misses: 3, standing: 'eliminated', eliminated_turns: 0 },
+      },
+      has_started: true,
+    });
+
+    broken.send({ type: 'CONTINUE_GAME' });
+    expect(broken.getSnapshot().matches({ playing: 'gameOver' })).toBe(true);
+  });
+
+  test('a win from a mid-game score edit routes to won', () => {
+    const actor = createPlayingActor();
+    const ids = [...actor.getSnapshot().context.turn_order];
+    actor.send({ type: 'EDIT_SCORE', id: ids[1], score: 50 });
+    expect(actor.getSnapshot().matches({ playing: 'won' })).toBe(true);
+  });
+});

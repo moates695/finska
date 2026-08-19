@@ -2,22 +2,42 @@
   "expo": {
     "name": "Woodchuck",
     "slug": "finska",
-    "version": "0.0.4",
+    "owner": "moates",
+    "version": "0.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "au.com.moates.woodchuck",
+      "icon": "./assets/images/icon.png",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "au.com.moates.woodchuck",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#ffedaa"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
     "plugins": [
       [
         "expo-build-properties",
         {
           "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
             "enable16KbPageAlignedSoFiles": true
           }
         }
       ],
+      "expo-asset",
+      "expo-font",
       [
         "expo-splash-screen",
         {
@@ -25,27 +45,12 @@
           "image": "./assets/images/splash-icon.png",
           "dark": {
             "image": "./assets/images/splash-icon.png",
-            "backgroundColor": "#181818ff"
+            "backgroundColor": "#181818"
           },
           "imageWidth": 200
         }
       ]
     ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.moates.finska"
-    },
-    "android": {
-      "versionCode": 3,
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#ffedaaff"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "au.com.moates.woodchuck",
-      "displayName": "Woodchuck"
-    },
     "extra": {
       "eas": {
         "projectId": "17b301fd-3c8d-46a2-a0cc-90f945dd0f62"

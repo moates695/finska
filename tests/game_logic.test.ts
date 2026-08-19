@@ -19,7 +19,11 @@ import {
   getMaxScore,
   getRemainingScore,
   resetGame,
+  editMisses,
+  getWinnerId,
+  getOutcome,
 } from '../store/game_logic';
+import { isGameValid } from '../store/validation';
 import {
   GameContext,
   GameRules,
@@ -548,13 +552,26 @@ describe('loseReset', () => {
     expect(updates.state![ids[1]].score).toBe(0);
   });
 
-  test('preserves paused standing', () => {
+  test('brings paused participants back so the reset board is playable', () => {
     let ctx = ctxWithPlayers(['A', 'B', 'C']);
     const ids = getPlayerIds(ctx);
+    ctx.state[ids[1]] = { ...ctx.state[ids[1]], standing: 'paused' };
     ctx.state[ids[2]] = { ...ctx.state[ids[2]], standing: 'paused' };
+    expect(isGameValid(ctx)).toBe(false);
 
     const updates = loseReset(ctx);
-    expect(updates.state![ids[2]].standing).toBe('paused');
+    expect(updates.state![ids[1]].standing).toBe('playing');
+    expect(updates.state![ids[2]].standing).toBe('playing');
+    expect(isGameValid({ ...ctx, ...updates })).toBe(true);
+  });
+
+  test('leaves a playing participant at the front of the turn order', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const ids = getPlayerIds(ctx);
+    ctx.state[ids[0]] = { ...ctx.state[ids[0]], standing: 'eliminated', misses: 3 };
+
+    const updates = loseReset(ctx);
+    expect(updates.state![updates.turn_order![0]].standing).toBe('playing');
   });
 });
 
@@ -619,5 +636,131 @@ describe('updateRules', () => {
 
     const updates = updateRules(ctx, { elimination_count: 5 });
     expect(updates.state![id].standing).toBe('playing');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Regression tests for the reviewed game-logic bugs
+// ---------------------------------------------------------------------------
+
+describe('turn order stays on a playing participant', () => {
+  test('updateRules rotates past a thrower the new rules just eliminated', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C', 'D']);
+    const ids = getPlayerIds(ctx);
+    ctx.state[ids[0]] = { ...ctx.state[ids[0]], misses: 2 };
+
+    const updates = updateRules(ctx, { elimination_count: 2 });
+    const after = { ...ctx, ...updates } as GameContext;
+
+    expect(after.state[ids[0]].standing).toBe('eliminated');
+    expect(after.turn_order[0]).not.toBe(ids[0]);
+    expect(after.state[after.turn_order[0]].standing).toBe('playing');
+  });
+
+  test('advanceTurn refuses to hand the turn to a non-playing participant', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const ids = getPlayerIds(ctx);
+    ctx.state[ids[1]] = { ...ctx.state[ids[1]], standing: 'paused' };
+    ctx.state[ids[2]] = { ...ctx.state[ids[2]], standing: 'paused' };
+
+    expect(advanceTurn(ctx)).toEqual({});
+  });
+});
+
+describe('updateRules validation', () => {
+  test('rejects a rule set validateRules rejects', () => {
+    const ctx = ctxWithTwoPlayers();
+    expect(updateRules(ctx, { elimination_count: 0 })).toEqual({});
+    expect(updateRules(ctx, { target_score: 0 })).toEqual({});
+    expect(updateRules(ctx, { elimination_reset_turns: 0 })).toEqual({});
+  });
+
+  test('still accepts a valid rule set', () => {
+    const ctx = ctxWithTwoPlayers();
+    expect(updateRules(ctx, { elimination_count: 4 }).rules!.elimination_count).toBe(4);
+  });
+});
+
+describe('eliminated re-entry semantics', () => {
+  test('a retroactive correction keeps the score they had', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const ids = getPlayerIds(ctx);
+    ctx.state[ids[0]] = { score: 40, misses: 3, standing: 'eliminated', eliminated_turns: 0 };
+
+    // Raising the count means they were never validly eliminated.
+    const updates = updateRules(ctx, { elimination_count: 5 });
+    expect(updates.state![ids[0]].standing).toBe('playing');
+    expect(updates.state![ids[0]].score).toBe(40);
+    expect(updates.state![ids[0]].misses).toBe(3);
+  });
+
+  test('a served-out re-entry comes back on the re-entry score', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const ids = getPlayerIds(ctx);
+    ctx.rules = { ...ctx.rules, elimination_reset_score: 10 };
+    ctx.state[ids[0]] = { score: 40, misses: 3, standing: 'eliminated', eliminated_turns: 4 };
+
+    const updates = updateRules(ctx, { elimination_reset_turns: 3 });
+    expect(updates.state![ids[0]].standing).toBe('playing');
+    expect(updates.state![ids[0]].score).toBe(10);
+    expect(updates.state![ids[0]].misses).toBe(0);
+  });
+
+  test('cycling into eliminated restarts the re-entry count', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const ids = getPlayerIds(ctx);
+    ctx.state[ids[0]] = { score: 10, misses: 0, standing: 'paused', eliminated_turns: 7 };
+
+    const result = cycleStanding(ctx, ids[0]);
+    expect(result.updates.state![ids[0]].standing).toBe('eliminated');
+    expect(result.updates.state![ids[0]].eliminated_turns).toBe(0);
+  });
+});
+
+describe('winning on the target score', () => {
+  test('lowering the target onto an existing score wins rather than busts', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const ids = getPlayerIds(ctx);
+    ctx.state[ids[0]] = { ...ctx.state[ids[0]], score: 30 };
+
+    const updates = updateRules(ctx, { target_score: 30 });
+    const after = { ...ctx, ...updates } as GameContext;
+    expect(after.state[ids[0]].score).toBe(30);
+    expect(getWinnerId(after)).toBe(ids[0]);
+  });
+
+  test('a score parked on the target only wins once the player is playing', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const ids = getPlayerIds(ctx);
+    ctx.state[ids[0]] = { ...ctx.state[ids[0]], standing: 'eliminated', misses: 3 };
+
+    const parked = editScore(ctx, ids[0], 50);
+    expect(parked.event).toBeNull();
+
+    const restored = cycleStanding({ ...ctx, ...parked.updates } as GameContext, ids[0]);
+    expect(restored.event).toBe('win');
+  });
+
+  test('getOutcome ranks a win above an unplayable board', () => {
+    let ctx = ctxWithPlayers(['A', 'B', 'C']);
+    const ids = getPlayerIds(ctx);
+    ctx.state[ids[0]] = { ...ctx.state[ids[0]], score: 50 };
+    ctx.state[ids[1]] = { ...ctx.state[ids[1]], standing: 'paused' };
+    ctx.state[ids[2]] = { ...ctx.state[ids[2]], standing: 'paused' };
+
+    expect(isGameValid(ctx)).toBe(false);
+    expect(getOutcome(ctx)).toBe('win');
+  });
+});
+
+describe('non-numeric edits are rejected', () => {
+  test('editScore ignores NaN', () => {
+    const ctx = ctxWithTwoPlayers();
+    expect(editScore(ctx, getPlayerIds(ctx)[0], NaN).updates).toEqual({});
+  });
+
+  test('editMisses ignores NaN', () => {
+    const ctx = ctxWithTwoPlayers();
+    expect(editMisses(ctx, getPlayerIds(ctx)[0], NaN).updates).toEqual({});
   });
 });

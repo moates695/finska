@@ -29,6 +29,8 @@ The game is modelled as a single XState machine (`store/machine.ts`). The machin
 
 Machine state determines which screen renders in `App.tsx` — no navigation library or screen atom.
 
+**Round-ending invariants.** `awaitingTurn` carries two `always` transitions — `gameHasWinner` → `won` and `gameIsUnplayable` → `gameOver` — and they are the *only* place a round ends. Individual events (`SUBMIT_TURN`, `EDIT_SCORE`, `CYCLE_STANDING`, …) just run their action; the invariants re-evaluate afterwards. Don't add per-event win/game-over guards: they duplicate this logic and drift from it. `getWinnerId`/`getOutcome` in `game_logic.ts` back both the guards and the `event` field the pure functions return, so the two layers cannot disagree.
+
 ### Pure Game Logic (`store/game_logic.ts`)
 
 All game state transformations are pure functions (e.g. `submitTurn`, `missTurn`, `addPlayer`, `editScore`, `cycleStanding`). These return partial context updates consumed by XState `assign` actions. Fully testable without XState or React.
@@ -63,6 +65,8 @@ Jotai atoms separate from the game machine:
 - 3 consecutive misses → elimination (all configurable)
 - Successful hit resets miss count
 - Winner resets to `elimination_reset_score` on continue (not `reset_score`)
+- Eliminated participants re-enter one of two ways: a **genuine re-entry** (they served `elimination_reset_turns`) comes back on `elimination_reset_score` with misses cleared; a **retroactive correction** (a rules change or manual edit means they were never validly eliminated) keeps the score and misses they had
+- Any mid-game mutation that can change a standing must rotate `turn_order` (`rotateToCurrentPlaying`) so a paused/eliminated participant never sits at index 0
 - Participants can be individual players or teams with rotating member throws
 
 ## Component Structure
@@ -92,4 +96,4 @@ Jest with `jest-expo` preset. Test files in `tests/`:
 - `validation.test.ts` — validation function tests
 - `machine.test.ts` — XState state transition tests
 
-Mocks for AsyncStorage and expo-crypto in `jest.setup.js`. Use object syntax for nested state matching: `matches({ playing: 'won' })` not `matches('playing.won')`.
+Mocks for AsyncStorage in `jest.setup.js`. Use object syntax for nested state matching: `matches({ playing: 'won' })` not `matches('playing.won')`.

@@ -7,7 +7,7 @@ import {
   initialParticipantState,
   initialRules,
 } from './types';
-import { isNameTaken, isGameValid } from './validation';
+import { isNameTaken, isGameValid, validateRules } from './validation';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -89,6 +89,31 @@ export function getParticipantName(ctx: GameContext, id: string): string {
   if (id in ctx.players) return ctx.players[id];
   if (id in ctx.teams) return ctx.teams[id].name;
   return '';
+}
+
+/**
+ * The first playing participant sitting on exactly the target score, if any.
+ * Walks turn_order so the result is deterministic.
+ */
+export function getWinnerId(ctx: GameContext): string | null {
+  for (const id of ctx.turn_order) {
+    const pState = ctx.state[id];
+    if (pState?.standing === 'playing' && pState.score === ctx.rules.target_score) {
+      return id;
+    }
+  }
+  return null;
+}
+
+/**
+ * How the round stands after a context change. Every turn action and mid-game
+ * edit derives its outcome from here, and the machine's `always` invariants use
+ * the same two predicates — so the pure layer and the machine cannot disagree.
+ * A win outranks an unplayable board.
+ */
+export function getOutcome(ctx: GameContext): 'win' | 'gameOver' | null {
+  if (getWinnerId(ctx) !== null) return 'win';
+  return isGameValid(ctx) ? null : 'gameOver';
 }
 
 /** Get the current team member name (or null if player). */
@@ -191,9 +216,8 @@ export function addMember(
 
   const trimmed = memberName.trim();
   if (!trimmed) return {};
+  // isNameTaken already covers this team's own name and its existing members.
   if (isNameTaken(ctx, trimmed)) return {};
-  if (trimmed.toLowerCase() === team.name.trim().toLowerCase()) return {};
-  if (Object.values(team.members).some(m => m.toLowerCase() === trimmed.toLowerCase())) return {};
 
   const memberId = generateId();
   return {
@@ -233,7 +257,7 @@ export function removeMember(
     },
     member_order: {
       ...ctx.member_order,
-      [teamId]: ctx.member_order[teamId].filter(id => id !== memberId),
+      [teamId]: (ctx.member_order[teamId] ?? []).filter(id => id !== memberId),
     },
   };
 }
@@ -322,7 +346,7 @@ export function advanceTurn(ctx: GameContext): Partial<GameContext> {
   const newState = { ...ctx.state };
 
   // Find the next 'playing' participant starting from index 1
-  let nextIndex = 1;
+  let nextIndex = -1;
   for (let i = 1; i < turnOrder.length; i++) {
     const id = turnOrder[i];
     const pState = newState[id];
@@ -352,6 +376,11 @@ export function advanceTurn(ctx: GameContext): Partial<GameContext> {
     }
     // 'paused' participants are skipped silently
   }
+
+  // Nobody left to take a turn. Leave the order untouched rather than handing
+  // the turn to a paused/eliminated participant — the caller's game-over
+  // handling takes it from here.
+  if (nextIndex === -1) return {};
 
   // Rotate turn_order so nextIndex becomes position 0
   const newTurnOrder = [
@@ -390,11 +419,10 @@ export function submitTurn(ctx: GameContext, pins: Set<number>): TurnResult {
   const id = getCurrentPlayerId(ctx);
   const score = countPins(ctx.rules, pins);
   let newScore = ctx.state[id].score + score;
-  let event: 'win' | 'gameOver' | null = null;
 
-  if (newScore === ctx.rules.target_score) {
-    event = 'win';
-  } else if (newScore > ctx.rules.target_score) {
+  // Landing exactly on the target is a win; overshooting busts back to
+  // reset_score. getOutcome below picks the win up from the resulting state.
+  if (newScore > ctx.rules.target_score) {
     newScore = ctx.rules.reset_score;
   }
 
@@ -410,14 +438,13 @@ export function submitTurn(ctx: GameContext, pins: Set<number>): TurnResult {
   const ctxWithScore = { ...ctx, state: newState };
   const advanceUpdates = advanceTurn(ctxWithScore);
 
-  return {
-    updates: {
-      state: { ...(advanceUpdates.state ?? newState) },
-      turn_order: advanceUpdates.turn_order ?? ctx.turn_order,
-      member_order: advanceUpdates.member_order ?? ctx.member_order,
-    },
-    event,
+  const updates = {
+    state: { ...(advanceUpdates.state ?? newState) },
+    turn_order: advanceUpdates.turn_order ?? ctx.turn_order,
+    member_order: advanceUpdates.member_order ?? ctx.member_order,
   };
+
+  return { updates, event: getOutcome({ ...ctx, ...updates }) };
 }
 
 export function missTurn(ctx: GameContext): TurnResult {
@@ -443,18 +470,13 @@ export function missTurn(ctx: GameContext): TurnResult {
   const advanceUpdates = advanceTurn(ctxAfterMiss);
   const finalState = advanceUpdates.state ?? newState;
 
-  const event: 'win' | 'gameOver' | null = isGameValid({ ...ctx, state: finalState })
-    ? null
-    : 'gameOver';
-
-  return {
-    updates: {
-      state: finalState,
-      turn_order: advanceUpdates.turn_order ?? ctx.turn_order,
-      member_order: advanceUpdates.member_order ?? ctx.member_order,
-    },
-    event,
+  const updates = {
+    state: finalState,
+    turn_order: advanceUpdates.turn_order ?? ctx.turn_order,
+    member_order: advanceUpdates.member_order ?? ctx.member_order,
   };
+
+  return { updates, event: getOutcome({ ...ctx, ...updates }) };
 }
 
 export function skipTurn(ctx: GameContext): TurnResult {
@@ -464,14 +486,13 @@ export function skipTurn(ctx: GameContext): TurnResult {
 
   const advanceUpdates = advanceTurn(ctx);
 
-  return {
-    updates: {
-      state: advanceUpdates.state ?? ctx.state,
-      turn_order: advanceUpdates.turn_order ?? ctx.turn_order,
-      member_order: advanceUpdates.member_order ?? ctx.member_order,
-    },
-    event: null,
+  const updates = {
+    state: advanceUpdates.state ?? ctx.state,
+    turn_order: advanceUpdates.turn_order ?? ctx.turn_order,
+    member_order: advanceUpdates.member_order ?? ctx.member_order,
   };
+
+  return { updates, event: getOutcome({ ...ctx, ...updates }) };
 }
 
 // ---------------------------------------------------------------------------
@@ -487,30 +508,30 @@ export function editScore(ctx: GameContext, id: string, newScore: number): EditR
   if (!(id in ctx.state)) return { updates: {}, event: null };
 
   let score = newScore;
-  let event: 'win' | 'gameOver' | null = null;
-  const isPlaying = ctx.state[id].standing === 'playing';
+  if (!Number.isFinite(score)) return { updates: {}, event: null };
 
-  if (score === ctx.rules.target_score) {
-    if (isPlaying) event = 'win';
-  } else if (score > ctx.rules.target_score) {
+  if (score > ctx.rules.target_score) {
     score = ctx.rules.reset_score;
   } else if (score < 0) {
     score = 0;
   }
 
-  return {
-    updates: {
-      state: {
-        ...ctx.state,
-        [id]: { ...ctx.state[id], score },
-      },
+  const updates = {
+    state: {
+      ...ctx.state,
+      [id]: { ...ctx.state[id], score },
     },
-    event,
   };
+
+  // Only a *playing* participant on the target counts as a win, which getOutcome
+  // enforces. One parked there while eliminated wins the moment they're restored.
+  return { updates, event: getOutcome({ ...ctx, ...updates }) };
 }
 
 export function editMisses(ctx: GameContext, id: string, newMisses: number): EditResult {
   if (!(id in ctx.state)) return { updates: {}, event: null };
+
+  if (!Number.isFinite(newMisses)) return { updates: {}, event: null };
 
   const elimCount = ctx.rules.elimination_count;
   const misses = Math.max(0, Math.min(newMisses, elimCount));
@@ -530,13 +551,12 @@ export function editMisses(ctx: GameContext, id: string, newMisses: number): Edi
     ...ctx.state,
     [id]: { ...current, misses, standing, eliminated_turns },
   };
-  const newTurnOrder = rotateToCurrentPlaying(ctx.turn_order, newState);
+  const updates = {
+    state: newState,
+    turn_order: rotateToCurrentPlaying(ctx.turn_order, newState),
+  };
 
-  const event: 'win' | 'gameOver' | null = isGameValid({ ...ctx, state: newState })
-    ? null
-    : 'gameOver';
-
-  return { updates: { state: newState, turn_order: newTurnOrder }, event };
+  return { updates, event: getOutcome({ ...ctx, ...updates }) };
 }
 
 export function cycleStanding(ctx: GameContext, id: string): EditResult {
@@ -553,20 +573,18 @@ export function cycleStanding(ctx: GameContext, id: string): EditResult {
   const newParticipantState: ParticipantState = {
     ...ctx.state[id],
     standing: next,
-    eliminated_turns: next === 'playing' ? 0 : ctx.state[id].eliminated_turns,
+    // Restored or newly eliminated, the re-entry count starts fresh either way.
+    eliminated_turns: next === 'paused' ? ctx.state[id].eliminated_turns : 0,
     misses: next === 'playing' ? 0 : ctx.state[id].misses,
   };
 
   const newState = { ...ctx.state, [id]: newParticipantState };
-  const newTurnOrder = rotateToCurrentPlaying(ctx.turn_order, newState);
-  const event: 'win' | 'gameOver' | null = isGameValid({ ...ctx, state: newState })
-    ? null
-    : 'gameOver';
-
-  return {
-    updates: { state: newState, turn_order: newTurnOrder },
-    event,
+  const updates = {
+    state: newState,
+    turn_order: rotateToCurrentPlaying(ctx.turn_order, newState),
   };
+
+  return { updates, event: getOutcome({ ...ctx, ...updates }) };
 }
 
 export function swapTeamMember(
@@ -616,17 +634,23 @@ export function winContinue(ctx: GameContext): Partial<GameContext> {
 export function loseReset(ctx: GameContext): Partial<GameContext> {
   const newState = { ...ctx.state };
 
+  // Everyone comes back, including anyone sitting out. Preserving 'paused' here
+  // used to leave the board exactly as unplayable as it was, so RESET returned
+  // straight to a game that could not be played.
   for (const [id, pState] of Object.entries(newState)) {
     newState[id] = {
       ...pState,
       score: 0,
       misses: 0,
       eliminated_turns: 0,
-      standing: pState.standing === 'paused' ? 'paused' : 'playing',
+      standing: 'playing',
     };
   }
 
-  return { state: newState };
+  return {
+    state: newState,
+    turn_order: rotateToCurrentPlaying(ctx.turn_order, newState),
+  };
 }
 
 export function resetGame(): Partial<GameContext> {
@@ -641,19 +665,20 @@ export function updateRules(
   ctx: GameContext,
   newRules: Partial<GameRules>,
 ): Partial<GameContext> {
-  const mergedRules: GameRules = { ...ctx.rules, ...newRules };
+  // Defer to the same validator the settings screen uses, so the machine can
+  // never accept a rule set the UI would have rejected.
+  if (validateRules(newRules, ctx.rules) !== null) return {};
 
-  // Validate rules
-  if (mergedRules.reset_score >= mergedRules.target_score) return {};
-  if (mergedRules.elimination_reset_score >= mergedRules.target_score) return {};
+  const mergedRules: GameRules = { ...ctx.rules, ...newRules };
 
   // Recalculate participant states based on new rules
   const newState = { ...ctx.state };
   for (const [id, pState] of Object.entries(newState)) {
     const updated = { ...pState };
 
-    // Score exceeds new target → reset
-    if (updated.score >= mergedRules.target_score) {
+    // Busted past the new target → reset. Landing exactly on it is a win, which
+    // the machine picks up when it re-enters `playing`.
+    if (updated.score > mergedRules.target_score) {
       updated.score = mergedRules.reset_score;
     }
 
@@ -669,14 +694,14 @@ export function updateRules(
         updated.eliminated_turns = 0;
       }
     } else if (updated.standing === 'eliminated') {
-      // Eliminated but misses no longer exceed new count → restore
+      // Retroactive correction: under the new count they were never eliminated
+      // in the first place, so their score and misses stand as recorded.
       if (updated.misses < mergedRules.elimination_count) {
         updated.standing = 'playing';
-        updated.score = mergedRules.elimination_reset_score;
         updated.eliminated_turns = 0;
-        updated.misses = 0;
       }
-      // Eliminated and reset turns has been reached → restore
+      // Genuine re-entry: they have served the turns, so they come back on the
+      // re-entry score exactly as they would have mid-turn.
       else if (
         mergedRules.elimination_reset_turns !== null &&
         updated.eliminated_turns >= mergedRules.elimination_reset_turns
@@ -694,5 +719,8 @@ export function updateRules(
   return {
     rules: mergedRules,
     state: newState,
+    // A rule change can eliminate whoever is mid-throw; without this they stay
+    // sat at index 0 as the current thrower.
+    turn_order: rotateToCurrentPlaying(ctx.turn_order, newState),
   };
 }

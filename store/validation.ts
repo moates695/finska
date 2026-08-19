@@ -104,6 +104,9 @@ export function validateRules(
   const merged = { ...currentRules, ...rules };
   const errors: Record<string, string> = {};
 
+  if (merged.target_score <= 0) {
+    errors.target_score = 'Must be greater than 0';
+  }
   if (merged.reset_score >= merged.target_score) {
     errors.reset_score = 'Must be less than target score';
   }
